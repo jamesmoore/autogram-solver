@@ -2,13 +2,14 @@
 {
     public class Autogram
     {
-        private const int AlphabetSize = 26;
-
-        Random random = new();
+        private const int AlphabetSize = 21;
+        private readonly static IEnumerable<char> FullAlphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+        private readonly Random random = new();
 
         private int[] currentGuess = new int[AlphabetSize];
+        private int[] acutalCounts = new int[AlphabetSize];
 
-        private readonly HashSet<string> history = [];
+        private readonly HashSet<int[]> history = new(new IntArrayComparer());
 
         public Autogram()
         {
@@ -17,14 +18,12 @@
 
         private int[] Randomize()
         {
-            var acutalCounts = GetActualCounts();
-
             return Enumerable.Range(0, AlphabetSize).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
         }
 
         private int NextGuess(int acutalCount)
         {
-            var nextGuess = acutalCount + random.Next(6) - 3;
+            var nextGuess = acutalCount + random.Next(10) - 5;
             if (nextGuess < 0) nextGuess = 0;
             return nextGuess;
         }
@@ -37,52 +36,51 @@
             }
 
             currentGuess = newGuess;
-            history.Add(newGuess.ToCSV());
+            acutalCounts = GetActualCounts();
+            history.Add(newGuess);
         }
 
         public override string ToString()
         {
-            var numberItems = currentGuess.Select((p, i) => p.ToCardinalNumberString() + " " + (char)('a' + i) + (p == 1 ? "" : "'s")).ToList();
-            return "This sentence employs " + numberItems.ListifyWithConjunction();
+            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberString() + " " + (char)('a' + index) + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            return "This sentence employs " + numberItems.Listify() + ", and one z.";
         }
 
         public int[] GetActualCounts()
         {
             var formatted = this.ToString().ToLower();
-            var currentCountsGrouped = formatted.GroupBy(p => p).Where(p => p.Key >= 'a' && p.Key <= 'z').OrderBy(p => p.Key).Take(AlphabetSize);
-            var currentCounts = currentCountsGrouped.Select(p => p.Count()).ToArray();
+            var currentCountsGrouped = formatted.Where(p => FullAlphabet.Contains(p)).GroupBy(p => p).ToLookup(p => p.Key);
+            var currentCounts = FullAlphabet.Select(p => currentCountsGrouped[p]?.FirstOrDefault()?.Count() ?? 0).ToArray();
             return currentCounts;
         }
 
-        public int[] GetGuessError()
-        {
-            var diff = GetActualCounts().Select((p, i) => currentGuess[i] - p).ToArray();
-            return diff;
-        }
-
-        public bool Evaluate()
-        {
-            return Enumerable.SequenceEqual(GetActualCounts(), currentGuess);
-        }
-
-        public void Iterate()
+        public Status Iterate()
         {
             var nextGuess = GuessAgain();
-
-            if (history.Contains(nextGuess.ToCSV()))
+            var randomReset = false;
+            if (history.Contains(nextGuess))
             {
                 SetGuess(Randomize());
+                randomReset = true;
             }
             else
             {
                 SetGuess(nextGuess);
             }
+
+            return new Status()
+            {
+                Success = Enumerable.SequenceEqual(acutalCounts, currentGuess),
+                HistoryCount = history.Count,
+                RandomReset = randomReset,
+                GuessError = acutalCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
+            };
         }
 
         private int[] GuessAgain()
         {
-            var currentCounts = GetActualCounts();
-            var guess = currentCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
+            var guess = acutalCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
+            //guess[4] = 28;
             return guess;
         }
 
@@ -92,14 +90,24 @@
             {
                 return actualCount;
             }
-            else if ((actualCount + currentGuess) % 2 == 0 || (actualCount + currentGuess) % 3 == 0)
+            else if ((actualCount + currentGuess) % 2 == 0)
             {
                 return (actualCount + currentGuess) / 2;
             }
             else
             {
-                return (actualCount + currentGuess + 1) / 2;
+                var v = actualCount + currentGuess;
+                var increment = (v - 1) % 2 == 0 ? 1 : 0;
+                return (v + 1) / 2;
             }
+        }
+
+        public class Status
+        {
+            public bool Success { get; set; }
+            public int HistoryCount { get; set; }
+            public bool RandomReset { get; set; }
+            public int[] GuessError { get; set; }
         }
 
         //private int RandomOffset(int previousGuess, int actual)

@@ -23,6 +23,20 @@ namespace AutogramTest
             }
         }
 
+        [Fact]
+        public void ListVariableCharacters()
+        {
+            var list = Enumerable.Range(1, 35).Select(p => p.ToCardinalNumberString()).ToList();
+            var characters = list.SelectMany(p => p).ToList();
+
+            var uniqueCharacters = characters.GroupBy(p => p).OrderBy(p => p.Key);
+
+            foreach(var item in uniqueCharacters)
+            {
+                _testOutputHelper.WriteLine(item.Key + "\t" + item.Count());
+            }
+        }
+
         [Theory]
         [InlineData(0, "")]
         [InlineData(1, "a")]

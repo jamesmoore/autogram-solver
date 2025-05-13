@@ -1,41 +1,56 @@
 ﻿// See https://aka.ms/new-console-template for more information
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 var autogram = new Autogram.Autogram();
 
-Console.WriteLine(autogram.ToString());
+Console.WriteLine("Starting: " + autogram.ToString());
 
 int i = 0;
 
-while (autogram.Evaluate() == false)
+while (true)
 {
-    var diffs = autogram.GetGuessError();
+    i++;
+    var status = autogram.Iterate();
 
-    foreach (var y in diffs)
+    if (i % 10000 == 0)
     {
-        if (y == 0)
+        var diffs = status.GuessError;
+
+        foreach (var y in diffs)
         {
-            Console.Write("-");
+            if (y == 0)
+            {
+                Console.Write("-");
+            }
+            else if (y < 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write(Math.Abs(y));
+                Console.ResetColor();
+            }
+            else if (y > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write(Math.Abs(y));
+                Console.ResetColor();
+            }
         }
-        else if (y < 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(Math.Abs(y));
-            Console.ResetColor();
-        }
-        else if (y > 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(Math.Abs(y));
-            Console.ResetColor();
-        }
+
+        Console.ResetColor();
+
+        Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + diffs.Sum(Math.Abs) + (status.RandomReset ? "\tRandomized 🎲" : ""));
+
+        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + autogram.ToString());
     }
 
-    Console.ResetColor();
-
-    Console.WriteLine("\t" + diffs.Count(p => p != 0) + "\t" + diffs.Sum(p => Math.Abs(p)));
-
-    autogram.Iterate();
-
-    Console.WriteLine((i++) + "\t" + autogram.ToString());
-
-    // Console.ReadKey();
+    if (status.Success)
+    {
+        break;
+    }
 }
+
+Console.ForegroundColor = ConsoleColor.Yellow;
+Console.WriteLine("Finished: " + autogram.ToString());
+Console.ResetColor();
+
+Console.ReadKey();

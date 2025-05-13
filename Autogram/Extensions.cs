@@ -61,7 +61,21 @@
 
         public static string ToCSV(this int[] array)
         {
-            return array.Select(p => p.ToString()).Aggregate((p, q) => p + q + ",");
+            return array.Select(p => p.ToString()).Aggregate((p, q) => p + "," + q);
+        }
+
+        public static string Listify(this IEnumerable<string> items)
+        {
+            var materialized = items?.ToList();
+
+            if (materialized == null || materialized.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return string.Join(", ", materialized);
+            }
         }
 
         public static string ListifyWithConjunction(this IEnumerable<string> items)
