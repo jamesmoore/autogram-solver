@@ -42,8 +42,8 @@
 
         public override string ToString()
         {
-            var numberItems = currentGuess.Select((p, i) => p.ToCardinalNumberString() + " " + (char)('a' + i) + (p == 1 ? "" : "'s") + (i < AlphabetSize - 2 ? ", " : i < AlphabetSize - 1 ? " and " : "")).ToList();
-            return "This sentence employs " + numberItems.Aggregate((a, b) => a + b) + ".";
+            var numberItems = currentGuess.Select((p, i) => p.ToCardinalNumberString() + " " + (char)('a' + i) + (p == 1 ? "" : "'s")).ToList();
+            return "This sentence employs " + numberItems.ListifyWithConjunction();
         }
 
         public int[] GetActualCounts()

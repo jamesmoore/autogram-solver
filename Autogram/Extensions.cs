@@ -63,5 +63,23 @@
         {
             return array.Select(p => p.ToString()).Aggregate((p, q) => p + q + ",");
         }
+
+        public static string ListifyWithConjunction(this IEnumerable<string> items)
+        {
+            var materialized = items?.ToList();
+
+            if (materialized == null || materialized.Count == 0)
+            {
+                return string.Empty;
+            }
+            else if (materialized.Count == 1)
+            {
+                return materialized[0];
+            }
+            else
+            {
+                return string.Join(", ", materialized.Take(materialized.Count - 1)) + " and " + materialized.Last();
+            }
+        }
     }
 }
