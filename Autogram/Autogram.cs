@@ -6,8 +6,8 @@
         private readonly IReadOnlyList<char> FullAlphabet;
         private readonly Random random = new();
 
-        private int[] currentGuess = new int[AlphabetSize];
-        private int[] acutalCounts = new int[AlphabetSize];
+        private int[] currentGuess;
+        private int[] acutalCounts;
 
         private readonly HashSet<int[]> history = new(new IntArrayComparer());
 
@@ -33,27 +33,15 @@
             return nextGuess;
         }
 
-        private void SetGuess(int[] newGuess)
-        {
-            if (newGuess == null || newGuess.Length != AlphabetSize)
-            {
-                throw new ArgumentException("Invalid counts assignment");
-            }
-
-            currentGuess = newGuess;
-            acutalCounts = GetActualCounts();
-            history.Add(newGuess);
-        }
-
         public override string ToString()
         {
             var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberString() + " " + FullAlphabet[index] + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             return "This sentence employs " + numberItems.Listify() + ", and one z.";
         }
 
-        public int[] GetActualCounts()
+        public int[] GetActualCounts(string currentString)
         {
-            var formatted = this.ToString().ToLower();
+            var formatted = currentString.ToLower();
             var currentCountsGrouped = formatted.Where(p => FullAlphabet.Contains(p)).GroupBy(p => p).ToLookup(p => p.Key);
             var currentCounts = FullAlphabet.Select(p => currentCountsGrouped[p]?.FirstOrDefault()?.Count() ?? 0).ToArray();
             return currentCounts;
@@ -65,16 +53,22 @@
             var randomReset = false;
             if (history.Contains(nextGuess))
             {
-                SetGuess(Randomize());
+                currentGuess = Randomize();
                 randomReset = true;
             }
             else
             {
-                SetGuess(nextGuess);
+                currentGuess = nextGuess;
             }
+
+            history.Add(currentGuess);
+
+            var currentString = this.ToString();
+            acutalCounts = GetActualCounts(currentString);
 
             return new Status()
             {
+                CurrentString = currentString,
                 Success = Enumerable.SequenceEqual(acutalCounts, currentGuess),
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
@@ -86,6 +80,9 @@
         {
             var guess = acutalCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
             //guess[4] = 28;
+            //guess[5] = 5;
+            //guess[6] = 3;
+            //guess[19] = 23;
             return guess;
         }
 
@@ -109,6 +106,7 @@
 
         public class Status
         {
+            public string CurrentString { get; set; }
             public bool Success { get; set; }
             public int HistoryCount { get; set; }
             public bool RandomReset { get; set; }

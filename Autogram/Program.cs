@@ -16,7 +16,7 @@ while (true)
 
     if (i % 10000 == 0 || status.Success)
     {
-        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + autogram.ToString());
+        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + status.CurrentString);
 
         var diffs = status.GuessError;
 
