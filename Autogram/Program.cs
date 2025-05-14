@@ -1,9 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+
 const int AlphabetSize = 25;
+int? seed = null;
+
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
-var autogram = new Autogram.Autogram(alphabet);
+var autogram = new Autogram.Autogram(alphabet, seed);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 
@@ -55,4 +58,3 @@ Console.ForegroundColor = ConsoleColor.Yellow;
 Console.WriteLine("Finished: " + autogram.ToString());
 Console.ResetColor();
 
-Console.ReadKey();

@@ -4,19 +4,20 @@
     {
         private readonly IReadOnlyList<char> FullAlphabet;
         private readonly HashSet<char> AlphabetHashSet;
-        private readonly Random random = new();
+        private readonly Random random;
 
         private int[] currentGuess;
         private int[] acutalCounts;
 
         private readonly HashSet<int[]> history = new(new IntArrayComparer());
 
-        public Autogram(IEnumerable<char> alphabet)
+        public Autogram(IEnumerable<char> alphabet, int? randomSeed = null)
         {
             FullAlphabet = alphabet.ToList();
             AlphabetHashSet = [.. alphabet];
             currentGuess = new int[FullAlphabet.Count];
             acutalCounts = new int[FullAlphabet.Count];
+            random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.currentGuess = Randomize();
         }
