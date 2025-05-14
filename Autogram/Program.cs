@@ -12,8 +12,10 @@ while (true)
     i++;
     var status = autogram.Iterate();
 
-    if (i % 10000 == 0)
+    if (i % 10000 == 0 || status.Success)
     {
+        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + autogram.ToString());
+
         var diffs = status.GuessError;
 
         foreach (var y in diffs)
@@ -39,8 +41,6 @@ while (true)
         Console.ResetColor();
 
         Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + diffs.Sum(Math.Abs) + (status.RandomReset ? "\tRandomized 🎲" : ""));
-
-        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + autogram.ToString());
     }
 
     if (status.Success)
