@@ -2,8 +2,8 @@
 {
     public class Autogram
     {
-        private readonly int AlphabetSize;
         private readonly IReadOnlyList<char> FullAlphabet;
+        private readonly HashSet<char> AlphabetHashSet;
         private readonly Random random = new();
 
         private int[] currentGuess;
@@ -14,16 +14,16 @@
         public Autogram(IEnumerable<char> alphabet)
         {
             FullAlphabet = alphabet.ToList();
-            AlphabetSize = FullAlphabet.Count();
-            currentGuess = new int[AlphabetSize];
-            acutalCounts = new int[AlphabetSize];
+            AlphabetHashSet = [.. alphabet];
+            currentGuess = new int[FullAlphabet.Count];
+            acutalCounts = new int[FullAlphabet.Count];
 
             this.currentGuess = Randomize();
         }
 
         private int[] Randomize()
         {
-            return Enumerable.Range(0, AlphabetSize).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
+            return Enumerable.Range(0, FullAlphabet.Count).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
         }
 
         private int NextGuess(int acutalCount)
@@ -42,8 +42,8 @@
         public int[] GetActualCounts(string currentString)
         {
             var formatted = currentString.ToLower();
-            var currentCountsGrouped = formatted.Where(p => FullAlphabet.Contains(p)).GroupBy(p => p).ToLookup(p => p.Key);
-            var currentCounts = FullAlphabet.Select(p => currentCountsGrouped[p]?.FirstOrDefault()?.Count() ?? 0).ToArray();
+            var currentCountsGrouped = formatted.Where(AlphabetHashSet.Contains).GroupBy(p => p).ToLookup(p => p.Key, p => p.Count());
+            var currentCounts = FullAlphabet.Select(p => currentCountsGrouped[p]?.FirstOrDefault() ?? 0).ToArray();
             return currentCounts;
         }
 
@@ -102,15 +102,6 @@
                 var increment = (v - 1) % 2 == 0 ? 1 : 0;
                 return (v + 1) / 2;
             }
-        }
-
-        public class Status
-        {
-            public string CurrentString { get; set; }
-            public bool Success { get; set; }
-            public int HistoryCount { get; set; }
-            public bool RandomReset { get; set; }
-            public int[] GuessError { get; set; }
         }
 
         //private int RandomOffset(int previousGuess, int actual)
