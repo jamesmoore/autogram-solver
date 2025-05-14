@@ -14,7 +14,7 @@ while (true)
     i++;
     var status = autogram.Iterate();
 
-    if (i % 10000 == 0 || status.Success)
+    if (i % 100000 == 0 || status.Success)
     {
         Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + status.CurrentString);
 
