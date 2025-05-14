@@ -2,8 +2,8 @@
 {
     public class Autogram
     {
-        private const int AlphabetSize = 21;
-        private readonly static IEnumerable<char> FullAlphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+        private readonly int AlphabetSize;
+        private readonly IReadOnlyList<char> FullAlphabet;
         private readonly Random random = new();
 
         private int[] currentGuess = new int[AlphabetSize];
@@ -11,8 +11,13 @@
 
         private readonly HashSet<int[]> history = new(new IntArrayComparer());
 
-        public Autogram()
+        public Autogram(IEnumerable<char> alphabet)
         {
+            FullAlphabet = alphabet.ToList();
+            AlphabetSize = FullAlphabet.Count();
+            currentGuess = new int[AlphabetSize];
+            acutalCounts = new int[AlphabetSize];
+
             this.currentGuess = Randomize();
         }
 
@@ -42,7 +47,7 @@
 
         public override string ToString()
         {
-            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberString() + " " + FullAlphabet.ElementAt(index) + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberString() + " " + FullAlphabet[index] + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             return "This sentence employs " + numberItems.Listify() + ", and one z.";
         }
 

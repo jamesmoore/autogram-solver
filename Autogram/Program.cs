@@ -1,7 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-var autogram = new Autogram.Autogram();
+const int AlphabetSize = 25;
+var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+var autogram = new Autogram.Autogram(alphabet);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 
