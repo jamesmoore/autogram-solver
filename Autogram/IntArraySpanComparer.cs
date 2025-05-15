@@ -1,10 +1,10 @@
 ﻿namespace Autogram
 {
-    public class IntArrayComparer : IEqualityComparer<int[]>
+    public class IntArraySpanComparer : IEqualityComparer<int[]>
     {
         public bool Equals(int[] x, int[] y)
         {
-            return x.SequenceEqual(y);
+            return x.AsSpan().SequenceEqual(y);
         }
 
         public int GetHashCode(int[] obj)

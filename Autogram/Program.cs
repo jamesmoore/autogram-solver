@@ -2,8 +2,8 @@
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 
-const int AlphabetSize = 25;
-int? seed = null;
+const int AlphabetSize = 20;
+int? seed = 1;
 
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
 var autogram = new Autogram.Autogram(alphabet, seed);

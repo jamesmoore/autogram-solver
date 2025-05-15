@@ -1,23 +1,23 @@
 ﻿namespace Autogram
 {
-    public class Autogram : IAutogramFinder
+    public class AutogramBytes : IAutogramFinder
     {
         private readonly IReadOnlyList<char> FullAlphabet;
         private readonly HashSet<char> AlphabetHashSet;
         private Random random;
 
-        private int[] currentGuess;
-        private int[] acutalCounts;
+        private byte[] currentGuess;
+        private byte[] acutalCounts;
 
-        private readonly HashSet<int[]> history = new(new IntArraySpanComparer());
+        private readonly HashSet<byte[]> history = new(new ByteArrayComparer());
         private readonly int? randomSeed;
 
-        public Autogram(IEnumerable<char> alphabet, int? randomSeed = null)
+        public AutogramBytes(IEnumerable<char> alphabet, int? randomSeed = null)
         {
             FullAlphabet = alphabet.ToList();
             AlphabetHashSet = [.. alphabet];
-            currentGuess = new int[FullAlphabet.Count];
-            acutalCounts = new int[FullAlphabet.Count];
+            currentGuess = new byte[FullAlphabet.Count];
+            acutalCounts = new byte[FullAlphabet.Count];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.currentGuess = Randomize();
@@ -26,8 +26,8 @@
 
         public void Reset(bool resetRandom = true)
         {
-            currentGuess = new int[FullAlphabet.Count];
-            acutalCounts = new int[FullAlphabet.Count];
+            currentGuess = new byte[FullAlphabet.Count];
+            acutalCounts = new byte[FullAlphabet.Count];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -35,16 +35,16 @@
             history.Clear();
         }
 
-        private int[] Randomize()
+        private byte[] Randomize()
         {
             return Enumerable.Range(0, FullAlphabet.Count).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
         }
 
-        private int NextGuess(int acutalCount)
+        private byte NextGuess(byte acutalCount)
         {
             var nextGuess = acutalCount + random.Next(10) - 5;
             if (nextGuess < 0) nextGuess = 0;
-            return nextGuess;
+            return (byte)nextGuess;
         }
 
         public override string ToString()
@@ -53,11 +53,11 @@
             return "This sentence employs " + numberItems.Listify() + ", and one z.";
         }
 
-        public int[] GetActualCounts(string currentString)
+        public byte[] GetActualCounts(string currentString)
         {
             var formatted = currentString.ToLower();
             var currentCountsGrouped = formatted.Where(AlphabetHashSet.Contains).GroupBy(p => p).ToLookup(p => p.Key, p => p.Count());
-            var currentCounts = FullAlphabet.Select(p => currentCountsGrouped[p]?.FirstOrDefault() ?? 0).ToArray();
+            var currentCounts = FullAlphabet.Select(p => (byte)(currentCountsGrouped[p]?.FirstOrDefault() ?? 0)).ToArray();
             return currentCounts;
         }
 
@@ -90,7 +90,7 @@
             };
         }
 
-        private int[] GuessAgain()
+        private byte[] GuessAgain()
         {
             var guess = acutalCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
             //guess[4] = 28;
@@ -100,7 +100,7 @@
             return guess;
         }
 
-        private static int GuessAgain(int actualCount, int currentGuess)
+        private static byte GuessAgain(byte actualCount, byte currentGuess)
         {
             if (actualCount == currentGuess)
             {
@@ -108,13 +108,13 @@
             }
             else if ((actualCount + currentGuess) % 2 == 0)
             {
-                return (actualCount + currentGuess) / 2;
+                return (byte)((actualCount + currentGuess) / 2);
             }
             else
             {
                 var v = actualCount + currentGuess;
                 var increment = (v - 1) % 2 == 0 ? 1 : 0;
-                return (v + 1) / 2;
+                return (byte)((v + 1) / 2);
             }
         }
 

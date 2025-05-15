@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35506.116 d17.12
+VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Autogram", "Autogram\Autogram.csproj", "{DAFB812B-72CB-4BA7-A4EB-9AAA1FB13647}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutogramTest", "AutogramTest\AutogramTest.csproj", "{F7A7851C-FBC3-4354-BC8B-F09DBEAFF7F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutogramBenchmark", "AutogramBenchmark\AutogramBenchmark.csproj", "{C8AAEE3C-1C10-49B8-A527-632CF14BE8A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,15 @@ Global
 		{F7A7851C-FBC3-4354-BC8B-F09DBEAFF7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7A7851C-FBC3-4354-BC8B-F09DBEAFF7F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7A7851C-FBC3-4354-BC8B-F09DBEAFF7F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8AAEE3C-1C10-49B8-A527-632CF14BE8A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8AAEE3C-1C10-49B8-A527-632CF14BE8A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8AAEE3C-1C10-49B8-A527-632CF14BE8A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8AAEE3C-1C10-49B8-A527-632CF14BE8A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63249D10-2FF0-4053-A248-953BF1BD02E9}
 	EndGlobalSection
 EndGlobal
