@@ -1,12 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Autogram;
+
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 
-const int AlphabetSize = 20;
+const int AlphabetSize = 25;
 int? seed = 1;
 
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
-var autogram = new Autogram.Autogram(alphabet, seed);
+var autogram = new Autogram.AutogramBytes(alphabet, seed);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 
@@ -19,7 +21,7 @@ while (true)
 
     if (i % 100000 == 0 || status.Success)
     {
-        Console.WriteLine("Iteration: " + i + "\tHistory: " + status.HistoryCount + "\t" + status.CurrentString);
+        Console.WriteLine("Iteration: " + i.Humanize() + "\tHistory: " + status.HistoryCount.Humanize() + "\t" + status.CurrentString);
 
         var diffs = status.GuessError;
 

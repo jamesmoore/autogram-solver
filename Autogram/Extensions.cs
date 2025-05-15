@@ -152,5 +152,31 @@
                 return string.Join(", ", materialized.Take(materialized.Count - 1)) + " and " + materialized.Last();
             }
         }
+
+        public static string Humanize(this double number)
+        {
+            string[] suffix = { "f", "a", "p", "n", "μ", "m", string.Empty, "k", "M", "G", "T", "P", "E" };
+
+            var absnum = Math.Abs(number);
+
+            int mag;
+            if (absnum < 1)
+            {
+                mag = (int)Math.Floor(Math.Floor(Math.Log10(absnum)) / 3);
+            }
+            else
+            {
+                mag = (int)(Math.Floor(Math.Log10(absnum)) / 3);
+            }
+
+            var shortNumber = number / Math.Pow(10, mag * 3);
+
+            return $"{shortNumber:0.###}{suffix[mag + 6]}";
+        }
+
+        public static string Humanize(this int number)
+        {
+            return ((double)number).Humanize();
+        }
     }
 }
