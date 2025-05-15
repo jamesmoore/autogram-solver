@@ -1,13 +1,13 @@
-﻿namespace Autogram
+﻿namespace Autogram.Comparer
 {
-    public class ByteArraySpanComparer : IEqualityComparer<byte[]>
+    public class IntArrayComparer : IEqualityComparer<int[]>
     {
-        public bool Equals(byte[] x, byte[] y)
+        public bool Equals(int[] x, int[] y)
         {
-            return x.AsSpan().SequenceEqual(y);
+            return x.SequenceEqual(y);
         }
 
-        public int GetHashCode(byte[] obj)
+        public int GetHashCode(int[] obj)
         {
             if (obj == null) return 0;
             unchecked

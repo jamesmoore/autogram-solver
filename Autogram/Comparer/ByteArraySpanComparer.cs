@@ -1,10 +1,10 @@
-﻿namespace Autogram
+﻿namespace Autogram.Comparer
 {
-    public class ByteArrayComparer : IEqualityComparer<byte[]>
+    public class ByteArraySpanComparer : IEqualityComparer<byte[]>
     {
         public bool Equals(byte[] x, byte[] y)
         {
-            return x.SequenceEqual(y);
+            return x.AsSpan().SequenceEqual(y);
         }
 
         public int GetHashCode(byte[] obj)

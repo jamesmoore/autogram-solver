@@ -1,4 +1,4 @@
-﻿using Autogram;
+﻿using Autogram.Comparer;
 using BenchmarkDotNet.Attributes;
 
 namespace AutogramBenchmark

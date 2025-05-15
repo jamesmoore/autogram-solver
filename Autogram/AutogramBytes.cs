@@ -1,4 +1,6 @@
-﻿namespace Autogram
+﻿using Autogram.Comparer;
+
+namespace Autogram
 {
     public class AutogramBytes : IAutogramFinder
     {
@@ -9,7 +11,7 @@
         private byte[] currentGuess;
         private byte[] acutalCounts;
 
-        private readonly HashSet<byte[]> history = new(new ByteArrayComparer());
+        private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
 
         public AutogramBytes(IEnumerable<char> alphabet, int? randomSeed = null)

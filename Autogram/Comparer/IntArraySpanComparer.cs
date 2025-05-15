@@ -1,4 +1,4 @@
-﻿namespace Autogram
+﻿namespace Autogram.Comparer
 {
     public class IntArraySpanComparer : IEqualityComparer<int[]>
     {

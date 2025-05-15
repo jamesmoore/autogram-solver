@@ -1,4 +1,6 @@
-﻿namespace Autogram
+﻿using Autogram.Comparer;
+
+namespace Autogram
 {
     public class Autogram : IAutogramFinder
     {
