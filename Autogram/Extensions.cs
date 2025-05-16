@@ -178,5 +178,12 @@
         {
             return ((double)number).Humanize();
         }
+
+        public static double StandardDeviation(this double[] values)
+        {
+            double mean = values.Average();
+            double variance = values.Sum(v => Math.Pow(v - mean, 2)) / values.Length;
+            return Math.Sqrt(variance); 
+        }
     }
 }

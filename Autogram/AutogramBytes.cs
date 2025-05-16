@@ -44,7 +44,7 @@ namespace Autogram
 
         private byte NextGuess(byte acutalCount)
         {
-            var nextGuess = acutalCount + random.Next(10) - 5;
+            var nextGuess = acutalCount + random.Next(6) - 3;
             if (nextGuess < 0) nextGuess = 0;
             return (byte)nextGuess;
         }
@@ -82,8 +82,20 @@ namespace Autogram
             var currentString = this.ToString();
             acutalCounts = GetActualCounts(currentString);
 
+            var sortedCurrent = currentGuess.OrderBy(p => p).ToArray();
+            var sortedActual = acutalCounts.OrderBy(p => p).ToArray();
+
+            var equals = sortedCurrent.AsSpan().SequenceEqual(sortedActual);
+
+            if (equals)
+            {
+                Console.WriteLine("REORDERING...");
+                currentGuess = acutalCounts.ToArray();
+            }
+
             return new Status()
             {
+                currentGuess = currentGuess,
                 CurrentString = currentString,
                 Success = acutalCounts.AsSpan().SequenceEqual(currentGuess),
                 HistoryCount = history.Count,
