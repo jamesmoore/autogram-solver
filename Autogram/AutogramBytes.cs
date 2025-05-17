@@ -54,7 +54,7 @@ namespace Autogram
 
         public override string ToString()
         {
-            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberString() + " " + FullAlphabet[index] + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + FullAlphabet[index] + (p == 1 ? "" : "'s")).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             return "This sentence employs " + numberItems.Listify() + ", and one z.";
         }
 

@@ -116,6 +116,74 @@
             }
         }
 
+        private static string[] first20 = [
+            "zero",
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "eleven",
+            "twelve",
+            "thirteen",
+            "fourteen",
+            "fifteen",
+            "sixteen",
+            "seventeen",
+            "eighteen",
+            "nineteen",
+            ];
+
+        private static string[] tens = [
+            "twenty",
+            "thirty",
+            "fourty",
+            "fifty",
+            "sixty",
+            "seventy",
+            "eighty",
+            "ninety"
+        ];
+
+        public static string ToCardinalNumberStringPredefined(this byte i)
+        {
+            if (i < 0) throw new NotImplementedException("Negatives not supported");
+            if (i > 99) throw new NotImplementedException("Over 100 not supported");
+
+            if (i < first20.Length)
+            {
+                return first20[i];
+            }
+
+            var unit = i % 10;
+            var firstPart = tens[((i - unit) / 10) - 2];
+
+            if (unit == 0)
+            {
+                return firstPart;
+            }
+            else
+            {
+                return $"{firstPart}-{first20[unit]}";
+            }
+        }
+
+        private static string[] precomputed;
+
+        static Extensions() {
+            precomputed = Enumerable.Range(0,100).Select(p => p.ToCardinalNumberString()).ToArray();
+        }
+
+        public static string ToCardinalNumberStringPrecomputed(this byte i)
+        {
+            return precomputed[i];
+        }
+
         public static string ToCSV(this int[] array)
         {
             return array.Select(p => p.ToString()).Aggregate((p, q) => p + "," + q);
@@ -183,7 +251,7 @@
         {
             double mean = values.Average();
             double variance = values.Sum(v => Math.Pow(v - mean, 2)) / values.Length;
-            return Math.Sqrt(variance); 
+            return Math.Sqrt(variance);
         }
     }
 }
