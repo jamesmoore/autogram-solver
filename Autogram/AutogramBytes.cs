@@ -13,11 +13,14 @@ namespace Autogram
 
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
+        private readonly Dictionary<char, int> AlphabetIndex;
 
         public AutogramBytes(IEnumerable<char> alphabet, int? randomSeed = null)
         {
             FullAlphabet = alphabet.ToList();
             AlphabetHashSet = [.. alphabet];
+            AlphabetIndex = alphabet.ToDictionary(p => p, p => alphabet.ToList().IndexOf(p));
+
             currentGuess = new byte[FullAlphabet.Count];
             actualCounts = new byte[FullAlphabet.Count];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -63,6 +66,22 @@ namespace Autogram
             return currentCounts;
         }
 
+        public byte[] GetActualCountsV2(string currentString)
+        {
+            var currentCounts = new byte[AlphabetIndex.Count];
+
+            foreach (var c in currentString)
+            {
+                var lower = char.ToLowerInvariant(c);
+                if (AlphabetIndex.TryGetValue(lower, out int index))
+                {
+                    currentCounts[index]++;
+                }
+            }
+
+            return currentCounts;
+        }
+
         public Status Iterate()
         {
             var nextGuess = GuessAgain();
@@ -80,7 +99,7 @@ namespace Autogram
             history.Add(currentGuess);
 
             var currentString = this.ToString();
-            actualCounts = GetActualCounts(currentString);
+            actualCounts = GetActualCountsV2(currentString);
 
             var sortedCurrent = currentGuess.OrderBy(p => p).ToArray();
             var sortedActual = actualCounts.OrderBy(p => p).ToArray();

@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Diagnostics;
 using Autogram;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -13,7 +14,10 @@ Console.WriteLine("Starting: " + autogram.ToString());
 
 int i = 0;
 
-var topGuesses = new List<Status>();
+// var topGuesses = new List<Status>();
+
+var sw = new Stopwatch();
+sw.Start();
 
 while (true)
 {
@@ -76,9 +80,9 @@ Console.ForegroundColor = ConsoleColor.Yellow;
 Console.WriteLine("Finished: " + autogram.ToString());
 Console.ResetColor();
 
-static void LogProgress(int i, Status status, int[] diffs, int totalDistance)
+void LogProgress(int i, Status status, int[] diffs, int totalDistance)
 {
-    Console.WriteLine("Iteration: " + i.Humanize() + "\tHistory: " + status.HistoryCount.Humanize() + "\t" + status.CurrentString);
+    Console.WriteLine("Iteration: " + i.Humanize() + "\tHistory: " + status.HistoryCount.Humanize() + "\t" + (1000 * (double)i / sw.ElapsedMilliseconds).Humanize() + " iterations/s");
     foreach (var y in diffs)
     {
         if (y == 0)
