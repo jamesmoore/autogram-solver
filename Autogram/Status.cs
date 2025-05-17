@@ -22,5 +22,7 @@
         private Lazy<int> _totalDistance;
 
         public int TotalDistance => _totalDistance.Value;
+
+        public bool Reordered { get; internal set; }
     }
 }

@@ -72,6 +72,10 @@ while (true)
 
     if (status.Success)
     {
+        if (status.Reordered)
+        {
+            Console.WriteLine("Reordered guess");
+        }
         break;
     }
 }

@@ -253,5 +253,33 @@
             double variance = values.Sum(v => Math.Pow(v - mean, 2)) / values.Length;
             return Math.Sqrt(variance);
         }
+
+        public static bool ByteArraysHaveSameContents(this Span<byte> a, Span<byte> b)
+        {
+            if (a.Length != b.Length) return false;
+
+            var counts = new int[256]; // All possible byte values
+
+            foreach (var b1 in a) counts[b1]++;
+            foreach (var b2 in b)
+            {
+                if (--counts[b2] < 0) return false;
+            }
+
+            return true;
+        }
+
+        public static bool UnorderedByteSpanEquals(this ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
+        {
+            if (a.Length != b.Length) return false;
+
+            Span<int> counts = stackalloc int[256];
+
+            foreach (var b1 in a) counts[b1]++;
+            foreach (var b2 in b)
+                if (--counts[b2] < 0) return false;
+
+            return true;
+        }
     }
 }

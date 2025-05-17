@@ -101,14 +101,10 @@ namespace Autogram
             var currentString = this.ToString();
             actualCounts = GetActualCountsV2(currentString);
 
-            var sortedCurrent = currentGuess.OrderBy(p => p).ToArray();
-            var sortedActual = actualCounts.OrderBy(p => p).ToArray();
-
-            var equals = sortedCurrent.AsSpan().SequenceEqual(sortedActual);
+            var equals = ((ReadOnlySpan<byte>)actualCounts.AsSpan()).UnorderedByteSpanEquals(currentGuess.AsSpan());
 
             if (equals)
             {
-                Console.WriteLine("Reordering...");
                 currentGuess = actualCounts.ToArray();
             }
 
@@ -120,6 +116,7 @@ namespace Autogram
                 Success = actualCounts.AsSpan().SequenceEqual(currentGuess),
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
+                Reordered = equals,
             };
         }
 
