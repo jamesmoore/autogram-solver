@@ -9,7 +9,7 @@ namespace Autogram
         private Random random;
 
         private byte[] currentGuess;
-        private byte[] acutalCounts;
+        private byte[] actualCounts;
 
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
@@ -19,7 +19,7 @@ namespace Autogram
             FullAlphabet = alphabet.ToList();
             AlphabetHashSet = [.. alphabet];
             currentGuess = new byte[FullAlphabet.Count];
-            acutalCounts = new byte[FullAlphabet.Count];
+            actualCounts = new byte[FullAlphabet.Count];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.currentGuess = Randomize();
@@ -29,7 +29,7 @@ namespace Autogram
         public void Reset(bool resetRandom = true)
         {
             currentGuess = new byte[FullAlphabet.Count];
-            acutalCounts = new byte[FullAlphabet.Count];
+            actualCounts = new byte[FullAlphabet.Count];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -39,7 +39,7 @@ namespace Autogram
 
         private byte[] Randomize()
         {
-            return Enumerable.Range(0, FullAlphabet.Count).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
+            return Enumerable.Range(0, FullAlphabet.Count).Select(p => actualCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(actualCounts[p])).ToArray();
         }
 
         private byte NextGuess(byte acutalCount)
@@ -80,33 +80,33 @@ namespace Autogram
             history.Add(currentGuess);
 
             var currentString = this.ToString();
-            acutalCounts = GetActualCounts(currentString);
+            actualCounts = GetActualCounts(currentString);
 
             var sortedCurrent = currentGuess.OrderBy(p => p).ToArray();
-            var sortedActual = acutalCounts.OrderBy(p => p).ToArray();
+            var sortedActual = actualCounts.OrderBy(p => p).ToArray();
 
             var equals = sortedCurrent.AsSpan().SequenceEqual(sortedActual);
 
             if (equals)
             {
                 Console.WriteLine("REORDERING...");
-                currentGuess = acutalCounts.ToArray();
+                currentGuess = actualCounts.ToArray();
             }
 
             return new Status()
             {
                 currentGuess = currentGuess,
                 CurrentString = currentString,
-                Success = acutalCounts.AsSpan().SequenceEqual(currentGuess),
+                Success = actualCounts.AsSpan().SequenceEqual(currentGuess),
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
-                GuessError = acutalCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
+                GuessError = actualCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
             };
         }
 
         private byte[] GuessAgain()
         {
-            var guess = acutalCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
+            var guess = actualCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
             //guess[4] = 28;
             //guess[5] = 5;
             //guess[6] = 3;

@@ -9,7 +9,7 @@ namespace Autogram
         private Random random;
 
         private int[] currentGuess;
-        private int[] acutalCounts;
+        private int[] actualCounts;
 
         private readonly HashSet<int[]> history = new(new IntArraySpanComparer());
         private readonly int? randomSeed;
@@ -19,7 +19,7 @@ namespace Autogram
             FullAlphabet = alphabet.ToList();
             AlphabetHashSet = [.. alphabet];
             currentGuess = new int[FullAlphabet.Count];
-            acutalCounts = new int[FullAlphabet.Count];
+            actualCounts = new int[FullAlphabet.Count];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.currentGuess = Randomize();
@@ -29,7 +29,7 @@ namespace Autogram
         public void Reset(bool resetRandom = true)
         {
             currentGuess = new int[FullAlphabet.Count];
-            acutalCounts = new int[FullAlphabet.Count];
+            actualCounts = new int[FullAlphabet.Count];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -39,7 +39,7 @@ namespace Autogram
 
         private int[] Randomize()
         {
-            return Enumerable.Range(0, FullAlphabet.Count).Select(p => acutalCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(acutalCounts[p])).ToArray();
+            return Enumerable.Range(0, FullAlphabet.Count).Select(p => actualCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(actualCounts[p])).ToArray();
         }
 
         private int NextGuess(int acutalCount)
@@ -80,21 +80,21 @@ namespace Autogram
             history.Add(currentGuess);
 
             var currentString = this.ToString();
-            acutalCounts = GetActualCounts(currentString);
+            actualCounts = GetActualCounts(currentString);
 
             return new Status()
             {
                 CurrentString = currentString,
-                Success = acutalCounts.AsSpan().SequenceEqual(currentGuess),
+                Success = actualCounts.AsSpan().SequenceEqual(currentGuess),
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
-                GuessError = acutalCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
+                GuessError = actualCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
             };
         }
 
         private int[] GuessAgain()
         {
-            var guess = acutalCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
+            var guess = actualCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
             //guess[4] = 28;
             //guess[5] = 5;
             //guess[6] = 3;
