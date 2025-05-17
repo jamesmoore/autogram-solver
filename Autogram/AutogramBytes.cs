@@ -108,18 +108,18 @@ namespace Autogram
 
             if (equals)
             {
-                Console.WriteLine("REORDERING...");
+                Console.WriteLine("Reordering...");
                 currentGuess = actualCounts.ToArray();
             }
 
             return new Status()
             {
                 currentGuess = currentGuess,
+                actualCounts = actualCounts,
                 CurrentString = currentString,
                 Success = actualCounts.AsSpan().SequenceEqual(currentGuess),
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
-                GuessError = actualCounts.Select((p, i) => currentGuess[i] - p).ToArray(),
             };
         }
 
