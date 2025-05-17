@@ -8,7 +8,7 @@ const int AlphabetSize = 25;
 int? seed = 1001;
 
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
-var autogram = new Autogram.AutogramBytes(alphabet, seed);
+var autogram = new Autogram.AutogramBytesNoStrings(alphabet, seed);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 
