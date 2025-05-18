@@ -103,20 +103,20 @@ namespace Autogram
 
             var equals = ((ReadOnlySpan<byte>)actualCounts.AsSpan()).UnorderedByteSpanEquals(currentGuess.AsSpan());
 
+            bool reordered = false;
             if (equals)
             {
-                currentGuess = actualCounts.ToArray();
+                reordered = actualCounts.AsSpan().SequenceEqual(currentGuess) == false;
             }
 
             return new Status()
             {
-                currentGuess = currentGuess,
-                actualCounts = actualCounts,
-                CurrentString = currentString,
-                Success = actualCounts.AsSpan().SequenceEqual(currentGuess),
+                CurrentGuess = currentGuess,
+                ActualCounts = actualCounts,
+                Success = equals,
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
-                Reordered = equals,
+                Reordered = reordered,
             };
         }
 

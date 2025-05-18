@@ -161,9 +161,8 @@ namespace Autogram
 
             return new Status()
             {
-                currentGuess = currentGuess,
-                actualCounts = actualCounts,
-                CurrentString = success ? this.ToString() : "---",
+                CurrentGuess = currentGuess,
+                ActualCounts = actualCounts,
                 Success = success,
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
