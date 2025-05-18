@@ -4,7 +4,7 @@ namespace Autogram
 {
     public class AutogramBytesNoStrings : IAutogramFinder
     {
-        private const string Template = "This sentence employs {0}, and one z.";
+        private readonly string Template;
         private const string PluralExtension = "'s";
         private readonly IReadOnlyList<char> FullAlphabet;
         private Random random;
@@ -21,8 +21,9 @@ namespace Autogram
 
         private readonly int AlphabetCount;
 
-        public AutogramBytesNoStrings(IEnumerable<char> alphabet, int? randomSeed = null)
+        public AutogramBytesNoStrings(IEnumerable<char> alphabet, string template, int? randomSeed = null)
         {
+            Template = template;
             FullAlphabet = alphabet.ToList();
             AlphabetCount = FullAlphabet.Count;
             var alphabetIndex = alphabet.ToDictionary(p => p, p => alphabet.ToList().IndexOf(p));
@@ -125,6 +126,8 @@ namespace Autogram
                         result[j] += pluralCount[j];
                     }
                 }
+
+                // TODO add conjunction
             }
             return result.ToArray();
         }

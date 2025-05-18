@@ -7,8 +7,13 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 const int AlphabetSize = 25;
 int? seed = 1001;
 
+var template = args.Length > 0 ? args[0] : null;
+
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
-var autogram = new Autogram.AutogramBytesNoStrings(alphabet, seed);
+
+const string defaultTemplate = "This sentence employs {0}, and one z."; // from https://en.wikipedia.org/wiki/Autogram
+
+var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template ?? defaultTemplate, seed);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 
