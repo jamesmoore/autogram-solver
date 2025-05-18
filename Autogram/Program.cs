@@ -12,8 +12,9 @@ var template = args.Length > 0 ? args[0] : null;
 var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
 
 const string defaultTemplate = "This sentence employs {0}, and one z."; // from https://en.wikipedia.org/wiki/Autogram
+const string defaultConjunction = "";
 
-var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template ?? defaultTemplate, seed);
+var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template ?? defaultTemplate, defaultConjunction, seed);
 
 Console.WriteLine("Starting: " + autogram.ToString());
 

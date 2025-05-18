@@ -46,7 +46,7 @@ namespace AutogramTest
         public void ListifyWithConjunctionTest(int itemCount,  string expected)
         {
             var items = Enumerable.Range(0, itemCount).Select(p => ((char)('a' + p)).ToString());
-            var joined = items.ListifyWithConjunction();
+            var joined = items.ListifyWithConjunction(" and ");
             Assert.Equal(expected, joined);
         }
     }

@@ -203,7 +203,7 @@
             }
         }
 
-        public static string ListifyWithConjunction(this IEnumerable<string> items)
+        public static string ListifyWithConjunction(this IEnumerable<string> items, string conjunction)
         {
             var materialized = items?.ToList();
 
@@ -217,7 +217,7 @@
             }
             else
             {
-                return string.Join(", ", materialized.Take(materialized.Count - 1)) + " and " + materialized.Last();
+                return string.Join(", ", materialized.Take(materialized.Count - 1)) + conjunction + materialized.Last();
             }
         }
 

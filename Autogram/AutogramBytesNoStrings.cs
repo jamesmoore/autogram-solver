@@ -5,6 +5,7 @@ namespace Autogram
     public class AutogramBytesNoStrings : IAutogramFinder
     {
         private readonly string Template;
+        private readonly string conjunction;
         private const string PluralExtension = "'s";
         private readonly IReadOnlyList<char> FullAlphabet;
         private Random random;
@@ -21,9 +22,14 @@ namespace Autogram
 
         private readonly int AlphabetCount;
 
-        public AutogramBytesNoStrings(IEnumerable<char> alphabet, string template, int? randomSeed = null)
+        public AutogramBytesNoStrings(
+            IEnumerable<char> alphabet,
+            string template,
+            string conjunction,
+            int? randomSeed)
         {
             Template = template;
+            this.conjunction = conjunction;
             FullAlphabet = alphabet.ToList();
             AlphabetCount = FullAlphabet.Count;
             var alphabetIndex = alphabet.ToDictionary(p => p, p => alphabet.ToList().IndexOf(p));
@@ -67,6 +73,18 @@ namespace Autogram
                     pluralCount[index]++;
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(conjunction) == false)
+            {
+                // add conjunction to baseline on the basis that there will almost certainly be more than two characters listed.
+                foreach (var c in conjunction)
+                {
+                    if (alphabetIndex.TryGetValue(c, out int index))
+                    {
+                        baselineCount[index]++;
+                    }
+                }
+            }
         }
 
         public void Reset(bool resetRandom = true)
@@ -95,7 +113,8 @@ namespace Autogram
         public override string ToString()
         {
             var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + FullAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
-            return string.Format(Template, numberItems.Listify());
+            var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(conjunction);
+            return string.Format(Template, arg0);
         }
 
         public byte[] GetActualCounts(byte[] currentGuess)
@@ -126,9 +145,8 @@ namespace Autogram
                         result[j] += pluralCount[j];
                     }
                 }
-
-                // TODO add conjunction
             }
+
             return result.ToArray();
         }
 
