@@ -1,96 +1,97 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.CommandLine;
 using System.Diagnostics;
 using Autogram;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-const int AlphabetSize = 25;
-int? seed = 1001;
-
 var template = args.Length > 0 ? args[0] : null;
+const int AlphabetSize = 26;
+const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
+const string defaultConjunction = " and ";
 
-var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+var templateOption = new Option<string?>(
+    aliases: ["--template", "-t"],
+    description: "The template of the autogram to search for. Must contain a {0}.",
+    getDefaultValue: () => defaultTemplate
+    );
 
-const string defaultTemplate = "This sentence employs {0}, and one z."; // from https://en.wikipedia.org/wiki/Autogram
-const string defaultConjunction = "";
+var conjunctionOption = new Option<string?>(
+    aliases: ["--conjunction", "-c"],
+    description: "The conjunction to add to the list of letters, appearing before the final one. This is typically \" and \" but you could leave it empty or use \" and lastly \", \" and last but not least\" etc.",
+    getDefaultValue: () => defaultConjunction
+    );
 
-var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template ?? defaultTemplate, defaultConjunction, seed);
+var seedOption = new Option<int?>(
+    aliases: ["--seed", "-s"],
+    description: "The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose",
+    getDefaultValue: () => null
+    );
 
-Console.WriteLine("Starting: " + autogram.ToString());
+var alphabetSizeOption = new Option<int>(
+    aliases: ["--alphabet", "-a"],
+    description: "The number of letters of the alphabet to use. Eg, you may want to skip z. [This may be improved]",
+    getDefaultValue: () => AlphabetSize
+    );
 
-int i = 0;
-
-// var topGuesses = new List<Status>();
-
-var sw = new Stopwatch();
-sw.Start();
-
-while (true)
+var rootCommand = new RootCommand("Autogram searcher")
 {
-    i++;
-    var status = autogram.Iterate();
+    templateOption,
+    conjunctionOption,
+    seedOption,
+    alphabetSizeOption,
+};
 
-    //var diffs = status.GuessError;
+rootCommand.SetHandler((template, conjunction, seed, alphabetSize) =>
+{
+    DoAutogramSearch(alphabetSize, seed, template, conjunction);
+},
+templateOption, conjunctionOption, seedOption, alphabetSizeOption);
 
-    //var totalDistance = status.TotalDistance;
+return rootCommand.InvokeAsync(args).Result;
 
-    //if (topGuesses.Count < 1000)
-    //{
-    //    topGuesses.Add(status);
-    //}
-    //else
-    //{
-    //    Status worst = null;
-    //    foreach (var item in topGuesses)
-    //    {
-    //        if (item.TotalDistance > status.TotalDistance)
-    //        {
-    //            worst = item; break;
-    //        }
-    //    }
-    //    if (worst != null)
-    //    {
-    //        topGuesses.Remove(worst);
-    //        topGuesses.Add(status);
-    //    }
-    //}
+void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conjunction)
+{
+    Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    if (i % 100000 == 0 || status.Success)
+    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+
+    var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template, conjunction, seed);
+
+    Console.WriteLine("Starting: " + autogram.ToString());
+
+    int i = 0; 
+
+    var sw = new Stopwatch();
+    sw.Start();
+
+    while (true)
     {
-        LogProgress(i, status, status.GuessError, status.TotalDistance);
-    }
+        i++;
+        var status = autogram.Iterate();
 
-    //if (i % 1000000 == 0)
-    //{
-    //    var average = new double[AlphabetSize];
-    //    var sd = new double[AlphabetSize];
-
-    //    for (int j = 0; j < AlphabetSize; j++)
-    //    {
-    //        average[j] = topGuesses.Average(p => (double)p.currentGuess[j]);
-    //        sd[j] = topGuesses.Select(p => (double)p.currentGuess[j]).ToArray().StandardDeviation();
-    //        var median = topGuesses.Select(p => p.currentGuess[j]).OrderBy(p => p).ElementAt(500);
-    //        var min = topGuesses.Min(p => p.currentGuess[j]);
-    //        var max = topGuesses.Max(p => p.currentGuess[j]);
-    //        Console.WriteLine((char)('a' + j) + "\t" + average[j] + "\t" + sd[j] + "\t" + min + "\t" + median + "\t" + max);
-    //    }
-    //}
-
-    if (status.Success)
-    {
-        if (status.Reordered)
+        if (i % 100000 == 0 || status.Success)
         {
-            Console.WriteLine("Reordered guess");
+            LogProgress(i, status, status.GuessError, status.TotalDistance, sw);
         }
-        break;
+
+        if (status.Success)
+        {
+            if (status.Reordered)
+            {
+                Console.WriteLine("Reordered guess");
+            }
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Finished @ iteration {i:N0}: {autogram}");
+            Console.ResetColor();
+            Console.Write("\x1b]9;4;0\x07");
+            break;
+        }
     }
 }
 
-Console.ForegroundColor = ConsoleColor.Yellow;
-Console.WriteLine("Finished: " + autogram.ToString());
-Console.ResetColor();
-
-void LogProgress(int i, Status status, int[] diffs, int totalDistance)
+void LogProgress(int i, Status status, int[] diffs, int totalDistance, Stopwatch sw)
 {
     Console.WriteLine(sw.Elapsed.ToString(@"hh\:mm\:ss") + "\tIteration: " + i.Humanize() + "\tHistory: " + status.HistoryCount.Humanize() + "\t" + (1000 * (double)i / sw.ElapsedMilliseconds).Humanize() + " iterations/s");
 
@@ -119,3 +120,4 @@ void LogProgress(int i, Status status, int[] diffs, int totalDistance)
 
     Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + totalDistance + (status.RandomReset ? "\tRandomized 🎲" : ""));
 }
+
