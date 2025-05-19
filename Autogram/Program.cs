@@ -5,6 +5,13 @@ using Autogram;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+Console.CancelKeyPress += (sender, args) =>
+{
+    args.Cancel = true;
+    Console.Write("\x1b]9;4;0;\x07");
+    Environment.Exit(0);
+};
+
 var template = args.Length > 0 ? args[0] : null;
 const int AlphabetSize = 26;
 const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
