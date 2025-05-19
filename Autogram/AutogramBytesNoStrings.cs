@@ -10,8 +10,8 @@ namespace Autogram
         private readonly IReadOnlyList<char> FullAlphabet;
         private Random random;
 
-        private byte[] currentGuess;
-        private byte[] actualCounts;
+        private byte[] proposedCounts;
+        private byte[] computedCounts;
 
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
@@ -32,13 +32,12 @@ namespace Autogram
             this.conjunction = conjunction;
             FullAlphabet = alphabet.ToList();
             AlphabetCount = FullAlphabet.Count;
-            var alphabetIndex = alphabet.ToDictionary(p => p, p => alphabet.ToList().IndexOf(p));
+            var alphabetIndex = FullAlphabet.Select((c, i) => (c, i)).ToDictionary(ci => ci.c, ci => ci.i);
 
-            currentGuess = new byte[FullAlphabet.Count];
-            actualCounts = new byte[FullAlphabet.Count];
+            proposedCounts = new byte[FullAlphabet.Count];
+            computedCounts = new byte[FullAlphabet.Count];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
-            this.currentGuess = Randomize();
             this.randomSeed = randomSeed;
 
             baselineCount = new byte[FullAlphabet.Count];
@@ -76,7 +75,7 @@ namespace Autogram
 
             if (string.IsNullOrWhiteSpace(conjunction) == false)
             {
-                // add conjunction to baseline on the basis that there will almost certainly be more than two characters listed.
+                // add conjunction to baseline on the basis that there will almost certainly be more than one characters listed.
                 foreach (var c in conjunction)
                 {
                     if (alphabetIndex.TryGetValue(c, out int index))
@@ -87,10 +86,14 @@ namespace Autogram
             }
         }
 
+        /// <summary>
+        /// Resets state, and optionally random. Primarily for benchmarking.
+        /// </summary>
+        /// <param name="resetRandom">If true the random state is reset.</param>
         public void Reset(bool resetRandom = true)
         {
-            currentGuess = new byte[FullAlphabet.Count];
-            actualCounts = new byte[FullAlphabet.Count];
+            proposedCounts = new byte[FullAlphabet.Count];
+            computedCounts = new byte[FullAlphabet.Count];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -100,24 +103,35 @@ namespace Autogram
 
         private byte[] Randomize()
         {
-            return Enumerable.Range(0, FullAlphabet.Count).Select(p => actualCounts[p] == currentGuess[p] ? currentGuess[p] : NextGuess(actualCounts[p])).ToArray();
+            var result = new byte[proposedCounts.Length];
+            for (int i = 0; i < proposedCounts.Length; i++)
+            {
+                result[i] = computedCounts[i] == proposedCounts[i]
+                    ? proposedCounts[i]
+                    : PerturbCount(computedCounts[i]);
+            }
+            return result;
         }
 
-        private byte NextGuess(byte acutalCount)
+        private byte PerturbCount(byte acutalCount)
         {
             var nextGuess = acutalCount + random.Next(6) - 3;
             if (nextGuess < 0) nextGuess = 0;
             return (byte)nextGuess;
         }
 
+        /// <summary>
+        /// Builds the sentence based off the current state, and may not be a valid autogram.
+        /// </summary>
+        /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var numberItems = currentGuess.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + FullAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = proposedCounts.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + FullAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(conjunction);
             return string.Format(Template, arg0);
         }
 
-        public byte[] GetActualCounts(byte[] currentGuess)
+        private byte[] GetActualCounts(byte[] currentGuess)
         {
             Span<byte> result = stackalloc byte[AlphabetCount];
             baselineCount.CopyTo(result);
@@ -150,37 +164,41 @@ namespace Autogram
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Iterates the autogram search process.
+        /// </summary>
+        /// <returns>The status of the current guess.</returns>
         public Status Iterate()
         {
-            var nextGuess = GuessAgain();
+            var nextGuess = AdjustGuessTowardsActualCounts();
             var randomReset = false;
             if (history.Contains(nextGuess))
             {
-                currentGuess = Randomize();
+                proposedCounts = Randomize();
                 randomReset = true;
             }
             else
             {
-                currentGuess = nextGuess;
+                proposedCounts = nextGuess;
             }
 
-            history.Add(currentGuess);
+            history.Add(proposedCounts);
 
-            actualCounts = GetActualCounts(currentGuess);
+            computedCounts = GetActualCounts(proposedCounts);
 
-            var reorderedEquals = ((ReadOnlySpan<byte>)actualCounts.AsSpan()).UnorderedByteSpanEquals(currentGuess);
+            var reorderedEquals = ((ReadOnlySpan<byte>)computedCounts.AsSpan()).UnorderedByteSpanEquals(proposedCounts);
 
             if (reorderedEquals)
             {
-                currentGuess = actualCounts.ToArray();
+                proposedCounts = computedCounts.ToArray();
             }
 
-            bool success = actualCounts.AsSpan().SequenceEqual(currentGuess);
+            bool success = computedCounts.AsSpan().SequenceEqual(proposedCounts);
 
             return new Status()
             {
-                CurrentGuess = currentGuess,
-                ActualCounts = actualCounts,
+                CurrentGuess = proposedCounts,
+                ActualCounts = computedCounts,
                 Success = success,
                 HistoryCount = history.Count,
                 RandomReset = randomReset,
@@ -188,10 +206,14 @@ namespace Autogram
             };
         }
 
-        private byte[] GuessAgain()
+        private byte[] AdjustGuessTowardsActualCounts()
         {
-            var guess = actualCounts.Zip(currentGuess).Select(p => GuessAgain(p.First, p.Second)).ToArray();
-            return guess;
+            var result = new byte[computedCounts.Length];
+            for (int i = 0; i < computedCounts.Length; i++)
+            {
+                result[i] = GuessAgain(computedCounts[i], proposedCounts[i]);
+            }
+            return result;
         }
 
         private static byte GuessAgain(byte actualCount, byte currentGuess)
