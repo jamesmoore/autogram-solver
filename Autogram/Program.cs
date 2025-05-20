@@ -63,11 +63,16 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
 
     var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
 
+    if (seed == null)
+    {
+        seed = new Random().Next();
+    }
+
     var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template, conjunction, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 
-    int i = 0; 
+    int i = 0;
 
     var sw = new Stopwatch();
     sw.Start();
@@ -90,7 +95,12 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
             }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Finished @ iteration {i:N0}: {autogram}");
+            Console.WriteLine($"🎉 Finished @ iteration {i:N0} 🎉");
+            Console.WriteLine(new string('-', Console.WindowWidth));
+            Console.WriteLine(autogram);
+            Console.WriteLine(new string('-', Console.WindowWidth));
+            Console.WriteLine($"{Environment.ProcessPath} --template \"{template}\" --conjunction \"{conjunction}\" --alphabet {AlphabetSize} --seed {seed}");
+
             Console.ResetColor();
             Console.Write("\x1b]9;4;0\x07");
             break;
