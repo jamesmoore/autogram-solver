@@ -95,7 +95,10 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
             }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"🎉 Finished @ iteration {i:N0} 🎉");
+            Console.WriteLine($"🎉 Finished 🎉");
+            Console.WriteLine($"⏱️ Duration:\t\t\t{sw.Elapsed:hh\\:mm\\:ss}");
+            Console.WriteLine($"🔁 Iterations:\t\t\t{i:N0}");
+            Console.WriteLine($"🔁/⏱️ Iterations per second:\t{(i / sw.Elapsed.TotalSeconds).Humanize()}");
             Console.WriteLine(new string('-', Console.WindowWidth));
             Console.WriteLine(autogram);
             Console.WriteLine(new string('-', Console.WindowWidth));
