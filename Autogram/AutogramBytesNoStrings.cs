@@ -7,7 +7,10 @@ namespace Autogram
         private readonly string Template;
         private readonly string conjunction;
         private const string PluralExtension = "'s";
-        private readonly IReadOnlyList<char> FullAlphabet;
+
+        private readonly IReadOnlyList<char> RelevantAlphabet;
+        private readonly int RelevantAlphabetCount;
+
         private Random random;
 
         private byte[] proposedCounts;
@@ -20,8 +23,6 @@ namespace Autogram
         private readonly byte[][] numericCounts;
         private readonly byte[] pluralCount;
 
-        private readonly int AlphabetCount;
-
         public AutogramBytesNoStrings(
             IEnumerable<char> alphabet,
             string template,
@@ -29,19 +30,24 @@ namespace Autogram
             int? randomSeed)
         {
             Template = template;
-            this.conjunction = conjunction;
-            FullAlphabet = alphabet.ToList();
-            AlphabetCount = FullAlphabet.Count;
-            var alphabetIndex = FullAlphabet.Select((c, i) => (c, i)).ToDictionary(ci => ci.c, ci => ci.i);
+            var baselineTemplate = string.Format(template, "");
 
-            proposedCounts = new byte[FullAlphabet.Count];
-            computedCounts = new byte[FullAlphabet.Count];
+            this.conjunction = conjunction;
+
+            var numericStrings = Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed()).ToList();
+
+            RelevantAlphabet = (baselineTemplate + conjunction + PluralExtension + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Where(alphabet.Contains).Distinct().OrderBy(p => p).ToList();
+            RelevantAlphabetCount = RelevantAlphabet.Count();
+            var alphabetIndex = RelevantAlphabet.Select((c, i) => (c, i)).ToDictionary(ci => ci.c, ci => ci.i);
+
+            proposedCounts = new byte[RelevantAlphabetCount];
+            computedCounts = new byte[RelevantAlphabetCount];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.randomSeed = randomSeed;
 
-            baselineCount = new byte[FullAlphabet.Count];
-            foreach (var c in Template.Replace("{0}", "").ToLower())
+            baselineCount = new byte[RelevantAlphabetCount];
+            foreach (var c in baselineTemplate.ToLower())
             {
                 if (alphabetIndex.TryGetValue(c, out int index))
                 {
@@ -53,7 +59,7 @@ namespace Autogram
             for (byte i = 0; i < 100; i++)
             {
                 var text = i.ToCardinalNumberStringPrecomputed();
-                var perCardinalCount = new byte[FullAlphabet.Count];
+                var perCardinalCount = new byte[RelevantAlphabetCount];
                 foreach (var c in text)
                 {
                     if (alphabetIndex.TryGetValue(c, out int index))
@@ -64,7 +70,7 @@ namespace Autogram
                 numericCounts[i] = perCardinalCount;
             }
 
-            pluralCount = new byte[FullAlphabet.Count];
+            pluralCount = new byte[RelevantAlphabetCount];
             foreach (var c in PluralExtension)
             {
                 if (alphabetIndex.TryGetValue(c, out int index))
@@ -92,8 +98,8 @@ namespace Autogram
         /// <param name="resetRandom">If true the random state is reset.</param>
         public void Reset(bool resetRandom = true)
         {
-            proposedCounts = new byte[FullAlphabet.Count];
-            computedCounts = new byte[FullAlphabet.Count];
+            proposedCounts = new byte[RelevantAlphabetCount];
+            computedCounts = new byte[RelevantAlphabetCount];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -106,16 +112,17 @@ namespace Autogram
             var result = new byte[proposedCounts.Length];
             for (int i = 0; i < proposedCounts.Length; i++)
             {
-                result[i] = computedCounts[i] == proposedCounts[i]
-                    ? proposedCounts[i]
-                    : PerturbCount(computedCounts[i]);
+                var computedCount = computedCounts[i];
+                result[i] = computedCount == proposedCounts[i]
+                    ? computedCount
+                    : OffsetGuess(computedCount);
             }
             return result;
         }
 
-        private byte PerturbCount(byte acutalCount)
+        private byte OffsetGuess(byte actualCount)
         {
-            var nextGuess = acutalCount + random.Next(6) - 3;
+            var nextGuess = actualCount + random.Next(6) - 3;
             if (nextGuess < 0) nextGuess = 0;
             return (byte)nextGuess;
         }
@@ -126,24 +133,24 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var numberItems = proposedCounts.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + FullAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = proposedCounts.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + RelevantAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(conjunction);
             return string.Format(Template, arg0);
         }
 
         private byte[] GetActualCounts(byte[] currentGuess)
         {
-            Span<byte> result = stackalloc byte[AlphabetCount];
+            Span<byte> result = stackalloc byte[RelevantAlphabetCount];
             baselineCount.CopyTo(result);
 
-            for (var i = 0; i < AlphabetCount; i++)
+            for (var i = 0; i < RelevantAlphabetCount; i++)
             {
                 var c = currentGuess[i];
                 if (c == 0) continue;
 
                 // numeric part
                 var numericCount = numericCounts[c];
-                for (var j = 0; j < AlphabetCount; j++)
+                for (var j = 0; j < RelevantAlphabetCount; j++)
                 {
                     result[j] += numericCount[j];
                 }
@@ -154,7 +161,7 @@ namespace Autogram
                 if (c != 1)
                 {
                     // plural
-                    for (var j = 0; j < AlphabetCount; j++)
+                    for (var j = 0; j < RelevantAlphabetCount; j++)
                     {
                         result[j] += pluralCount[j];
                     }
@@ -222,15 +229,9 @@ namespace Autogram
             {
                 return actualCount;
             }
-            else if ((actualCount + currentGuess) % 2 == 0)
+            else 
             {
-                return (byte)((actualCount + currentGuess) / 2);
-            }
-            else
-            {
-                var v = actualCount + currentGuess;
-                var increment = (v - 1) % 2 == 0 ? 1 : 0;
-                return (byte)((v + 1) / 2);
+                return (byte)((actualCount + currentGuess + 1) / 2);
             }
         }
     }
