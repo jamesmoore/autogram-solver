@@ -57,6 +57,19 @@ On a reasonable PC you should get ~500K iterations per second.
 ```
 ```Finished @ iteration 5,092,303: the quick brown fox jumped over the lazy dog and yelled 'this sentence contains five a's, two b's, four c's, six d's, thirty-four e's, ten f's, three g's, eight h's, fifteen i's, two j's, two k's, five l's, two m's, twenty-one n's, seventeen o's, two p's, two q's, nine r's, thirty-five s's, twenty-seven t's, six u's, nine v's, twelve w's, four x's, seven y's and two z's.'```
 
+## Pangrammatic autogram #2
+```powershell
+.\Autogram.exe --template "jackdaws love my big sphinx of quartz and they also love this sentence which has {0}." --conjunction " and " --alphabet 26 --seed 2018704925
+```
+```🎉 Finished 🎉
+⏱️ Duration:                    00:00:16
+🔁 Iterations:                  9,386,884
+🔁/⏱️ Iterations per second:    560.439k
+------------------------------------------
+jackdaws love my big sphinx of quartz and they also love this sentence which has eight a's, two b's, four c's, four d's, thirty e's, ten f's, five g's, thirteen h's, eighteen i's, two j's, two k's, five l's, two m's, sixteen n's, fifteen o's, two p's, two q's, eight r's, thirty-seven s's, twenty-seven t's, five u's, nine v's, twelve w's, four x's, six y's and two z's
+```
+
+
 ## Custom conjunction (for unknown reasons this seems to solve rapidly)
 ```powershell
 .\Autogram.exe -c " and lastly " -s 89765
