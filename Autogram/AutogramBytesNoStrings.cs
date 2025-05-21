@@ -102,7 +102,7 @@ namespace Autogram
             var variableCountChars = new bool[RelevantAlphabetCount];
             for (int i = 0; i < RelevantAlphabetCount; i++)
             {
-                variableCountChars[i] = numericCounts.Any(p => p[i] > 0) || pluralCount[i] > 0 ? true : false;
+                variableCountChars[i] = numericCounts.Skip(1).Any(p => p[i] > 0) || pluralCount[i] > 0 ? true : false; // skip zero which should never be output.
                 if (variableCountChars[i] == false) // for invariant count characters, the numbers they represent can be added to the minimum
                 {
                     var numberOf = numericCounts[minimumCount[i]];
