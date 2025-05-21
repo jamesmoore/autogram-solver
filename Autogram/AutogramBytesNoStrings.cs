@@ -99,6 +99,21 @@ namespace Autogram
                 minimumCount[i] = baselineCount[i] > 0 ? (byte)(baselineCount[i] + 1) : (byte)0;
             }
 
+            var variableCountChars = new bool[RelevantAlphabetCount];
+            for (int i = 0; i < RelevantAlphabetCount; i++)
+            {
+                variableCountChars[i] = numericCounts.Any(p => p[i] > 0) || pluralCount[i] > 0 ? true : false;
+                if (variableCountChars[i] == false) // for invariant count characters, the numbers they represent can be added to the minimum
+                {
+                    var numberOf = numericCounts[minimumCount[i]];
+
+                    for (int j = 0; j < RelevantAlphabetCount; j++)
+                    {
+                        minimumCount[j] += numberOf[j];
+                    }
+                }
+            }
+
             proposedCounts = minimumCount.ToArray();
             computedCounts = GetActualCounts(proposedCounts);
         }
