@@ -1,4 +1,5 @@
-﻿using Autogram.Comparer;
+﻿using System.Diagnostics;
+using Autogram.Comparer;
 
 namespace Autogram
 {
@@ -19,9 +20,12 @@ namespace Autogram
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
 
-        private readonly byte[] baselineCount;
+        private readonly byte[] baselineCount; // counts of characters in the template and conjunction
         private readonly byte[][] numericCounts;
         private readonly byte[] pluralCount;
+        // Minimum counts required for template, conjunction and the letter list that represents them.
+        // This will be used as the initial guess, and a lower limit for guesses.
+        private readonly byte[] minimumCount;
 
         public AutogramBytesNoStrings(
             IEnumerable<char> alphabet,
@@ -40,8 +44,6 @@ namespace Autogram
             RelevantAlphabetCount = RelevantAlphabet.Count();
             var alphabetIndex = RelevantAlphabet.Select((c, i) => (c, i)).ToDictionary(ci => ci.c, ci => ci.i);
 
-            proposedCounts = new byte[RelevantAlphabetCount];
-            computedCounts = new byte[RelevantAlphabetCount];
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.randomSeed = randomSeed;
@@ -90,6 +92,15 @@ namespace Autogram
                     }
                 }
             }
+
+            minimumCount = new byte[RelevantAlphabetCount];
+            for (int i = 0; i < RelevantAlphabetCount; i++)
+            {
+                minimumCount[i] = baselineCount[i] > 0 ? (byte)(baselineCount[i] + 1) : (byte)0;
+            }
+
+            proposedCounts = minimumCount.ToArray();
+            computedCounts = GetActualCounts(proposedCounts);
         }
 
         /// <summary>
@@ -115,15 +126,15 @@ namespace Autogram
                 var computedCount = computedCounts[i];
                 result[i] = computedCount == proposedCounts[i]
                     ? computedCount
-                    : OffsetGuess(computedCount);
+                    : OffsetGuess(computedCount, minimumCount[i]);
             }
             return result;
         }
 
-        private byte OffsetGuess(byte actualCount)
+        private byte OffsetGuess(byte actualCount, byte minimumCount)
         {
             var nextGuess = actualCount + random.Next(6) - 3;
-            if (nextGuess < 0) nextGuess = 0;
+            if (nextGuess < minimumCount) nextGuess = minimumCount;
             return (byte)nextGuess;
         }
 
@@ -181,7 +192,10 @@ namespace Autogram
             var randomReset = false;
             if (history.Contains(nextGuess))
             {
-                proposedCounts = Randomize();
+                //do
+                //{
+                    proposedCounts = Randomize();
+                //} while (history.Contains(proposedCounts));
                 randomReset = true;
             }
             else
@@ -219,6 +233,7 @@ namespace Autogram
             for (int i = 0; i < computedCounts.Length; i++)
             {
                 result[i] = GuessAgain(computedCounts[i], proposedCounts[i]);
+                Debug.Assert(result[i] >= minimumCount[i]);
             }
             return result;
         }
@@ -229,7 +244,7 @@ namespace Autogram
             {
                 return actualCount;
             }
-            else 
+            else
             {
                 return (byte)((actualCount + currentGuess + 1) / 2);
             }
