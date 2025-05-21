@@ -116,6 +116,15 @@ namespace Autogram
 
             proposedCounts = minimumCount.ToArray();
             computedCounts = GetActualCounts(proposedCounts);
+
+            Console.WriteLine("Pre run summary");
+            Console.WriteLine("---------------");
+            Console.WriteLine("#\tChar\tMin\tFixed");
+
+            for (int i=0;i<RelevantAlphabetCount; i++)
+            {
+                Console.WriteLine($"{i}\t{RelevantAlphabet[i]}\t{minimumCount[i]}\t{(variableCountChars[i] ? "N" : "Y")}");
+            }
         }
 
         /// <summary>
@@ -209,7 +218,7 @@ namespace Autogram
             {
                 //do
                 //{
-                    proposedCounts = Randomize();
+                proposedCounts = Randomize();
                 //} while (history.Contains(proposedCounts));
                 randomReset = true;
             }
