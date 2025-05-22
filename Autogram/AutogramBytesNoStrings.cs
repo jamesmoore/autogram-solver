@@ -21,8 +21,7 @@ namespace Autogram
         private readonly int? randomSeed;
 
         private readonly byte[] baselineCount; // counts of characters in the template and conjunction
-        private readonly byte[][] numericCounts;
-        private readonly byte[] pluralCount;
+        private readonly byte[][] numericCounts; // counts of characters per cardnal number plus plural if applicable
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] minimumCount;
@@ -69,16 +68,19 @@ namespace Autogram
                         perCardinalCount[index]++;
                     }
                 }
-                numericCounts[i] = perCardinalCount;
-            }
 
-            pluralCount = new byte[RelevantAlphabetCount];
-            foreach (var c in PluralExtension)
-            {
-                if (alphabetIndex.TryGetValue(c, out int index))
+                if (i != 1)
                 {
-                    pluralCount[index]++;
+                    foreach (var c in PluralExtension)
+                    {
+                        if (alphabetIndex.TryGetValue(c, out int index))
+                        {
+                            perCardinalCount[index]++;
+                        }
+                    }
                 }
+
+                numericCounts[i] = perCardinalCount;
             }
 
             if (string.IsNullOrWhiteSpace(conjunction) == false)
@@ -102,7 +104,7 @@ namespace Autogram
             var variableCountChars = new bool[RelevantAlphabetCount];
             for (int i = 0; i < RelevantAlphabetCount; i++)
             {
-                variableCountChars[i] = numericCounts.Skip(1).Any(p => p[i] > 0) || pluralCount[i] > 0 ? true : false; // skip zero which should never be output.
+                variableCountChars[i] = numericCounts.Skip(1).Any(p => p[i] > 0); // skip zero which should never be output.
                 if (variableCountChars[i] == false) // for invariant count characters, the numbers they represent can be added to the minimum
                 {
                     var numberOf = numericCounts[minimumCount[i]];
@@ -117,11 +119,11 @@ namespace Autogram
             proposedCounts = minimumCount.ToArray();
             computedCounts = GetActualCounts(proposedCounts);
 
-            Console.WriteLine("Pre run summary");
+            Console.WriteLine("Pre-run summary");
             Console.WriteLine("---------------");
             Console.WriteLine("#\tChar\tMin\tFixed");
 
-            for (int i=0;i<RelevantAlphabetCount; i++)
+            for (int i = 0; i < RelevantAlphabetCount; i++)
             {
                 Console.WriteLine($"{i}\t{RelevantAlphabet[i]}\t{minimumCount[i]}\t{(variableCountChars[i] ? "N" : "Y")}");
             }
@@ -183,7 +185,7 @@ namespace Autogram
                 var c = currentGuess[i];
                 if (c == 0) continue;
 
-                // numeric part
+                // numeric + plural part
                 var numericCount = numericCounts[c];
                 for (var j = 0; j < RelevantAlphabetCount; j++)
                 {
@@ -192,15 +194,6 @@ namespace Autogram
 
                 // actual letter
                 result[i]++;
-
-                if (c != 1)
-                {
-                    // plural
-                    for (var j = 0; j < RelevantAlphabetCount; j++)
-                    {
-                        result[j] += pluralCount[j];
-                    }
-                }
             }
 
             return result.ToArray();

@@ -82,7 +82,7 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
         i++;
         var status = autogram.Iterate();
 
-        if (i % 100000 == 0 || status.Success)
+        if (i % 1000000 == 0 || status.Success)
         {
             LogProgress(i, status, status.GuessError, status.TotalDistance, sw);
         }
