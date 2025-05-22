@@ -233,15 +233,7 @@ namespace Autogram
 
             bool success = computedCounts.AsSpan().SequenceEqual(proposedCounts);
 
-            return new Status()
-            {
-                CurrentGuess = proposedCounts,
-                ActualCounts = computedCounts,
-                Success = success,
-                HistoryCount = history.Count,
-                Randomized = randomized,
-                Reordered = reorderedEquals,
-            };
+            return new Status(success, history.Count, randomized, reorderedEquals);
         }
 
         private byte[] AdjustGuessTowardsActualCounts()

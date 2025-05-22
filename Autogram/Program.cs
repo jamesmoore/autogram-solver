@@ -89,7 +89,7 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
 
         if (i % 1000000 == 0 || status.Success)
         {
-            LogProgress(i, status, status.GuessError, status.TotalDistance, sw);
+            LogProgress(i, status.HistoryCount, sw.Elapsed, randomized);
         }
 
         if (status.Success)
@@ -117,33 +117,9 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
     }
 }
 
-void LogProgress(int i, Status status, int[] diffs, int totalDistance, Stopwatch sw)
+void LogProgress(int i, int historyCount, TimeSpan ts, int randomized)
 {
-    Console.WriteLine(sw.Elapsed.ToString(@"hh\:mm\:ss") + "\tIteration: " + i.Humanize() + "\tHistory: " + status.HistoryCount.Humanize() + "\t" + (1000 * (double)i / sw.ElapsedMilliseconds).Humanize() + " iterations/s");
-
-    Console.Write("Current iteration:\t");
-    foreach (var y in diffs)
-    {
-        if (y == 0)
-        {
-            Console.Write("-");
-        }
-        else if (y < 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write(Math.Abs(y));
-            Console.ResetColor();
-        }
-        else if (y > 0)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(Math.Abs(y));
-            Console.ResetColor();
-        }
-    }
-
-    Console.ResetColor();
-
-    Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + totalDistance + (status.Randomized ? "\tRandomized 🎲" : ""));
+    var itspersecond = (1000 * (double)i / ts.TotalMilliseconds);
+    Console.WriteLine($"{ts:hh\\:mm\\:ss}\tIteration: {i.Humanize()}\tHistory: {historyCount.Humanize()}\t{itspersecond.Humanize()} iterations/s\tRandomized: {randomized / (double)i:P}");
 }
 

@@ -1,27 +1,10 @@
 ﻿namespace Autogram
 {
-    public class Status
+    public readonly struct Status(bool success, int historyCount, bool randomized, bool reordered)
     {
-        public Status()
-        {
-            _totalDistance = new Lazy<int>(() => GuessError?.Sum(Math.Abs) ?? 0);
-            //_totalDistance = new Lazy<int>(() => Math.Abs( GuessError?.Sum() ?? 0));
-            _guessError = new Lazy<int[]>(() => ActualCounts.Select((p, i) => CurrentGuess[i] - p).ToArray());
-        }
-        public bool Success { get; set; }
-        public int HistoryCount { get; set; }
-        public bool Randomized { get; set; }
-        public byte[] CurrentGuess { get; set; }
-        public byte[] ActualCounts { get; set; }
-
-
-        private Lazy<int[]> _guessError;
-        public int[] GuessError => _guessError.Value;
-
-        private Lazy<int> _totalDistance;
-
-        public int TotalDistance => _totalDistance.Value;
-
-        public bool Reordered { get; internal set; }
+        public readonly bool Success { get; } = success;
+        public readonly int HistoryCount { get; } = historyCount;
+        public readonly bool Randomized { get; } = randomized;
+        public readonly bool Reordered { get; } = reordered;
     }
 }
