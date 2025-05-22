@@ -206,14 +206,14 @@ namespace Autogram
         public Status Iterate()
         {
             var nextGuess = AdjustGuessTowardsActualCounts();
-            var randomReset = false;
+            var randomized = false;
             if (history.Contains(nextGuess))
             {
                 //do
                 //{
                 proposedCounts = Randomize();
                 //} while (history.Contains(proposedCounts));
-                randomReset = true;
+                randomized = true;
             }
             else
             {
@@ -239,7 +239,7 @@ namespace Autogram
                 ActualCounts = computedCounts,
                 Success = success,
                 HistoryCount = history.Count,
-                RandomReset = randomReset,
+                Randomized = randomized,
                 Reordered = reorderedEquals,
             };
         }

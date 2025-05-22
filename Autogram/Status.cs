@@ -10,7 +10,7 @@
         }
         public bool Success { get; set; }
         public int HistoryCount { get; set; }
-        public bool RandomReset { get; set; }
+        public bool Randomized { get; set; }
         public byte[] CurrentGuess { get; set; }
         public byte[] ActualCounts { get; set; }
 

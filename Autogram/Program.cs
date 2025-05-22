@@ -73,7 +73,7 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
     Console.WriteLine("Starting: " + autogram.ToString());
 
     int i = 0;
-
+    int randomized = 0;
     var sw = new Stopwatch();
     sw.Start();
 
@@ -81,6 +81,11 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
     {
         i++;
         var status = autogram.Iterate();
+
+        if (status.Randomized)
+        {
+            randomized++;
+        }
 
         if (i % 1000000 == 0 || status.Success)
         {
@@ -99,6 +104,7 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
             Console.WriteLine($"⏱️ Duration:\t\t\t{sw.Elapsed:hh\\:mm\\:ss}");
             Console.WriteLine($"🔁 Iterations:\t\t\t{i:N0}");
             Console.WriteLine($"🔁/⏱️ Iterations per second:\t{(i / sw.Elapsed.TotalSeconds).Humanize()}");
+            Console.WriteLine($"🎲 Randomized:\t\t\t{randomized / (double)i:P}");
             Console.WriteLine(new string('-', Console.WindowWidth));
             Console.WriteLine(autogram);
             Console.WriteLine(new string('-', Console.WindowWidth));
@@ -138,6 +144,6 @@ void LogProgress(int i, Status status, int[] diffs, int totalDistance, Stopwatch
 
     Console.ResetColor();
 
-    Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + totalDistance + (status.RandomReset ? "\tRandomized 🎲" : ""));
+    Console.WriteLine("\tMismatches: " + diffs.Count(p => p != 0) + "\tTotal distance: " + totalDistance + (status.Randomized ? "\tRandomized 🎲" : ""));
 }
 
