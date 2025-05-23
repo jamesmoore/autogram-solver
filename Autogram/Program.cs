@@ -61,14 +61,14 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToArray();
 
     if (seed == null)
     {
         seed = new Random().Next();
     }
 
-    var autogram = new Autogram.AutogramBytesNoStringsV2(alphabet, template, conjunction, seed);
+    var autogram = new Autogram.AutogramBytesNoStringsV2(new string(alphabet), template, conjunction, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 

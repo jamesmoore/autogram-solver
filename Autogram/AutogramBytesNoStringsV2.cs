@@ -12,7 +12,6 @@ namespace Autogram
         // All characters that form part of the template, conjunction, plural and cardinals
         private readonly IReadOnlyList<char> RelevantAlphabet;
 
-        private readonly IReadOnlyList<char> VariableAlphabet;
         private readonly int VariableAlphabetCount;
 
         private Random random;
@@ -24,11 +23,11 @@ namespace Autogram
         private readonly int? randomSeed;
 
         // Minimum counts required for template, conjunction, plural and the corresponding cardinals.
-        // This will be used for the number counts of the invariant characters.
+        // This will be used for the cardinal counts of the invariant characters.
         private readonly byte[] minimumCount;
 
         // Counts of chars that intersect with the chars that represent the numeric+plural
-        private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction 
+        private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction PLUS the cardinals of the invariant characters. 
         private readonly byte[][] variableNumericCounts; // counts of characters per cardnal number plus plural if applicable
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
@@ -37,7 +36,7 @@ namespace Autogram
         private readonly Dictionary<int, int?> RelevantToVariableCharMap = [];
 
         public AutogramBytesNoStringsV2(
-            IEnumerable<char> alphabet,
+            string alphabet,
             string template,
             string conjunction,
             int? randomSeed)
@@ -58,7 +57,9 @@ namespace Autogram
             this.randomSeed = randomSeed;
 
             var baselineCount = new byte[relevantAlphabetCount];
-            foreach (var c in baselineTemplate.ToLower())
+
+            // baseline + conjunction - add conjunction to baseline on the basis that there will almost certainly be more than one characters listed.
+            foreach (var c in (baselineTemplate + conjunction).ToLower())
             {
                 if (alphabetIndex.TryGetValue(c, out int index))
                 {
@@ -93,25 +94,13 @@ namespace Autogram
                 numericCounts[i] = perCardinalCount;
             }
 
-            if (string.IsNullOrWhiteSpace(conjunction) == false)
-            {
-                // add conjunction to baseline on the basis that there will almost certainly be more than one characters listed.
-                foreach (var c in conjunction)
-                {
-                    if (alphabetIndex.TryGetValue(c, out int index))
-                    {
-                        baselineCount[index]++;
-                    }
-                }
-            }
-
             minimumCount = new byte[relevantAlphabetCount];
             for (int i = 0; i < relevantAlphabetCount; i++)
             {
                 minimumCount[i] = baselineCount[i] > 0 ? (byte)(baselineCount[i] + 1) : (byte)0;
             }
 
-            var tmpVariableCharAlphabet = new List<char>();
+            var variableAlphabet = new List<char>();
             var tmpVariableBaselineCount = new List<byte>();
             var tmpVariableNumericCount = numericCounts.Select(p => new List<byte>()).ToList();
 
@@ -119,11 +108,11 @@ namespace Autogram
             {
                 var isVariableChar = numericCounts.Skip(1).Any(p => p[i] > 0); // skip zero which should never be output.
 
-                RelevantToVariableCharMap.Add(i, isVariableChar ? tmpVariableCharAlphabet.Count : null);
+                RelevantToVariableCharMap.Add(i, isVariableChar ? variableAlphabet.Count : null);
 
                 if (isVariableChar)
                 {
-                    tmpVariableCharAlphabet.Add(RelevantAlphabet[i]);
+                    variableAlphabet.Add(RelevantAlphabet[i]);
                     tmpVariableBaselineCount.Add(baselineCount[i]);
                     for (int j = 0; j < tmpVariableNumericCount.Count; j++)
                     {
@@ -144,13 +133,13 @@ namespace Autogram
             var tmpVariableMinimumCounts = new List<byte>();
             for (int i = 0; i < relevantAlphabetCount; i++)
             {
-                if (tmpVariableCharAlphabet.Contains(RelevantAlphabet[i]))
+                if (variableAlphabet.Contains(RelevantAlphabet[i]))
                 {
                     tmpVariableMinimumCounts.Add(minimumCount[i]);
                 }
 
                 // we need to add in the invariant characters numeric counts to the tmpVariableBaselineCount
-                if (tmpVariableCharAlphabet.Contains(RelevantAlphabet[i]) == false)
+                if (variableAlphabet.Contains(RelevantAlphabet[i]) == false)
                 {
                     var invariantNumericCount = baselineCount[i] + 1; // +1 for the character itself
                     var chars = tmpVariableNumericCount[invariantNumericCount];
@@ -161,8 +150,7 @@ namespace Autogram
                 }
             }
 
-            VariableAlphabet = tmpVariableCharAlphabet.ToArray();
-            VariableAlphabetCount = VariableAlphabet.Count;
+            VariableAlphabetCount = variableAlphabet.Count;
 
             variableBaselineCount = tmpVariableBaselineCount.ToArray();
             variableNumericCounts = tmpVariableNumericCount.Select(p => p.ToArray()).ToArray();
@@ -182,9 +170,9 @@ namespace Autogram
                     $"{RelevantAlphabet[i]}\t" +
                     $"{baselineCount[i]}\t" +
                     $"{minimumCount[i]}\t" +
-                    $"{(VariableAlphabet.Contains(RelevantAlphabet[i]) ? "N" : "Y")}\t" +
-                    $"{(VariableAlphabet.Contains(RelevantAlphabet[i]) ? variableBaselineCount[index.Value] : "")}\t" +
-                    $"{(VariableAlphabet.Contains(RelevantAlphabet[i]) ? variableMinimumCount[index.Value] : "")}"
+                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? "N" : "Y")}\t" +
+                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableBaselineCount[index.Value] : "")}\t" +
+                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableMinimumCount[index.Value] : "")}"
                     );
             }
         }
