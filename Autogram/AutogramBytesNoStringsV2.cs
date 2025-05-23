@@ -56,9 +56,8 @@ namespace Autogram
 
             this.randomSeed = randomSeed;
 
-            var baselineCount = new byte[relevantAlphabetCount];
-
             // baseline + conjunction - add conjunction to baseline on the basis that there will almost certainly be more than one characters listed.
+            var baselineCount = new byte[relevantAlphabetCount];
             foreach (var c in (baselineTemplate + conjunction).ToLower())
             {
                 if (alphabetIndex.TryGetValue(c, out int index))
@@ -67,27 +66,17 @@ namespace Autogram
                 }
             }
 
+            // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = new byte[100][];
             for (byte i = 0; i < 100; i++)
             {
-                var text = i.ToCardinalNumberStringPrecomputed();
+                var cardinalString = i.ToCardinalNumberStringPrecomputed() + (i == 1 ? "" : PluralExtension);
                 var perCardinalCount = new byte[relevantAlphabetCount];
-                foreach (var c in text)
+                foreach (var c in cardinalString)
                 {
                     if (alphabetIndex.TryGetValue(c, out int index))
                     {
                         perCardinalCount[index]++;
-                    }
-                }
-
-                if (i != 1)
-                {
-                    foreach (var c in PluralExtension)
-                    {
-                        if (alphabetIndex.TryGetValue(c, out int index))
-                        {
-                            perCardinalCount[index]++;
-                        }
                     }
                 }
 
@@ -165,14 +154,14 @@ namespace Autogram
 
             for (int i = 0; i < relevantAlphabetCount; i++)
             {
-                var index = RelevantToVariableCharMap[i];
+                var variableIndex = RelevantToVariableCharMap[i];
                 Console.WriteLine($"{i}\t" +
                     $"{RelevantAlphabet[i]}\t" +
                     $"{baselineCount[i]}\t" +
                     $"{minimumCount[i]}\t" +
                     $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? "N" : "Y")}\t" +
-                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableBaselineCount[index.Value] : "")}\t" +
-                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableMinimumCount[index.Value] : "")}"
+                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableBaselineCount[variableIndex.Value] : "")}\t" +
+                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableMinimumCount[variableIndex.Value] : "")}"
                     );
             }
         }
