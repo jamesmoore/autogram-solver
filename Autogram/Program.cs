@@ -68,7 +68,7 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
         seed = new Random().Next();
     }
 
-    var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template, conjunction, seed);
+    var autogram = new Autogram.AutogramBytesNoStringsV2(alphabet, template, conjunction, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 
