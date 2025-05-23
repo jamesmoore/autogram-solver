@@ -9,8 +9,8 @@ namespace Autogram
         private readonly string conjunction;
         private const string PluralExtension = "'s";
 
+        // All characters that form part of the template, conjunction, plural and cardinals
         private readonly IReadOnlyList<char> RelevantAlphabet;
-        private readonly int RelevantAlphabetCount;
 
         private readonly IReadOnlyList<char> VariableAlphabet;
         private readonly int VariableAlphabetCount;
@@ -23,17 +23,18 @@ namespace Autogram
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly int? randomSeed;
 
-        private readonly byte[] baselineCount; // counts of characters in the template and conjunction
-        private readonly byte[][] numericCounts; // counts of characters per cardnal number plus plural if applicable
-        // Minimum counts required for template, conjunction and the letter list that represents them.
-        // This will be used as the initial guess, and a lower limit for guesses.
+        // Minimum counts required for template, conjunction, plural and the corresponding cardinals.
+        // This will be used for the number counts of the invariant characters.
         private readonly byte[] minimumCount;
 
-        private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction
+        // Counts of chars that intersect with the chars that represent the numeric+plural
+        private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction 
         private readonly byte[][] variableNumericCounts; // counts of characters per cardnal number plus plural if applicable
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
+
+        private readonly Dictionary<int, int?> RelevantToVariableCharMap = [];
 
         public AutogramBytesNoStringsV2(
             IEnumerable<char> alphabet,
@@ -49,14 +50,14 @@ namespace Autogram
             var numericStrings = Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed()).ToList();
 
             RelevantAlphabet = (baselineTemplate + conjunction + PluralExtension + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Where(alphabet.Contains).Distinct().OrderBy(p => p).ToList();
-            RelevantAlphabetCount = RelevantAlphabet.Count();
+            var relevantAlphabetCount = RelevantAlphabet.Count();
             var alphabetIndex = RelevantAlphabet.Select((c, i) => (c, i)).ToDictionary(ci => ci.c, ci => ci.i);
 
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             this.randomSeed = randomSeed;
 
-            baselineCount = new byte[RelevantAlphabetCount];
+            var baselineCount = new byte[relevantAlphabetCount];
             foreach (var c in baselineTemplate.ToLower())
             {
                 if (alphabetIndex.TryGetValue(c, out int index))
@@ -65,11 +66,11 @@ namespace Autogram
                 }
             }
 
-            numericCounts = new byte[100][];
+            var numericCounts = new byte[100][];
             for (byte i = 0; i < 100; i++)
             {
                 var text = i.ToCardinalNumberStringPrecomputed();
-                var perCardinalCount = new byte[RelevantAlphabetCount];
+                var perCardinalCount = new byte[relevantAlphabetCount];
                 foreach (var c in text)
                 {
                     if (alphabetIndex.TryGetValue(c, out int index))
@@ -104,8 +105,8 @@ namespace Autogram
                 }
             }
 
-            minimumCount = new byte[RelevantAlphabetCount];
-            for (int i = 0; i < RelevantAlphabetCount; i++)
+            minimumCount = new byte[relevantAlphabetCount];
+            for (int i = 0; i < relevantAlphabetCount; i++)
             {
                 minimumCount[i] = baselineCount[i] > 0 ? (byte)(baselineCount[i] + 1) : (byte)0;
             }
@@ -114,13 +115,11 @@ namespace Autogram
             var tmpVariableBaselineCount = new List<byte>();
             var tmpVariableNumericCount = numericCounts.Select(p => new List<byte>()).ToList();
 
-            var map = new Dictionary<int, int?>();
-
-            for (int i = 0; i < RelevantAlphabetCount; i++)
+            for (int i = 0; i < relevantAlphabetCount; i++)
             {
                 var isVariableChar = numericCounts.Skip(1).Any(p => p[i] > 0); // skip zero which should never be output.
 
-                map.Add(i, isVariableChar ? tmpVariableCharAlphabet.Count : null);
+                RelevantToVariableCharMap.Add(i, isVariableChar ? tmpVariableCharAlphabet.Count : null);
 
                 if (isVariableChar)
                 {
@@ -135,7 +134,7 @@ namespace Autogram
                 {
                     var numberOf = numericCounts[minimumCount[i]];
 
-                    for (int j = 0; j < RelevantAlphabetCount; j++)
+                    for (int j = 0; j < relevantAlphabetCount; j++)
                     {
                         minimumCount[j] += numberOf[j];
                     }
@@ -143,7 +142,7 @@ namespace Autogram
             }
 
             var tmpVariableMinimumCounts = new List<byte>();
-            for (int i = 0; i < RelevantAlphabetCount; i++)
+            for (int i = 0; i < relevantAlphabetCount; i++)
             {
                 if (tmpVariableCharAlphabet.Contains(RelevantAlphabet[i]))
                 {
@@ -153,8 +152,8 @@ namespace Autogram
                 // we need to add in the invariant characters numeric counts to the tmpVariableBaselineCount
                 if (tmpVariableCharAlphabet.Contains(RelevantAlphabet[i]) == false)
                 {
-                    var numericCounts = baselineCount[i] + 1; // +1 for the character itself
-                    var chars = tmpVariableNumericCount[numericCounts];
+                    var invariantNumericCount = baselineCount[i] + 1; // +1 for the character itself
+                    var chars = tmpVariableNumericCount[invariantNumericCount];
                     for (int j = 0; j < chars.Count; j++)
                     {
                         tmpVariableBaselineCount[j] += chars[j];
@@ -176,9 +175,9 @@ namespace Autogram
             Console.WriteLine("---------------");
             Console.WriteLine("#\tChar\tBase\tMin\tFixed\tVBase\tVMin");
 
-            for (int i = 0; i < RelevantAlphabetCount; i++)
+            for (int i = 0; i < relevantAlphabetCount; i++)
             {
-                var index = map[i];
+                var index = RelevantToVariableCharMap[i];
                 Console.WriteLine($"{i}\t" +
                     $"{RelevantAlphabet[i]}\t" +
                     $"{baselineCount[i]}\t" +
@@ -231,9 +230,14 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var numberItems = proposedCounts.Select((p, index) => p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + RelevantAlphabet[index] + (p == 1 ? "" : PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], index)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(conjunction);
             return string.Format(Template, arg0);
+        }
+
+        private string NumberToListEntry(byte p, int index)
+        {
+            return p == 0 ? string.Empty : p.ToCardinalNumberStringPrecomputed() + " " + RelevantAlphabet[index] + (p == 1 ? "" : PluralExtension);
         }
 
         private byte[] GetActualCounts(byte[] currentGuess)
