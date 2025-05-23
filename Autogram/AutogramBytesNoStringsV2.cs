@@ -150,7 +150,7 @@ namespace Autogram
 
             Console.WriteLine("Pre-run summary");
             Console.WriteLine("---------------");
-            Console.WriteLine("#\tChar\tBase\tMin\tFixed\tVBase\tVMin");
+            Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVBase\tVMin");
 
             for (int i = 0; i < relevantAlphabetCount; i++)
             {
@@ -159,9 +159,9 @@ namespace Autogram
                     $"{RelevantAlphabet[i]}\t" +
                     $"{baselineCount[i]}\t" +
                     $"{minimumCount[i]}\t" +
-                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? "N" : "Y")}\t" +
-                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableBaselineCount[variableIndex.Value] : "")}\t" +
-                    $"{(variableAlphabet.Contains(RelevantAlphabet[i]) ? variableMinimumCount[variableIndex.Value] : "")}"
+                    $"{(variableIndex == null ? "N" : "Y")}\t" +
+                    $"{(variableIndex.HasValue ? variableBaselineCount[variableIndex.Value] : "")}\t" +
+                    $"{(variableIndex.HasValue ? variableMinimumCount[variableIndex.Value] : "")}"
                     );
             }
         }
