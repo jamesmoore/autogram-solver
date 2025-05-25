@@ -68,7 +68,26 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
         seed = new Random().Next();
     }
 
-    var autogram = new Autogram.AutogramBytesNoStringsV2(new string(alphabet), template, conjunction, seed);
+    var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s");
+
+    Console.WriteLine("Pre-run summary");
+    Console.WriteLine("---------------");
+    Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin");
+
+    foreach (var letterConfig in config.Letters)
+    {
+        Console.WriteLine($"{letterConfig.Index}\t" +
+            $"{letterConfig.Char}\t" +
+            $"{letterConfig.BaselineCount}\t" +
+            $"{letterConfig.MinimumCount}\t" +
+            $"{(letterConfig.IsVariable ? "N" : "Y")}\t" +
+            $"{letterConfig.VariableIndex}\t" +
+            $"{letterConfig.VariableBaselineCount}\t" +
+            ""
+            );
+    }
+
+    var autogram = new Autogram.AutogramBytesNoStringsV2(new string(alphabet), config, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 
