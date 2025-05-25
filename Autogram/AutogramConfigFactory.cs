@@ -22,29 +22,27 @@ namespace Autogram
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
 
+            int variableIndex = 0;
             var letters = relevantAlphabetArray.Select((p, i) =>
-                new LetterConfig()
+                new
                 {
                     Index = i,
                     Char = p,
                     BaselineCount = (baselineTemplate + conjunction).ToLower().Count(c => c == p),
                     IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
                 }
-            ).ToList();
-
-            letters.Where(p => p.IsVariable).ToList().ForEach(p => p.VariableIndex = letters.Where(p => p.IsVariable).ToList().IndexOf(p));
+            ).Select(p => new LetterConfig
+            {
+                Index = p.Index,
+                Char = p.Char,
+                BaselineCount = p.BaselineCount,
+                IsVariable = p.IsVariable,
+                VariableIndex = p.IsVariable ? variableIndex++ : null,
+                MinimumCount = p.BaselineCount > 0 ? p.BaselineCount + 1 : 0,
+                VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
+            }).ToList();
 
             var variableNumericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(letters.Where(c => c.IsVariable).Select(p => p.Char)).ToByteArray()).ToList();
-
-            // calculate minumums first pass
-            foreach (var letter in letters)
-            {
-                letter.MinimumCount = letter.BaselineCount > 0 ? letter.BaselineCount + 1 : 0;
-                if (letter.IsVariable)
-                {
-                    letter.VariableBaselineCount = letter.BaselineCount;
-                }
-            }
 
             // increment minimums with invariants
             foreach (var letter in letters.Where(p => p.IsVariable == false))
@@ -55,11 +53,12 @@ namespace Autogram
                     letters[i].MinimumCount += numericCount[i];
                 }
 
-                var numericCount2 = variableNumericCounts[letter.BaselineCount + 1];
+                // add the cardinals of the invariants into the variant baseline.
+                var numericCount2 = variableNumericCounts[letter.BaselineCount + 1]; // baseline incrememted by 1 to include the letter itself
                 for (int i = 0; i < numericCount2.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);
-                    letterConfig.VariableBaselineCount = (letterConfig.VariableBaselineCount ?? 0) + numericCount2[i];
+                    letterConfig.VariableBaselineCount += numericCount2[i];
                 }
             }
 
