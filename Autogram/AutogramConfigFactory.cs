@@ -16,12 +16,11 @@ namespace Autogram
             var numericStrings = Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).ToList();
 
             var relevantAlphabetArray = (baselineTemplate + conjunction + pluralExtension + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
-            var relevantAlphabet = string.Join("", relevantAlphabetArray);
 
             var pluralisedNumericStrings = numericStrings.Select((p, i) => p + (i == 1 ? "" : pluralExtension));
 
             // an array of counts for the cardinal numbers plus possible plural
-            var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabet).ToByteArray()).ToList();
+            var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
 
             var letters = relevantAlphabetArray.Select((p, i) =>
                 new LetterConfig()
@@ -35,9 +34,7 @@ namespace Autogram
 
             letters.Where(p => p.IsVariable).ToList().ForEach(p => p.VariableIndex = letters.Where(p => p.IsVariable).ToList().IndexOf(p));
 
-            var variableAlphabet = string.Join("", letters.Where(c => c.IsVariable).Select(p => p.Char));
-
-            var variableNumericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(variableAlphabet).ToByteArray()).ToList();
+            var variableNumericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(letters.Where(c => c.IsVariable).Select(p => p.Char)).ToByteArray()).ToList();
 
             // calculate minumums first pass
             foreach (var letter in letters)

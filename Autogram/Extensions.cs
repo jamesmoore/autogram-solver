@@ -283,7 +283,7 @@
             return true;
         }
 
-        public static int[] GetFrequencies(this string referenceString, string alphabet)
+        public static int[] GetFrequencies(this string referenceString, IEnumerable<char> alphabet)
         {
             return alphabet.Select(p => referenceString.Where(q => q == p).Count()).ToArray();
         }
