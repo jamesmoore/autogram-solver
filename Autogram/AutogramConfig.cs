@@ -6,9 +6,9 @@ namespace Autogram
         public string Template { get; set; }
         public string Conjunction { get; set; }
         public string PluralExtension { get; set; }
-        public List<LetterConfig> Letters { get; set; }
-        public List<byte[]> NumericCounts { get; internal set; }
-        public List<byte[]> VariableNumericCounts { get; internal set; }
+        public IList<LetterConfig> Letters { get; set; }
+        public IList<byte[]> NumericCounts { get; internal set; }
+        public IList<byte[]> VariableNumericCounts { get; internal set; }
     }
 
     public class LetterConfig
