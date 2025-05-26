@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Autogram": {
+      "commandName": "Project",
+      "commandLineArgs": "-c \" and lastly \""
+    }
+  }
+}
