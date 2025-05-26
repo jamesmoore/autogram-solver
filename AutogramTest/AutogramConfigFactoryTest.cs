@@ -1,0 +1,70 @@
+﻿using Autogram;
+
+namespace AutogramTest
+{
+    public class AutogramConfigFactoryTest
+    {
+        [Fact]
+        public void Test_AutogramConfigFactory_Single_Invariant()
+        {
+            const string alphabet = "a";
+            const string template = "A test {0}";
+            const string conjunction = " and ";
+            const string pluralExtension = "'s";
+
+            var sut = new AutogramConfigFactory();
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension);
+
+            Assert.NotNull(config);
+            Assert.Equal(template, config.Template);
+            Assert.Equal(conjunction, config.Conjunction);
+            Assert.Equal(pluralExtension, config.PluralExtension);
+            Assert.Single(config.Letters);
+
+            var letterConfig = config.Letters.First();
+            Assert.Equal('a', letterConfig.Char);
+            Assert.Equal(0, letterConfig.Index);
+            Assert.False(letterConfig.IsVariable);
+            Assert.Equal(2, letterConfig.BaselineCount);
+            Assert.Equal(3, letterConfig.MinimumCount);
+            Assert.Null(letterConfig.VariableBaselineCount);
+            Assert.Null(letterConfig.VariableIndex);
+        }
+
+        [Fact]
+        public void Test_AutogramConfigFactory()
+        {
+            const string alphabet = "ae";
+            const string template = "A test {0}";
+            const string conjunction = " and ";
+            const string pluralExtension = "'s";
+
+            var sut = new AutogramConfigFactory();
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension);
+
+            Assert.NotNull(config);
+            Assert.Equal(template, config.Template);
+            Assert.Equal(conjunction, config.Conjunction);
+            Assert.Equal(pluralExtension, config.PluralExtension);
+            Assert.Equal(2, config.Letters.Count);
+
+            var letterConfigA = config.Letters.First();
+            Assert.Equal('a', letterConfigA.Char);
+            Assert.Equal(0, letterConfigA.Index);
+            Assert.False(letterConfigA.IsVariable);
+            Assert.Equal(2, letterConfigA.BaselineCount); // 1 'a' in template and one in conjunction
+            Assert.Equal(3, letterConfigA.MinimumCount);
+            Assert.Null(letterConfigA.VariableBaselineCount);
+            Assert.Null(letterConfigA.VariableIndex);
+
+            var letterConfigE = config.Letters.Last();
+            Assert.Equal('e', letterConfigE.Char);
+            Assert.Equal(1, letterConfigE.Index);
+            Assert.True(letterConfigE.IsVariable);
+            Assert.Equal(1, letterConfigE.BaselineCount); // 1 'e' in template
+            Assert.Equal(4, letterConfigE.MinimumCount); // a test three a and X e => 4 x 'e'
+            Assert.Equal(3, letterConfigE.VariableBaselineCount); // a test three a and => 3 x 'e'
+            Assert.Equal(0, letterConfigE.VariableIndex);
+        }
+    }
+}
