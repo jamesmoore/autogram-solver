@@ -13,7 +13,7 @@ Console.CancelKeyPress += (sender, args) =>
 };
 
 var template = args.Length > 0 ? args[0] : null;
-const int AlphabetSize = 26;
+const int defaultAlphabetSize = 26;
 const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
 const string defaultConjunction = " and ";
 
@@ -38,7 +38,7 @@ var seedOption = new Option<int?>(
 var alphabetSizeOption = new Option<int>(
     aliases: ["--alphabet", "-a"],
     description: "The number of letters of the alphabet to use. Eg, you may want to skip z. [This may be improved]",
-    getDefaultValue: () => AlphabetSize
+    getDefaultValue: () => defaultAlphabetSize
     );
 
 var rootCommand = new RootCommand("Autogram searcher")
@@ -57,11 +57,11 @@ templateOption, conjunctionOption, seedOption, alphabetSizeOption);
 
 return rootCommand.InvokeAsync(args).Result;
 
-void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conjunction)
+void DoAutogramSearch(int alphabetSize, int? seed, string template, string conjunction)
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToArray();
+    var alphabet = Enumerable.Range(0, alphabetSize).Select(p => (char)('a' + p)).ToArray();
 
     if (seed == null)
     {
@@ -127,7 +127,11 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
             Console.WriteLine(new string('-', Console.WindowWidth));
             Console.WriteLine(autogram);
             Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.WriteLine($"{Environment.ProcessPath} --template \"{template}\" --conjunction \"{conjunction}\" --alphabet {AlphabetSize} --seed {seed}");
+            Console.WriteLine($".{Path.DirectorySeparatorChar}{Path.GetFileName(Environment.ProcessPath)}" +
+                (template != defaultTemplate ? $" --template \"{template}\"" : "") +
+                (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
+                (alphabetSize != defaultAlphabetSize ? $" --alphabet {alphabetSize}" : "") +
+                $" --seed {seed}");
 
             Console.ResetColor();
             Console.Write("\x1b]9;4;0\x07");
