@@ -61,14 +61,33 @@ void DoAutogramSearch(int AlphabetSize, int? seed, string template, string conju
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToList();
+    var alphabet = Enumerable.Range(0, AlphabetSize).Select(p => (char)('a' + p)).ToArray();
 
     if (seed == null)
     {
         seed = new Random().Next();
     }
 
-    var autogram = new Autogram.AutogramBytesNoStrings(alphabet, template, conjunction, seed);
+    var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s");
+
+    Console.WriteLine("Pre-run summary");
+    Console.WriteLine("---------------");
+    Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin");
+
+    foreach (var letterConfig in config.Letters)
+    {
+        Console.WriteLine($"{letterConfig.Index}\t" +
+            $"{letterConfig.Char}\t" +
+            $"{letterConfig.BaselineCount}\t" +
+            $"{letterConfig.MinimumCount}\t" +
+            $"{(letterConfig.IsVariable ? "N" : "Y")}\t" +
+            $"{letterConfig.VariableIndex}\t" +
+            $"{letterConfig.VariableBaselineCount}\t" +
+            ""
+            );
+    }
+
+    var autogram = new Autogram.AutogramBytesNoStringsV2(new string(alphabet), config, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 

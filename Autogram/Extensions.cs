@@ -175,8 +175,9 @@
 
         private static string[] precomputed;
 
-        static Extensions() {
-            precomputed = Enumerable.Range(0,100).Select(p => p.ToCardinalNumberString()).ToArray();
+        static Extensions()
+        {
+            precomputed = Enumerable.Range(0, 100).Select(p => p.ToCardinalNumberString()).ToArray();
         }
 
         public static string ToCardinalNumberStringPrecomputed(this byte i)
@@ -280,6 +281,16 @@
                 if (--counts[b2] < 0) return false;
 
             return true;
+        }
+
+        public static int[] GetFrequencies(this string referenceString, IEnumerable<char> alphabet)
+        {
+            return alphabet.Select(p => referenceString.Where(q => q == p).Count()).ToArray();
+        }
+
+        public static byte[] ToByteArray(this IEnumerable<int> intarray)
+        {
+            return intarray.Select(p => (byte)p).ToArray();
         }
     }
 }
