@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.CommandLine;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Autogram;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -13,9 +14,10 @@ Console.CancelKeyPress += (sender, args) =>
 };
 
 var template = args.Length > 0 ? args[0] : null;
-const int defaultAlphabetSize = 26;
+const string defaultAlphabetRegex = "[a-z]";
 const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
 const string defaultConjunction = " and ";
+const string defaultForced = "";
 
 var templateOption = new Option<string?>(
     aliases: ["--template", "-t"],
@@ -35,40 +37,76 @@ var seedOption = new Option<int?>(
     getDefaultValue: () => null
     );
 
-var alphabetSizeOption = new Option<int>(
+var alphabetRegexOption = new Option<string>(
     aliases: ["--alphabet", "-a"],
-    description: "The number of letters of the alphabet to use. Eg, you may want to skip z. [This may be improved]",
-    getDefaultValue: () => defaultAlphabetSize
+    description: @"A regex defining the letters of the alphabet to use. Eg, [a-y\.].",
+    getDefaultValue: () => defaultAlphabetRegex
     );
+alphabetRegexOption.AddValidator(result =>
+{
+    var value = result.GetValueForOption(alphabetRegexOption);
+
+    if (value.IsValidRegex() == false)
+    {
+        result.ErrorMessage = $"Alphabet regex: {value} is not a valid regex.";
+    }
+});
+
+var forcedRegexOption = new Option<string>(
+    aliases: ["--forced", "-f"],
+    description: @"A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz].",
+    getDefaultValue: () => defaultForced
+    );
+
+forcedRegexOption.AddValidator(result =>
+{
+    var value = result.GetValueForOption(forcedRegexOption);
+
+    if (string.IsNullOrWhiteSpace(value) == false && value.IsValidRegex() == false)
+    {
+        result.ErrorMessage = $"Forced regex: {value} is not a valid regex.";
+    }
+});
 
 var rootCommand = new RootCommand("Autogram searcher")
 {
     templateOption,
     conjunctionOption,
     seedOption,
-    alphabetSizeOption,
+    alphabetRegexOption,
+    forcedRegexOption,
 };
 
-rootCommand.SetHandler((template, conjunction, seed, alphabetSize) =>
+rootCommand.SetHandler((template, conjunction, seed, alphabetRegexString, forcedRegexString) =>
 {
-    DoAutogramSearch(alphabetSize, seed, template, conjunction);
+    DoAutogramSearch(alphabetRegexString, seed, template, conjunction, forcedRegexString);
 },
-templateOption, conjunctionOption, seedOption, alphabetSizeOption);
+templateOption, conjunctionOption, seedOption, alphabetRegexOption, forcedRegexOption);
 
 return rootCommand.InvokeAsync(args).Result;
 
-void DoAutogramSearch(int alphabetSize, int? seed, string template, string conjunction)
+void DoAutogramSearch(string alphabetRegexString, int? seed, string template, string conjunction, string forcedRegexString)
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    var alphabet = Enumerable.Range(0, alphabetSize).Select(p => (char)('a' + p)).ToArray();
+    var fullAlphabet = Enumerable.Range(0, 256).Select(p => (char)p).ToArray();
+
+    var alphabetRegex = new Regex(alphabetRegexString);
+    var alphabet = fullAlphabet.Where(p => alphabetRegex.IsMatch(p.ToString())).ToArray();
+
+    var forced = defaultForced.ToCharArray();
+    if(string.IsNullOrWhiteSpace(forcedRegexString) == false)
+    {
+        var forcedRegex = new Regex(forcedRegexString);
+        forced = fullAlphabet.Where(p => forcedRegex.IsMatch(p.ToString())).ToArray();
+    }
 
     if (seed == null)
     {
         seed = new Random().Next();
     }
 
-    var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s");
+    var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s", new string(forced));
 
     Console.WriteLine("Pre-run summary");
     Console.WriteLine("---------------");
@@ -130,7 +168,8 @@ void DoAutogramSearch(int alphabetSize, int? seed, string template, string conju
             Console.WriteLine($".{Path.DirectorySeparatorChar}{Path.GetFileName(Environment.ProcessPath)}" +
                 (template != defaultTemplate ? $" --template \"{template}\"" : "") +
                 (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
-                (alphabetSize != defaultAlphabetSize ? $" --alphabet {alphabetSize}" : "") +
+                (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet {alphabetRegex}" : "") +
+                (forcedRegexString.ToString() != defaultForced ? $" --forced {forcedRegexString}" : "") +
                 $" --seed {seed}");
 
             Console.ResetColor();

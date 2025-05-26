@@ -8,14 +8,15 @@ namespace Autogram
             string alphabet,
             string template,
             string conjunction,
-            string pluralExtension
+            string pluralExtension,
+            string forced
             )
         {
             var baselineTemplate = string.Format(template, "");
 
             var numericStrings = Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).ToList();
 
-            var relevantAlphabetArray = (baselineTemplate + conjunction + pluralExtension + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
+            var relevantAlphabetArray = (baselineTemplate + conjunction + pluralExtension + forced + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
 
             var pluralisedNumericStrings = numericStrings.Select((p, i) => p + (i == 1 ? "" : pluralExtension));
 

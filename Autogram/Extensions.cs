@@ -1,4 +1,6 @@
-﻿namespace Autogram
+﻿using System.Text.RegularExpressions;
+
+namespace Autogram
 {
     public static class Extensions
     {
@@ -291,6 +293,22 @@
         public static byte[] ToByteArray(this IEnumerable<int> intarray)
         {
             return intarray.Select(p => (byte)p).ToArray();
+        }
+
+        public static bool IsValidRegex(this string pattern)
+        {
+            if (string.IsNullOrWhiteSpace(pattern)) return false;
+
+            try
+            {
+                Regex.Match("", pattern);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
