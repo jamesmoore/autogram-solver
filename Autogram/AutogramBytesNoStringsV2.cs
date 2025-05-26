@@ -5,17 +5,16 @@ namespace Autogram
 {
     public class AutogramBytesNoStringsV2 : IAutogramFinder
     {
-        private readonly AutogramConfig config;
-
-        private readonly int VariableAlphabetCount;
-
+        private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
+        private readonly int? randomSeed;
         private Random random;
 
         private byte[] proposedCounts;
         private byte[] computedCounts;
 
-        private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
-        private readonly int? randomSeed;
+        private readonly AutogramConfig config;
+
+        private readonly int variableAlphabetCount;
 
         // Minimum counts required for template, conjunction, plural and the corresponding cardinals.
         // This will be used for the cardinal counts of the invariant characters.
@@ -43,7 +42,7 @@ namespace Autogram
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
             
-            VariableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
+            variableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
 
             variableBaselineCount = config.Letters.Where(p => p.IsVariable).Select(p => p.VariableBaselineCount.Value).ToByteArray();
             variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
@@ -60,8 +59,8 @@ namespace Autogram
         /// <param name="resetRandom">If true the random state is reset.</param>
         public void Reset(bool resetRandom = true)
         {
-            proposedCounts = new byte[VariableAlphabetCount];
-            computedCounts = new byte[VariableAlphabetCount];
+            proposedCounts = new byte[variableAlphabetCount];
+            computedCounts = new byte[variableAlphabetCount];
             if (resetRandom)
             {
                 random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -108,17 +107,17 @@ namespace Autogram
 
         private byte[] GetActualCounts(byte[] currentGuess)
         {
-            Span<byte> result = stackalloc byte[VariableAlphabetCount];
+            Span<byte> result = stackalloc byte[variableAlphabetCount];
             variableBaselineCount.CopyTo(result);
 
-            for (var i = 0; i < VariableAlphabetCount; i++)
+            for (var i = 0; i < variableAlphabetCount; i++)
             {
                 var c = currentGuess[i];
                 if (c == 0) continue;
 
                 // numeric + plural part
                 var numericCount = variableNumericCounts[c];
-                for (var j = 0; j < VariableAlphabetCount; j++)
+                for (var j = 0; j < variableAlphabetCount; j++)
                 {
                     result[j] += numericCount[j];
                 }
