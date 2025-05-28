@@ -134,7 +134,7 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
             );
     }
 
-    var autogram = new Autogram.AutogramBytesNoStringsV2(config, seed);
+    var autogram = new Autogram.AutogramBytesNoStringsV3(config, seed);
 
     Console.WriteLine("Starting: " + autogram.ToString());
 
@@ -189,7 +189,7 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
         if (reset.HasValue && i % reset == 0)
         {
             seed++;
-            autogram = new Autogram.AutogramBytesNoStringsV2(config, seed);
+            autogram = new Autogram.AutogramBytesNoStringsV3(config, seed);
         }
     }
 }
