@@ -28,7 +28,6 @@ namespace Autogram
         private readonly byte[] variableMinimumCount;
 
         public AutogramBytesNoStringsV2(
-            string alphabet,
             AutogramConfig config,
             int? randomSeed)
         {
