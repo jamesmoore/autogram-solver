@@ -37,6 +37,12 @@ var seedOption = new Option<int?>(
     getDefaultValue: () => null
     );
 
+var resetOption = new Option<int?>(
+    aliases: ["--reset", "-r"],
+    description: "The reset after N iterations",
+    getDefaultValue: () => null
+    );
+
 var alphabetRegexOption = new Option<string>(
     aliases: ["--alphabet", "-a"],
     description: @"A regex defining the letters of the alphabet to use. Eg, [a-y\.].",
@@ -75,17 +81,18 @@ var rootCommand = new RootCommand("Autogram searcher")
     seedOption,
     alphabetRegexOption,
     forcedRegexOption,
+    resetOption,
 };
 
-rootCommand.SetHandler((template, conjunction, seed, alphabetRegexString, forcedRegexString) =>
+rootCommand.SetHandler((template, conjunction, seed, alphabetRegexString, forcedRegexString, reset) =>
 {
-    DoAutogramSearch(alphabetRegexString, seed, template, conjunction, forcedRegexString);
+    DoAutogramSearch(alphabetRegexString, seed, template, conjunction, forcedRegexString, reset);
 },
-templateOption, conjunctionOption, seedOption, alphabetRegexOption, forcedRegexOption);
+templateOption, conjunctionOption, seedOption, alphabetRegexOption, forcedRegexOption, resetOption);
 
 return rootCommand.InvokeAsync(args).Result;
 
-void DoAutogramSearch(string alphabetRegexString, int? seed, string template, string conjunction, string forcedRegexString)
+void DoAutogramSearch(string alphabetRegexString, int? seed, string template, string conjunction, string forcedRegexString, int? reset)
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
@@ -95,15 +102,17 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
     var alphabet = fullAlphabet.Where(p => alphabetRegex.IsMatch(p.ToString())).ToArray();
 
     var forced = defaultForced.ToCharArray();
-    if(string.IsNullOrWhiteSpace(forcedRegexString) == false)
+    if (string.IsNullOrWhiteSpace(forcedRegexString) == false)
     {
         var forcedRegex = new Regex(forcedRegexString);
         forced = fullAlphabet.Where(p => forcedRegex.IsMatch(p.ToString())).ToArray();
     }
 
+    var rootRandom = new Random();
+
     if (seed == null)
     {
-        seed = new Random().Next();
+        seed = rootRandom.Next();
     }
 
     var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s", new string(forced));
@@ -146,7 +155,7 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
 
         if (i % 1000000 == 0 || status.Success)
         {
-            LogProgress(i, status.HistoryCount, sw.Elapsed, randomized);
+            LogProgress(i, status.HistoryCount, sw.Elapsed, randomized, seed.Value);
         }
 
         if (status.Success)
@@ -176,12 +185,18 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
             Console.Write("\x1b]9;4;0\x07");
             break;
         }
+
+        if (reset.HasValue && i % reset == 0)
+        {
+            seed++;
+            autogram = new Autogram.AutogramBytesNoStringsV2(new string(alphabet), config, seed);
+        }
     }
 }
 
-void LogProgress(int i, int historyCount, TimeSpan ts, int randomized)
+void LogProgress(int i, int historyCount, TimeSpan ts, int randomized, int seed)
 {
     var itspersecond = (1000 * (double)i / ts.TotalMilliseconds);
-    Console.WriteLine($"{ts:hh\\:mm\\:ss}\tIteration: {i.Humanize()}\tHistory: {historyCount.Humanize()}\t{itspersecond.Humanize()} iterations/s\tRandomized: {randomized / (double)i:P}");
+    Console.WriteLine($"{ts:hh\\:mm\\:ss}\tIteration: {i.Humanize()}\tHistory: {historyCount.Humanize()}\t{itspersecond.Humanize()} iterations/s\tRandomized: {randomized / (double)i:P}\tSeed:\t{seed}");
 }
 

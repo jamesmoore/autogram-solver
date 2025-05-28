@@ -53,21 +53,6 @@ namespace Autogram
             computedCounts = GetActualCounts(proposedCounts);
         }
 
-        /// <summary>
-        /// Resets state, and optionally random. Primarily for benchmarking.
-        /// </summary>
-        /// <param name="resetRandom">If true the random state is reset.</param>
-        public void Reset(bool resetRandom = true)
-        {
-            proposedCounts = new byte[variableAlphabetCount];
-            computedCounts = new byte[variableAlphabetCount];
-            if (resetRandom)
-            {
-                random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            }
-            history.Clear();
-        }
-
         private byte[] Randomize()
         {
             var result = new byte[proposedCounts.Length];
