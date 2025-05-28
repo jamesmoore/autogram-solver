@@ -33,7 +33,7 @@ namespace Autogram
             int? randomSeed)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
-            
+
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             this.randomSeed = randomSeed;
 
@@ -41,12 +41,12 @@ namespace Autogram
 
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
-            
+
             variableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
 
             variableBaselineCount = config.Letters.Where(p => p.IsVariable).Select(p => p.VariableBaselineCount.Value).ToByteArray();
             variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
-            
+
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
             proposedCounts = variableBaselineCount.ToArray();
@@ -126,6 +126,12 @@ namespace Autogram
                 result[i]++;
             }
 
+#if DEBUG
+            for (var i = 0; i < variableAlphabetCount; i++)
+            {
+                Debug.Assert(result[i] >= variableMinimumCount[i]);
+            }
+#endif
             return result.ToArray();
         }
 
@@ -141,7 +147,7 @@ namespace Autogram
             {
                 //do
                 //{
-                proposedCounts = Randomize();
+                    proposedCounts = Randomize();
                 //} while (history.Contains(proposedCounts));
                 randomized = true;
             }
