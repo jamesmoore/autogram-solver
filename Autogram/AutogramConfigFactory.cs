@@ -12,13 +12,13 @@ namespace Autogram
             string forced
             )
         {
-            var baselineTemplate = string.Format(template, "");
+            var baselineTemplate = string.Format(template, String.Empty);
 
             var numericStrings = Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).ToList();
 
             var relevantAlphabetArray = (baselineTemplate + conjunction + pluralExtension + forced + numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
 
-            var pluralisedNumericStrings = numericStrings.Select((p, i) => p + (i == 1 ? "" : pluralExtension));
+            var pluralisedNumericStrings = numericStrings.Select((p, i) => p + (i == 1 ? String.Empty : pluralExtension));
 
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
@@ -39,7 +39,7 @@ namespace Autogram
                 BaselineCount = p.BaselineCount,
                 IsVariable = p.IsVariable,
                 VariableIndex = p.IsVariable ? variableIndex++ : null,
-                MinimumCount = p.BaselineCount > 0 ? p.BaselineCount + 1 : 0,
+                MinimumCount = p.BaselineCount > 0 || forced.ToLower().Contains(p.Char) ? p.BaselineCount + 1 : 0,
                 VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
             }).ToList();
 

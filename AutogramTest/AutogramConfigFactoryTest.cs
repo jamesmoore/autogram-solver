@@ -29,6 +29,9 @@ namespace AutogramTest
             Assert.Equal(3, letterConfig.MinimumCount);
             Assert.Null(letterConfig.VariableBaselineCount);
             Assert.Null(letterConfig.VariableIndex);
+
+            Assert.All(config.Letters, TestLetterConfig);
+            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         [Fact]
@@ -65,12 +68,15 @@ namespace AutogramTest
             Assert.Equal(4, letterConfigE.MinimumCount); // a test three a and X e => 4 x 'e'
             Assert.Equal(3, letterConfigE.VariableBaselineCount); // a test three a and => 3 x 'e'
             Assert.Equal(0, letterConfigE.VariableIndex);
+
+            Assert.All(config.Letters, TestLetterConfig);
+            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         [Fact]
         public void Test_AutogramConfigFactory_With_Forced()
         {
-            const string alphabet = "aez";
+            const string alphabet = "aerz";
             const string template = "A test {0}";
             const string conjunction = " and ";
             const string pluralExtension = "'s";
@@ -83,7 +89,7 @@ namespace AutogramTest
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
             Assert.Equal(pluralExtension, config.PluralExtension);
-            Assert.Equal(3, config.Letters.Count);
+            Assert.Equal(4, config.Letters.Count);
 
             var letterConfigA = config.Letters.First();
             Assert.Equal('a', letterConfigA.Char);
@@ -103,14 +109,35 @@ namespace AutogramTest
             Assert.Equal(4, letterConfigE.VariableBaselineCount); // a test three a and one e => 4 x 'e'
             Assert.Equal(0, letterConfigE.VariableIndex);
 
+            var letterConfigR = config.Letters.Skip(2).First();
+            Assert.Equal('r', letterConfigR.Char);
+            Assert.Equal(2, letterConfigR.Index);
+            Assert.True(letterConfigR.IsVariable); // in cardinals
+            Assert.Equal(0, letterConfigR.BaselineCount); // No 'r' in template
+            Assert.Equal(1, letterConfigR.MinimumCount); // "thRee" a's
+            Assert.Equal(1, letterConfigR.VariableBaselineCount); // "thRee" a's
+            Assert.Equal(1, letterConfigR.VariableIndex);
+
             var letterConfigZ = config.Letters.Last();
             Assert.Equal('z', letterConfigZ.Char);
-            Assert.Equal(2, letterConfigZ.Index);
+            Assert.Equal(3, letterConfigZ.Index);
             Assert.False(letterConfigZ.IsVariable);
             Assert.Equal(0, letterConfigZ.BaselineCount); // No 'z' in template
             Assert.Equal(1, letterConfigZ.MinimumCount); // a test three a, X e and one z => 1 x 'z'
             Assert.Null(letterConfigZ.VariableBaselineCount);
             Assert.Null(letterConfigZ.VariableIndex);
+
+            Assert.All(config.Letters, TestLetterConfig);
+            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
+        }
+
+        private static void TestLetterConfig(LetterConfig p)
+        {
+            Assert.True(p.MinimumCount >= p.BaselineCount);
+            if (p.IsVariable)
+            {
+                Assert.True(p.MinimumCount >= p.VariableBaselineCount);
+            }
         }
     }
 }
