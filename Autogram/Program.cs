@@ -39,7 +39,7 @@ var seedOption = new Option<int?>(
 
 var resetOption = new Option<int?>(
     aliases: ["--reset", "-r"],
-    description: "The reset after N iterations",
+    description: "Reset (clear history and incrememnt random seed) after N iterations",
     getDefaultValue: () => null
     );
 
