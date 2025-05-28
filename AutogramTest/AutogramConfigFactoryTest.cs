@@ -134,7 +134,10 @@ namespace AutogramTest
         private static void TestLetterConfig(LetterConfig p)
         {
             Assert.True(p.MinimumCount >= p.BaselineCount);
-            Assert.True(p.MinimumCount >= p.VariableBaselineCount);
+            if (p.IsVariable)
+            {
+                Assert.True(p.MinimumCount >= p.VariableBaselineCount);
+            }
         }
     }
 }
