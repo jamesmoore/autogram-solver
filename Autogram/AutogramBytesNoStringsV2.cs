@@ -28,7 +28,6 @@ namespace Autogram
         private readonly byte[] variableMinimumCount;
 
         public AutogramBytesNoStringsV2(
-            string alphabet,
             AutogramConfig config,
             int? randomSeed)
         {
@@ -51,21 +50,6 @@ namespace Autogram
 
             proposedCounts = variableBaselineCount.ToArray();
             computedCounts = GetActualCounts(proposedCounts);
-        }
-
-        /// <summary>
-        /// Resets state, and optionally random. Primarily for benchmarking.
-        /// </summary>
-        /// <param name="resetRandom">If true the random state is reset.</param>
-        public void Reset(bool resetRandom = true)
-        {
-            proposedCounts = new byte[variableAlphabetCount];
-            computedCounts = new byte[variableAlphabetCount];
-            if (resetRandom)
-            {
-                random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            }
-            history.Clear();
         }
 
         private byte[] Randomize()
