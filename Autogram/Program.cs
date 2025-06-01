@@ -74,6 +74,12 @@ forcedRegexOption.AddValidator(result =>
     }
 });
 
+var quietOption = new Option<bool>(
+    aliases: ["--quiet", "-q"],
+    description: "If true then only a final success will be shown",
+    getDefaultValue: () => false
+    );
+
 var rootCommand = new RootCommand("Autogram searcher")
 {
     templateOption,
@@ -82,17 +88,46 @@ var rootCommand = new RootCommand("Autogram searcher")
     alphabetRegexOption,
     forcedRegexOption,
     resetOption,
+    quietOption,
 };
 
-rootCommand.SetHandler((template, conjunction, seed, alphabetRegexString, forcedRegexString, reset) =>
+rootCommand.SetHandler((
+    template,
+    conjunction,
+    seed,
+    alphabetRegexString,
+    forcedRegexString,
+    reset,
+    quiet) =>
 {
-    DoAutogramSearch(alphabetRegexString, seed, template, conjunction, forcedRegexString, reset);
+    DoAutogramSearch(
+        alphabetRegexString,
+        seed,
+        template,
+        conjunction,
+        forcedRegexString,
+        reset,
+        quiet
+        );
 },
-templateOption, conjunctionOption, seedOption, alphabetRegexOption, forcedRegexOption, resetOption);
+templateOption,
+conjunctionOption,
+seedOption,
+alphabetRegexOption,
+forcedRegexOption,
+resetOption,
+quietOption);
 
 return rootCommand.InvokeAsync(args).Result;
 
-void DoAutogramSearch(string alphabetRegexString, int? seed, string template, string conjunction, string forcedRegexString, int? reset)
+void DoAutogramSearch(
+    string alphabetRegexString,
+    int? seed,
+    string template,
+    string conjunction,
+    string forcedRegexString,
+    int? reset,
+    bool quiet)
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
@@ -117,26 +152,32 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
 
     var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s", new string(forced));
 
-    Console.WriteLine("Pre-run summary");
-    Console.WriteLine("---------------");
-    Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin");
-
-    foreach (var letterConfig in config.Letters)
+    if (quiet == false)
     {
-        Console.WriteLine($"{letterConfig.Index}\t" +
-            $"{letterConfig.Char}\t" +
-            $"{letterConfig.BaselineCount}\t" +
-            $"{letterConfig.MinimumCount}\t" +
-            $"{(letterConfig.IsVariable ? "N" : "Y")}\t" +
-            $"{letterConfig.VariableIndex}\t" +
-            $"{letterConfig.VariableBaselineCount}\t" +
-            ""
-            );
+        Console.WriteLine("Pre-run summary");
+        Console.WriteLine("---------------");
+        Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin");
+
+        foreach (var letterConfig in config.Letters)
+        {
+            Console.WriteLine($"{letterConfig.Index}\t" +
+                $"{letterConfig.Char}\t" +
+                $"{letterConfig.BaselineCount}\t" +
+                $"{letterConfig.MinimumCount}\t" +
+                $"{(letterConfig.IsVariable ? "N" : "Y")}\t" +
+                $"{letterConfig.VariableIndex}\t" +
+                $"{letterConfig.VariableBaselineCount}\t" +
+                ""
+                );
+        }
     }
 
     var autogram = new Autogram.AutogramBytesNoStringsV3(config, seed);
 
-    Console.WriteLine("Starting: " + autogram.ToString());
+    if (quiet == false)
+    {
+        Console.WriteLine("Starting: " + autogram.ToString());
+    }
 
     int i = 0;
     int randomized = 0;
@@ -153,14 +194,14 @@ void DoAutogramSearch(string alphabetRegexString, int? seed, string template, st
             randomized++;
         }
 
-        if (i % 1000000 == 0 || status.Success)
+        if (quiet == false && (i % 1000000 == 0 || status.Success))
         {
             LogProgress(i, status.HistoryCount, sw.Elapsed, randomized, seed.Value);
         }
 
         if (status.Success)
         {
-            if (status.Reordered)
+            if (status.Reordered && quiet == false)
             {
                 Console.WriteLine("Reordered guess");
             }

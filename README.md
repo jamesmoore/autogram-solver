@@ -24,6 +24,7 @@ Options:
   -a, --alphabet <alphabet>        A regex defining the letters of the alphabet to use. Eg, [a-y\.]. [default: [a-z]]
   -f, --forced <forced>            A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz]. []
   -r, --reset <reset>              Reset (clear history and increment random seed) after N iterations []
+  -q, --quiet                      If true then only a final success will be shown [default: False]
   --version                        Show version information
   -?, -h, --help                   Show help and usage information
 ```
@@ -35,9 +36,17 @@ Options:
 This will run using the template `This sentence is an autogram and it contains {0}.`, the full alphabet and ` and ` as the conjunctive.
 
 After a number of iterations you will get an output like
-```Finished @ iteration 14,010,783: This sentence is an autogram and it contains seven a's, three c's, three d's, twenty-six e's, seven f's, four g's, six h's, fourteen i's, one l, two m's, twenty n's, nine o's, eight r's, twenty-nine s's, eighteen t's, six u's, five v's, five w's, four x's and four y's.```
+```
+🎉 Finished 🎉
+⏱️ Duration:                    00:00:02
+🔁 Iterations:                  3,921,190
+🔁/⏱️ Iterations per second:    1.485M
+🎲 Randomized:                  10.94%
+This sentence is an autogram and it contains seven a's, three c's, three d's, twenty-six e's, seven f's, four g's, six h's, fourteen i's, one l, two m's, twenty n's, nine o's, eight r's, twenty-nine s's, eighteen t's, six u's, five v's, five w's, four x's and four y's.
+.\Autogram.exe --seed 375943129
+```
 
-On a reasonable PC you should get ~500K iterations per second.
+On a reasonable PC you should get 1M+ iterations per second, but as the history builds up that will reduce, and memory pressure will build. To combat that you can set the --restart number which will reset the history after a certain number of iterations. The downside to this is that a reduced history will be less effective in preventing repetitive cycles. It's a trade off.
 
 # Examples
 
