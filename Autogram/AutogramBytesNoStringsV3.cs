@@ -131,7 +131,7 @@ namespace Autogram
             {
                 //do
                 //{
-                    proposedCounts = Randomize();
+                proposedCounts = Randomize();
                 //} while (history.Contains(proposedCounts));
                 randomized = true;
             }
@@ -158,12 +158,13 @@ namespace Autogram
 
         private byte[] AdjustGuessTowardsActualCounts()
         {
-            var result = new byte[computedCounts.Length];
+            var result = (byte[])computedCounts.Clone();
+#if DEBUG
             for (int i = 0; i < computedCounts.Length; i++)
             {
-                result[i] = computedCounts[i];
                 Debug.Assert(result[i] >= variableMinimumCount[i]);
             }
+#endif
             return result;
         }
     }
