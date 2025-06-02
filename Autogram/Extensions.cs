@@ -6,8 +6,15 @@ namespace Autogram
     {
         public static string ToCardinalNumberString(this int i)
         {
-            if (i < 0) throw new NotImplementedException("Negatives not supported");
-            if (i > 99) throw new NotImplementedException("Over 100 not supported");
+            if (i < 0)
+            {
+                throw new NotImplementedException("Negatives not supported");
+            }
+
+            if (i > 99)
+            {
+                throw new NotImplementedException("Over 100 not supported");
+            }
 
             string[] first20 = [
                 "zero",
@@ -63,8 +70,15 @@ namespace Autogram
 
         public static string ToCardinalNumberString(this byte i)
         {
-            if (i < 0) throw new NotImplementedException("Negatives not supported");
-            if (i > 99) throw new NotImplementedException("Over 100 not supported");
+            if (i < 0)
+            {
+                throw new NotImplementedException("Negatives not supported");
+            }
+
+            if (i > 99)
+            {
+                throw new NotImplementedException("Over 100 not supported");
+            }
 
             string[] first20 = [
                 "zero",
@@ -154,8 +168,15 @@ namespace Autogram
 
         public static string ToCardinalNumberStringPredefined(this byte i)
         {
-            if (i < 0) throw new NotImplementedException("Negatives not supported");
-            if (i > 99) throw new NotImplementedException("Over 100 not supported");
+            if (i < 0)
+            {
+                throw new NotImplementedException("Negatives not supported");
+            }
+
+            if (i > 99)
+            {
+                throw new NotImplementedException("Over 100 not supported");
+            }
 
             if (i < first20.Length)
             {
@@ -257,16 +278,26 @@ namespace Autogram
             return Math.Sqrt(variance);
         }
 
-        public static bool ByteArraysHaveSameContents(this Span<byte> a, Span<byte> b)
+        public static bool ByteArraysHaveSameContents(this ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
         {
-            if (a.Length != b.Length) return false;
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
 
             var counts = new int[256]; // All possible byte values
 
-            foreach (var b1 in a) counts[b1]++;
+            foreach (var b1 in a)
+            {
+                counts[b1]++;
+            }
+
             foreach (var b2 in b)
             {
-                if (--counts[b2] < 0) return false;
+                if (--counts[b2] < 0)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -274,13 +305,50 @@ namespace Autogram
 
         public static bool UnorderedByteSpanEquals(this ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
         {
-            if (a.Length != b.Length) return false;
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
 
             Span<int> counts = stackalloc int[256];
 
-            foreach (var b1 in a) counts[b1]++;
+            foreach (var b1 in a)
+            {
+                counts[b1]++;
+            }
+
             foreach (var b2 in b)
-                if (--counts[b2] < 0) return false;
+            {
+                if (--counts[b2] < 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool UnorderedByteSpanEquals2(this ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
+        {
+            if (x.Length != y.Length)
+            {
+                return false;
+            }
+
+            Span<byte> xSorted = stackalloc byte[x.Length];
+            Span<byte> ySorted = stackalloc byte[y.Length];
+            x.CopyTo(xSorted);
+            y.CopyTo(ySorted);
+            xSorted.Sort();
+            ySorted.Sort();
+
+            for (int i = 0; i < xSorted.Length; i++)
+            {
+                if (xSorted[i] != ySorted[i])
+                {
+                    return false;
+                }
+            }
 
             return true;
         }
@@ -297,7 +365,10 @@ namespace Autogram
 
         public static bool IsValidRegex(this string pattern)
         {
-            if (string.IsNullOrWhiteSpace(pattern)) return false;
+            if (string.IsNullOrWhiteSpace(pattern))
+            {
+                return false;
+            }
 
             try
             {
