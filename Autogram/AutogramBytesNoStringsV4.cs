@@ -110,7 +110,7 @@ namespace Autogram
 #if DEBUG
             for (var i = 0; i < variableAlphabetCount; i++)
             {
-                Debug.Assert(result[i] >= variableMinimumCount[i]);
+                Debug.Assert(computedCounts[i] >= variableMinimumCount[i]);
             }
 #endif
         }
