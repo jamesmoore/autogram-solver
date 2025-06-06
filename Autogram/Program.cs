@@ -196,7 +196,7 @@ void DoAutogramSearch(
 
         if (quiet == false && (i % 1000000 == 0 || status.Success))
         {
-            LogProgress(i, status.HistoryCount, sw.Elapsed, randomized, seed.Value);
+            LogProgress(i, autogram.HistoryCount, sw.Elapsed, randomized, seed.Value);
         }
 
         if (status.Success)

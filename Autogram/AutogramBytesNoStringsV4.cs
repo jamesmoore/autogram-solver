@@ -9,7 +9,7 @@ namespace Autogram
         private readonly Random random;
 
         private byte[] proposedCounts;
-        private byte[] computedCounts;
+        private readonly byte[] computedCounts;
 
         private readonly AutogramConfig config;
 
@@ -47,7 +47,8 @@ namespace Autogram
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
             proposedCounts = variableBaselineCount.ToArray();
-            computedCounts = GetActualCounts(proposedCounts);
+            computedCounts = variableBaselineCount.ToArray();
+            UpdateComputedCounts(proposedCounts);
         }
 
         /// <summary>
@@ -70,24 +71,25 @@ namespace Autogram
 
             history.Add(proposedCounts);
 
-            computedCounts = GetActualCounts(proposedCounts);
+            UpdateComputedCounts(proposedCounts);
 
             var reorderedEquals = ((ReadOnlySpan<byte>)computedCounts.AsSpan()).UnorderedByteSpanEquals(proposedCounts);
 
             if (reorderedEquals)
             {
+                reorderedEquals = computedCounts.AsSpan().SequenceEqual(proposedCounts) == false;
                 proposedCounts = computedCounts.ToArray();
+                return new Status(true, randomized, reorderedEquals);
             }
-
-            bool success = computedCounts.AsSpan().SequenceEqual(proposedCounts);
-
-            return new Status(success, history.Count, randomized, reorderedEquals);
+            else
+            {
+                return new Status(false, randomized, reorderedEquals);
+            }
         }
 
-        private byte[] GetActualCounts(byte[] currentGuess)
+        private void UpdateComputedCounts(byte[] currentGuess)
         {
-            Span<byte> result = stackalloc byte[variableAlphabetCount];
-            variableBaselineCount.CopyTo(result);
+            variableBaselineCount.CopyTo(computedCounts.AsSpan());
 
             for (var i = 0; i < variableAlphabetCount; i++)
             {
@@ -98,11 +100,11 @@ namespace Autogram
                 var numericCount = variableNumericCounts[c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
-                    result[j] += numericCount[j];
+                    computedCounts[j] += numericCount[j];
                 }
 
                 // actual letter
-                result[i]++;
+                computedCounts[i]++;
             }
 
 #if DEBUG
@@ -111,7 +113,6 @@ namespace Autogram
                 Debug.Assert(result[i] >= variableMinimumCount[i]);
             }
 #endif
-            return result.ToArray();
         }
 
         private byte[] AdjustGuessTowardsActualCounts()
@@ -175,5 +176,7 @@ namespace Autogram
         {
             return quantity == 0 ? string.Empty : quantity.ToCardinalNumberStringPrecomputed() + " " + character + (quantity == 1 ? "" : pluralExtension);
         }
+
+        public int HistoryCount => history.Count;
     }
 }
