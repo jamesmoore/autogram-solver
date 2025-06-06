@@ -138,7 +138,7 @@ namespace Autogram
                 for (int i = 0; i < proposedCounts.Length; i++)
                 {
                     var computedCount = computedCounts[i];
-                    result[i] = computedCount == proposedCounts[i] && randomizationLevel == 0
+                    result[i] = computedCount == proposedCounts[i]
                         ? computedCount
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
