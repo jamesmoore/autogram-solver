@@ -127,7 +127,7 @@ namespace Autogram
             return result;
         }
 
-        private const int RandomRange = 6;
+        private const int RandomRange = 2;
         private const int RandomRangeDiv2 = RandomRange / 2;
 
         private byte[] Randomize()
