@@ -172,7 +172,7 @@ void DoAutogramSearch(
         }
     }
 
-    var autogram = new Autogram.AutogramBytesNoStringsV3(config, seed);
+    var autogram = new Autogram.AutogramBytesNoStringsV4(config, seed);
 
     if (quiet == false)
     {
@@ -196,7 +196,7 @@ void DoAutogramSearch(
 
         if (quiet == false && (i % 1000000 == 0 || status.Success))
         {
-            LogProgress(i, status.HistoryCount, sw.Elapsed, randomized, seed.Value);
+            LogProgress(i, autogram.HistoryCount, sw.Elapsed, randomized, seed.Value);
         }
 
         if (status.Success)
@@ -230,7 +230,7 @@ void DoAutogramSearch(
         if (reset.HasValue && i % reset == 0)
         {
             seed++;
-            autogram = new Autogram.AutogramBytesNoStringsV3(config, seed);
+            autogram = new Autogram.AutogramBytesNoStringsV4(config, seed);
         }
     }
 }
