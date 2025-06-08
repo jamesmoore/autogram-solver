@@ -19,13 +19,13 @@ const string defaultTemplate = "This sentence is an autogram and it contains {0}
 const string defaultConjunction = " and ";
 const string defaultForced = "";
 
-var templateOption = new Option<string?>(
+var templateOption = new Option<string>(
     aliases: ["--template", "-t"],
     description: "The template of the autogram to search for. Must contain a {0}.",
     getDefaultValue: () => defaultTemplate
     );
 
-var conjunctionOption = new Option<string?>(
+var conjunctionOption = new Option<string>(
     aliases: ["--conjunction", "-c"],
     description: "The conjunction to add to the list of letters, appearing before the final one. This is typically \" and \" but you could leave it empty or use \" and lastly \", \" and last but not least\" etc.",
     getDefaultValue: () => defaultConjunction
@@ -52,7 +52,7 @@ alphabetRegexOption.AddValidator(result =>
 {
     var value = result.GetValueForOption(alphabetRegexOption);
 
-    if (value.IsValidRegex() == false)
+    if (value == null || value.IsValidRegex() == false)
     {
         result.ErrorMessage = $"Alphabet regex: {value} is not a valid regex.";
     }
@@ -215,7 +215,7 @@ void DoAutogramSearch(
             Console.WriteLine(new string('-', Console.WindowWidth));
             Console.WriteLine(autogram);
             Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.WriteLine($"{new DirectoryInfo(Directory.GetCurrentDirectory()).GetRelativePathTo(new FileInfo(Environment.ProcessPath))}" +
+            Console.WriteLine($"{GetCurrentExe()}" +
                 (template != defaultTemplate ? $" --template \"{template}\"" : "") +
                 (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
                 (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet {alphabetRegex}" : "") +
@@ -241,3 +241,8 @@ void LogProgress(int i, int historyCount, TimeSpan ts, int randomized, int seed)
     Console.WriteLine($"{ts:hh\\:mm\\:ss}\tIteration: {i.Humanize()}\tHistory: {historyCount.Humanize()}\t{itspersecond.Humanize()} iterations/s\tRandomized: {randomized / (double)i:P}\tSeed:\t{seed}");
 }
 
+static string GetCurrentExe()
+{
+    var processPath = Environment.ProcessPath ?? throw new ApplicationException("No process path");
+    return new DirectoryInfo(Directory.GetCurrentDirectory()).GetRelativePathTo(new FileInfo(processPath));
+}
