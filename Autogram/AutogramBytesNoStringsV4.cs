@@ -127,13 +127,10 @@ namespace Autogram
             return result;
         }
 
-        private const int RandomRange = 2;
-        private const int RandomRangeDiv2 = RandomRange / 2;
-
         private byte[] Randomize()
         {
             var result = new byte[proposedCounts.Length];
-            var randomizationLevel = 0;
+            var randomizationLevel = 1;
             while (true)
             {
                 for (int i = 0; i < proposedCounts.Length; i++)
@@ -155,8 +152,8 @@ namespace Autogram
 
         private byte OffsetGuess(byte actualCount, byte minimumCount, int modifier)
         {
-            int min = Math.Max(minimumCount, actualCount - (RandomRangeDiv2 + modifier));
-            int max = Math.Min(byte.MaxValue, actualCount + (RandomRangeDiv2 + modifier) + 1); // +1 because Random.Next is exclusive at upper bound
+            int min = Math.Max(minimumCount, actualCount - modifier);
+            int max = Math.Min(byte.MaxValue, actualCount + modifier + 1); // +1 because Random.Next is exclusive at upper bound
             return (byte)random.Next(min, max);
         }
 
