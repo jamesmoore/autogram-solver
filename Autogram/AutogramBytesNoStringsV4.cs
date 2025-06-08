@@ -41,7 +41,7 @@ namespace Autogram
 
             variableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
 
-            variableBaselineCount = config.Letters.Where(p => p.IsVariable).Select(p => p.VariableBaselineCount.Value).ToByteArray();
+            variableBaselineCount = config.Letters.Where(p => p.IsVariable && p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));

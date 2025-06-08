@@ -3,22 +3,22 @@ namespace Autogram
 {
     public class AutogramConfig
     {
-        public string Template { get; set; }
-        public string Conjunction { get; set; }
-        public string PluralExtension { get; set; }
-        public IList<LetterConfig> Letters { get; set; }
-        public IList<byte[]> NumericCounts { get; internal set; }
-        public IList<byte[]> VariableNumericCounts { get; internal set; }
+        public required string Template { get; init; }
+        public required string Conjunction { get; init; }
+        public required string PluralExtension { get; init; }
+        public required IList<LetterConfig> Letters { get; init; }
+        public required IList<byte[]> NumericCounts { get; init; }
+        public required IList<byte[]> VariableNumericCounts { get; init; }
     }
 
     public class LetterConfig
     {
-        public int Index { get; set; }
-        public char Char { get; set; }
-        public int BaselineCount { get; set; }
-        public int MinimumCount {  get; set; }
-        public bool IsVariable { get; set; }
-        public int? VariableIndex { get; set; }
-        public int? VariableBaselineCount { get; set; }
+        public required int Index { get; init; }
+        public required char Char { get; init; }
+        public required int BaselineCount { get; init; }
+        public required int MinimumCount {  get; set; }
+        public required bool IsVariable { get; init; }
+        public required int? VariableIndex { get; init; }
+        public required int? VariableBaselineCount { get; set; }
     }
 }
