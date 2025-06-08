@@ -381,5 +381,24 @@ namespace Autogram
 
             return true;
         }
+
+        public static string GetRelativePathTo(this DirectoryInfo baseDir, FileInfo targetFile)
+        {
+            var basePath = Path.GetFullPath(baseDir.FullName + Path.DirectorySeparatorChar);
+            var targetPath = targetFile.FullName;
+
+            if (!string.Equals(Path.GetPathRoot(basePath), Path.GetPathRoot(targetPath), StringComparison.OrdinalIgnoreCase))
+            {
+                // Different drives, return full path
+                return targetPath;
+            }
+
+            var baseUri = new Uri(basePath);
+            var targetUri = new Uri(targetPath);
+
+            var relativePath = Uri.UnescapeDataString(baseUri.MakeRelativeUri(targetUri).ToString())
+                                     .Replace('/', Path.DirectorySeparatorChar);
+            return relativePath;
+        }
     }
 }
