@@ -215,7 +215,7 @@ void DoAutogramSearch(
             Console.WriteLine(new string('-', Console.WindowWidth));
             Console.WriteLine(autogram);
             Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.WriteLine($".{Path.DirectorySeparatorChar}{Path.GetFileName(Environment.ProcessPath)}" +
+            Console.WriteLine($"{new DirectoryInfo(Directory.GetCurrentDirectory()).GetRelativePathTo(new FileInfo(Environment.ProcessPath))}" +
                 (template != defaultTemplate ? $" --template \"{template}\"" : "") +
                 (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
                 (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet {alphabetRegex}" : "") +
