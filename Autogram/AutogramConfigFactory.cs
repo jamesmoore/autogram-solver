@@ -32,7 +32,7 @@ namespace Autogram
                     BaselineCount = (baselineTemplate + conjunction).ToLower().Count(c => c == p),
                     IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
                 }
-            ).Select(p => new LetterConfig
+            ).Select(p => new CharacterConfig
             {
                 Index = p.Index,
                 Char = p.Char,
