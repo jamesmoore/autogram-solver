@@ -47,7 +47,7 @@ namespace Autogram
             string[] tens = [
                 "twenty",
                 "thirty",
-                "fourty",
+                "forty",
                 "fifty",
                 "sixty",
                 "seventy",
@@ -95,7 +95,7 @@ namespace Autogram
             }
             else
             {
-                return string.Join(", ", materialized);
+                return string.Join(Separator, materialized);
             }
         }
 
@@ -113,7 +113,7 @@ namespace Autogram
             }
             else
             {
-                return string.Join(", ", materialized.Take(materialized.Count - 1)) + conjunction + materialized.Last();
+                return string.Join(Separator, materialized.Take(materialized.Count - 1)) + conjunction + materialized.Last();
             }
         }
 
