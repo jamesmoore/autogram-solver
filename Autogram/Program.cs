@@ -218,7 +218,7 @@ void DoAutogramSearch(
             Console.WriteLine($"{GetCurrentExe()}" +
                 (template != defaultTemplate ? $" --template \"{template}\"" : "") +
                 (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
-                (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet {alphabetRegex}" : "") +
+                (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet \"{alphabetRegex}\"" : "") +
                 (forcedRegexString.ToString() != defaultForced ? $" --forced {forcedRegexString}" : "") +
                 $" --seed {seed}");
 
