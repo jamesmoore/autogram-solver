@@ -11,13 +11,13 @@ namespace Autogram.Extensions
 
         public static bool IsAutogram(this string sentence)
         {
-            string lower = sentence.ToLowerInvariant();
+            var lower = sentence.ToLowerInvariant();
 
             // Actual letter counts in the sentence
             Dictionary<char, int> actualCounts = new();
             foreach (char c in lower)
             {
-                if (char.IsLetter(c))
+                if (char.IsLetter(c) || c == '-' || c == ',' || c == '\'')
                 {
                     if (!actualCounts.ContainsKey(c))
                         actualCounts[c] = 0;
@@ -25,8 +25,12 @@ namespace Autogram.Extensions
                 }
             }
 
+            lower = lower.Replace("commas", ",'s");
+            lower = lower.Replace("hyphens", "-'s");
+            lower = lower.Replace("apostrophes", "''s");
+
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z])'?s\b";
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-'])'?s\b";
             var matches = Regex.Matches(lower, pattern);
 
             foreach (Match match in matches)

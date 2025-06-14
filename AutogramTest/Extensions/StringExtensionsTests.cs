@@ -26,5 +26,33 @@ namespace AutogramTest.Extensions
 
             Assert.False(example.IsAutogram());
         }
+
+        [Fact]
+        public void IsAutogram_Extended_Char_Success_Test()
+        {
+            const string example = @"
+                Only the fool would take trouble to verify that his sentence was composed of 
+                ten a's, three b's, four c's, four d's, forty-six e's, sixteen f's, four g's, thirteen h's, 
+                fifteen i's, two k's, nine l's, four m's, twenty-five n's, twenty-four o's, five p's, sixteen r's, 
+                forty-one s's, thirty-seven t's, ten u's, eight v's, eight w's, four x's, eleven y's, twenty-seven commas, 
+                twenty-three apostrophes, seven hyphens and, last but not least, a single !
+                ";
+
+            Assert.True(example.IsAutogram());
+        }
+
+        [Fact]
+        public void IsAutogram_Extended_Char_Fail_Test()
+        {
+            const string example = @"
+                Only the fool would take trouble to verify that his sentence was composed of 
+                ten a's, three b's, four c's, four d's, forty-six e's, sixteen f's, four g's, thirteen h's, 
+                fifteen i's, two k's, nine l's, four m's, twenty-five n's, twenty-four o's, five p's, sixteen r's, 
+                forty-one s's, thirty-seven t's, ten u's, eight v's, eight w's, four x's, eleven y's, twenty-seven commas, 
+                twenty-three apostrophes, six hyphens and, last but not least, a single !
+                ";
+
+            Assert.False(example.IsAutogram());
+        }
     }
 }
