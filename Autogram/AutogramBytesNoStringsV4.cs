@@ -26,6 +26,9 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
+        private readonly bool[] addDistinctCountOfOthers;
+        private readonly bool[] includeSelfInCount;
+
         public AutogramBytesNoStringsV4(
             AutogramConfig config,
             int? randomSeed)
@@ -43,7 +46,9 @@ namespace Autogram
 
             variableBaselineCount = config.Letters.Where(p => p.IsVariable && p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
-
+            addDistinctCountOfOthers = config.Letters.Where(p => p.IsVariable).Select(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers).ToArray();
+            includeSelfInCount = config.Letters.Where(p => p.IsVariable).Select(p => p.IncludeSelfInCount).ToArray();
+            
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
             proposedCounts = variableBaselineCount.ToArray();
@@ -103,8 +108,20 @@ namespace Autogram
                     computedCounts[j] += numericCount[j];
                 }
 
-                // actual letter
-                computedCounts[i]++;
+                // actual letter - for commas, hyphens and apostrophes we don't want to include the char itself.
+                if (includeSelfInCount[i])
+                {
+                    computedCounts[i]++;
+                }
+            }
+
+            for (var i = 0; i < variableAlphabetCount; i++)
+            {
+                // for commas we want to increment by the number of chars that would form the itemised list.
+                if (addDistinctCountOfOthers[i])
+                {
+                    computedCounts[i] += (byte)computedCounts.Count(p => p != 0);
+                }
             }
 
 #if DEBUG
@@ -164,14 +181,16 @@ namespace Autogram
         public override string ToString()
         {
             var RelevantToVariableCharMap = config.Letters.ToDictionary(p => p.Char, p => p.VariableIndex); //   relevantAlphabet.ToDictionary(p => p, p => variableAlphabet.Contains(p) ? variableAlphabet.IndexOf(p) : (int?)null);
-            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], p.Key, config.PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], p.Key)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
             var arg0 = string.IsNullOrWhiteSpace(config.Conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(config.Conjunction);
             return string.Format(config.Template, arg0);
         }
 
-        private static string NumberToListEntry(byte quantity, char character, string pluralExtension)
+        private static string NumberToListEntry(byte quantity, char character)
         {
-            return quantity == 0 ? string.Empty : quantity.ToCardinalNumberStringPrecomputed() + " " + character + (quantity == 1 ? "" : pluralExtension);
+            return quantity == 0 ?
+                string.Empty :
+                quantity.ToCardinalNumberStringPrecomputed() + " " + (quantity == 1 ? character.GetCharacterName() : character.GetPluralisedCharacterName());
         }
 
         public int HistoryCount => history.Count;
