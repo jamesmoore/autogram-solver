@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Autogram;
+using Autogram.Extensions;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
@@ -204,29 +205,8 @@ void DoAutogramSearch(
 
         if (status.Success)
         {
-            if (status.Reordered && quiet == false)
-            {
-                Console.WriteLine("Reordered guess");
-            }
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"🎉 Finished 🎉");
-            Console.WriteLine($"⏱️ Duration:\t\t\t{sw.Elapsed:hh\\:mm\\:ss}");
-            Console.WriteLine($"🔁 Iterations:\t\t\t{i:N0}");
-            Console.WriteLine($"🔁/⏱️ Iterations per second:\t{(i / sw.Elapsed.TotalSeconds).Humanize()}");
-            Console.WriteLine($"🎲 Randomized:\t\t\t{randomized / (double)i:P}");
-            Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.WriteLine(autogram);
-            Console.WriteLine(new string('-', Console.WindowWidth));
-            Console.WriteLine($"{GetCurrentExe()}" +
-                (template != defaultTemplate ? $" --template \"{template}\"" : "") +
-                (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
-                (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet \"{alphabetRegex}\"" : "") +
-                (forcedRegexString.ToString() != defaultForced ? $" --forced {forcedRegexString}" : "") +
-                $" --seed {seed}");
-
-            Console.ResetColor();
-            Console.Write("\x1b]9;4;0\x07");
+            var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegex);
+            ReportSuccess(quiet, autogram.ToString(), i, randomized, sw, status, commandLine);
             break;
         }
 
@@ -242,6 +222,45 @@ void LogProgress(int i, int historyCount, TimeSpan ts, int randomized, int seed)
 {
     var itspersecond = (1000 * (double)i / ts.TotalMilliseconds);
     Console.WriteLine($"{ts:hh\\:mm\\:ss}\tIteration: {i.Humanize()}\tHistory: {historyCount.Humanize()}\t{itspersecond.Humanize()} iterations/s\tRandomized: {randomized / (double)i:P}\tSeed:\t{seed}");
+}
+static void ReportSuccess(bool quiet, string autogramString, int i, int randomized, Stopwatch sw, Status status, string commandLine)
+{
+    if (status.Reordered && quiet == false)
+    {
+        Console.WriteLine("Reordered guess");
+    }
+
+    Console.WriteLine(commandLine);
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"🎉 Finished 🎉");
+    Console.WriteLine($"⏱️ Duration:\t\t\t{sw.Elapsed:hh\\:mm\\:ss}");
+    Console.WriteLine($"🔁 Iterations:\t\t\t{i:N0}");
+    Console.WriteLine($"🔁/⏱️ Iterations per second:\t{(i / sw.Elapsed.TotalSeconds).Humanize()}");
+    Console.WriteLine($"🎲 Randomized:\t\t\t{randomized / (double)i:P}");
+    Console.WriteLine(new string('-', Console.WindowWidth));
+    Console.WriteLine(autogramString);
+    Console.WriteLine(new string('-', Console.WindowWidth));
+
+    var verified = autogramString.IsAutogram();
+    if (verified == false)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Verification FAILED ❌");
+    }
+
+    Console.ResetColor();
+
+    Console.Write("\x1b]9;4;0\x07");
+}
+
+static string GetCommandLine(int? seed, string template, string conjunction, string forcedRegexString, Regex alphabetRegex)
+{
+    return $"{GetCurrentExe()}" +
+        (template != defaultTemplate ? $" --template \"{template}\"" : "") +
+        (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
+        (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet \"{alphabetRegex}\"" : "") +
+        (forcedRegexString.ToString() != defaultForced ? $" --forced {forcedRegexString}" : "") +
+        $" --seed {seed}";
 }
 
 static string GetCurrentExe()
