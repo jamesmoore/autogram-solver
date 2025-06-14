@@ -22,7 +22,7 @@ namespace Autogram.Extensions
             lower = lower.Replace("apostrophes", "''s");
 
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-'])('s)?\b";
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-'])(?:'s)?\b";
             var matches = Regex.Matches(lower, pattern);
 
             var dictionary = new Dictionary<char, int>();
