@@ -68,135 +68,6 @@ namespace Autogram
             }
         }
 
-        public static string ToCardinalNumberString(this byte i)
-        {
-            if (i < 0)
-            {
-                throw new NotImplementedException("Negatives not supported");
-            }
-
-            if (i > 99)
-            {
-                throw new NotImplementedException("Over 100 not supported");
-            }
-
-            string[] first20 = [
-                "zero",
-                "one",
-                "two",
-                "three",
-                "four",
-                "five",
-                "six",
-                "seven",
-                "eight",
-                "nine",
-                "ten",
-                "eleven",
-                "twelve",
-                "thirteen",
-                "fourteen",
-                "fifteen",
-                "sixteen",
-                "seventeen",
-                "eighteen",
-                "nineteen",
-                ];
-
-            if (i < first20.Length)
-            {
-                return first20[i];
-            }
-
-            string[] tens = [
-                "twenty",
-                "thirty",
-                "forty",
-                "fifty",
-                "sixty",
-                "seventy",
-                "eighty",
-                "ninety"
-                ];
-
-            var unit = i % 10;
-            var firstPart = tens[((i - unit) / 10) - 2];
-
-            if (unit == 0)
-            {
-                return firstPart;
-            }
-            else
-            {
-                return $"{firstPart}-{first20[unit]}";
-            }
-        }
-
-        public const string Separator = ", ";
-        private static string[] first20 = [
-            "zero",
-            "one",
-            "two",
-            "three",
-            "four",
-            "five",
-            "six",
-            "seven",
-            "eight",
-            "nine",
-            "ten",
-            "eleven",
-            "twelve",
-            "thirteen",
-            "fourteen",
-            "fifteen",
-            "sixteen",
-            "seventeen",
-            "eighteen",
-            "nineteen",
-            ];
-
-        private static string[] tens = [
-            "twenty",
-            "thirty",
-            "forty",
-            "fifty",
-            "sixty",
-            "seventy",
-            "eighty",
-            "ninety"
-        ];
-
-        public static string ToCardinalNumberStringPredefined(this byte i)
-        {
-            if (i < 0)
-            {
-                throw new NotImplementedException("Negatives not supported");
-            }
-
-            if (i > 99)
-            {
-                throw new NotImplementedException("Over 100 not supported");
-            }
-
-            if (i < first20.Length)
-            {
-                return first20[i];
-            }
-
-            var unit = i % 10;
-            var firstPart = tens[((i - unit) / 10) - 2];
-
-            if (unit == 0)
-            {
-                return firstPart;
-            }
-            else
-            {
-                return $"{firstPart}-{first20[unit]}";
-            }
-        }
-
         private static string[] precomputed;
 
         static Extensions()
@@ -213,6 +84,8 @@ namespace Autogram
         {
             return array.Select(p => p.ToString()).Aggregate((p, q) => p + "," + q);
         }
+
+        public const string Separator = ", ";
 
         public static string Listify(this IEnumerable<string> items)
         {
