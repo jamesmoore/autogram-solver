@@ -5,6 +5,36 @@ namespace AutogramTest.Extensions
     public class StringExtensionsTests
     {
         [Fact]
+        public void GetCharFrequencyTests()
+        {
+            const string example = "This is a test sentence.";
+            var result = example.GetCharFrequency();
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+            Assert.Equal(1, result['T']);
+            Assert.Equal(3, result['t']);
+            Assert.Equal(2, result['i']);
+            Assert.Equal(1, result['.']);
+        }
+
+        [Fact]
+        public void GetStatedFrequencyTests()
+        {
+            // https://en.wikipedia.org/wiki/Autogram
+            const string example = @"This sentence employs 
+                two a's, two c's, two d's, twenty-eight e's, five f's, three g's, eight h's, eleven i's, 
+                three l's, two m's, thirteen n's, nine o's, two p's, five r's, twenty-five s's, 
+                twenty-three t's, six v's, ten w's, two x's, five y's, and one z.";
+            var result = example.GetStatedFrequency();
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+            Assert.Equal(1, result['z']);
+            Assert.Equal(2, result['a']);
+            Assert.Equal(2, result['d']);
+            Assert.Equal(28, result['e']);
+        }
+
+        [Fact]
         public void IsAutogram_Successful_Test()
         {
             // https://en.wikipedia.org/wiki/Autogram
