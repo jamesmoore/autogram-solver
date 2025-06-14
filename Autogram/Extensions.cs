@@ -85,6 +85,8 @@ namespace Autogram
             return array.Select(p => p.ToString()).Aggregate((p, q) => p + "," + q);
         }
 
+        public const string Separator = ", ";
+
         public static string Listify(this IEnumerable<string> items)
         {
             var materialized = items?.ToList();
