@@ -30,7 +30,7 @@ namespace Autogram
 
             var numericStrings = GetNumericStrings();
 
-            var separatorChar = Extensions.Separator.Trim()[0]; // ", "
+            var separatorChar = ExtensionsClass.Separator.Trim()[0]; // ", "
 
             var relevantAlphabetArray = (
                 baselineString +
