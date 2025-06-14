@@ -2,7 +2,7 @@
 
 namespace Autogram
 {
-    public static class Extensions
+    public static class ExtensionsClass
     {
         public static string ToCardinalNumberString(this int i)
         {
@@ -70,7 +70,7 @@ namespace Autogram
 
         private static string[] precomputed;
 
-        static Extensions()
+        static ExtensionsClass()
         {
             precomputed = Enumerable.Range(0, 100).Select(p => p.ToCardinalNumberString()).ToArray();
         }
