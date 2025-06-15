@@ -19,24 +19,11 @@ namespace Autogram
         public required bool IsVariable { get; init; }
         public required int? VariableIndex { get; init; }
         public required int? VariableBaselineCount { get; set; }
-        public CountBasis CountBasis => Char switch
-        {
-            ',' => CountBasis.PerDistinctCountOfOthers,
-            ' ' => CountBasis.PerDistinctCountOfOthers,
-            _ => CountBasis.PerInstance,
-        };
 
         public int PerDistinctCountModifier => Char switch
         {
             ',' => -2, // for commas the penultimate and final don't have a separator.
             ' ' => -2, // ditto for spaces
-            _ => 0,
-        };
-
-        public int PerDistinctCountMultiplier => Char switch
-        {
-            ',' => 1, // one comma per itemised count
-            ' ' => 2, // spaces have two per itemised count "{count} {letter}, "
             _ => 0,
         };
 

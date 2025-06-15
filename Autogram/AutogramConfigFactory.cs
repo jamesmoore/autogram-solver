@@ -32,14 +32,12 @@ namespace Autogram
 
             var separatorString = ExtensionsClass.Separator; // ", "
 
+            var pluralisedNumericStrings = numericStrings.Select((p, i) => p + " " + (i == 1 ? String.Empty : pluralExtension) + separatorString);
+
             var relevantAlphabetArray = (
                 baselineString +
-                separatorString +
-                pluralExtension + // TODO this should be dervied from the plural versions of the relevant characters.
                 forced +
-                numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
-
-            var pluralisedNumericStrings = numericStrings.Select((p, i) => p + (i == 1 ? String.Empty : pluralExtension));
+                pluralisedNumericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
 
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
@@ -51,9 +49,7 @@ namespace Autogram
                     Index = i,
                     Char = p,
                     BaselineCount = baselineString.Count(c => c == p),
-                    IsVariable =
-                        numericCounts.Skip(1).Any(q => q[i] > 0) // skip(1) is to exclude "zero"
-                        || separatorString.Contains(p),
+                    IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
                 }
             ).Select(p => new CharacterConfig
             {
@@ -88,10 +84,11 @@ namespace Autogram
                 }
             }
 
-            // comma, space special case
-            var perDistinctCountLetters = letters.Where(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers);
-            foreach(var letter in perDistinctCountLetters) { 
-                var countDelta = (letter.PerDistinctCountMultiplier * invariantLetters.Count) + letter.PerDistinctCountModifier;
+            // comma, space special case - when these get joined, the last two won't need a comma + space separator
+            var perDistinctCountLetters = letters.Where(p => separatorString.Contains(p.Char));
+            foreach (var letter in perDistinctCountLetters)
+            {
+                var countDelta = letter.PerDistinctCountModifier;
                 letter.BaselineCount += countDelta;
                 letter.MinimumCount += countDelta;
                 letter.VariableBaselineCount += countDelta;
@@ -99,7 +96,7 @@ namespace Autogram
 
             // remove pluralisation for the pre-pluralized special cases.
             var prePluralised = specialChars.Count;
-            foreach(var prePluralisedChar in pluralExtension)
+            foreach (var prePluralisedChar in pluralExtension)
             {
                 var character = letters.Where(p => p.Char == prePluralisedChar).FirstOrDefault();
                 if (character != null)
@@ -107,7 +104,7 @@ namespace Autogram
                     character.BaselineCount -= prePluralised;
                     character.MinimumCount -= prePluralised;
                     character.VariableBaselineCount -= prePluralised;
-                }    
+                }
             }
 
             Debug.Assert(letters.All(p => p.MinimumCount >= p.BaselineCount));

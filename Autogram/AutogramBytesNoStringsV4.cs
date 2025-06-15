@@ -26,8 +26,6 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
-        private readonly byte[] addDistinctCountOfOthersIndex;
-        private readonly int[] addDistinctCountOfOthersMultiplier;
         private readonly bool[] includeSelfInCount;
 
         public AutogramBytesNoStringsV4(
@@ -47,8 +45,6 @@ namespace Autogram
             variableAlphabetCount = variableChars.Count();
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
-            addDistinctCountOfOthersIndex = variableChars.Where(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers).Select(p => p.VariableIndex!.Value).ToByteArray();
-            addDistinctCountOfOthersMultiplier = addDistinctCountOfOthersIndex.Select(p => variableChars[p]).Select(p => p.PerDistinctCountMultiplier).ToArray();
             includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
@@ -117,19 +113,6 @@ namespace Autogram
                 }
             }
 
-            // for commas we want to increment by the number of chars that would form the itemised list.
-            for (var i = 0; i < addDistinctCountOfOthersIndex.Length; i++)
-            {
-                byte nonZeroComputedCounts = 0;
-                for (var j = 0; j < computedCounts.Length; j++)
-                {
-                    if (computedCounts[j] != 0)
-                    {
-                        nonZeroComputedCounts++;
-                    }
-                }
-                computedCounts[addDistinctCountOfOthersIndex[i]] += (byte)(nonZeroComputedCounts * addDistinctCountOfOthersMultiplier[i]);
-            }
 
 #if DEBUG
             for (var i = 0; i < variableAlphabetCount; i++)

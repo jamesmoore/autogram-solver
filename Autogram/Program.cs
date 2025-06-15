@@ -157,7 +157,7 @@ void DoAutogramSearch(
     {
         Console.WriteLine("Pre-run summary");
         Console.WriteLine("---------------");
-        Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin\tIncludeSelf\tCountBasis");
+        Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin\tIncludeSelf");
 
         foreach (var letterConfig in config.Letters)
         {
@@ -170,7 +170,6 @@ void DoAutogramSearch(
                 $"{letterConfig.VariableBaselineCount}\t" +
                 $"{(letterConfig.IsVariable ? letterConfig.MinimumCount : String.Empty)}\t" +
                 $"{(letterConfig.IncludeSelfInCount ? "Y" : "N")}\t" +
-                $"{letterConfig.CountBasis}\t" +
                 ""
                 );
         }
