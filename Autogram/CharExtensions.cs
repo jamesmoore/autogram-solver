@@ -7,6 +7,7 @@
             if (character == ',') return "comma";
             if (character == '-') return "hyphen";
             if (character == '\'') return "apostrophe";
+            if (character == ' ') return "space";
             return character.ToString();
         }
 
@@ -15,6 +16,7 @@
             if (character == ',') return "commas";
             if (character == '-') return "hyphens";
             if (character == '\'') return "apostrophes";
+            if (character == ' ') return "spaces";
             return character + "\'s";
         }
 

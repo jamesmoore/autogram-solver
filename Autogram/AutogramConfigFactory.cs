@@ -30,11 +30,11 @@ namespace Autogram
 
             var numericStrings = GetNumericStrings();
 
-            var separatorChar = ExtensionsClass.Separator.Trim()[0]; // ", "
+            var separatorString = ExtensionsClass.Separator; // ", "
 
             var relevantAlphabetArray = (
                 baselineString +
-                separatorChar +
+                separatorString +
                 pluralExtension + // TODO this should be dervied from the plural versions of the relevant characters.
                 forced +
                 numericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
@@ -53,7 +53,7 @@ namespace Autogram
                     BaselineCount = baselineString.Count(c => c == p),
                     IsVariable =
                         numericCounts.Skip(1).Any(q => q[i] > 0) // skip(1) is to exclude "zero"
-                        || separatorChar == p,
+                        || separatorString.Contains(p),
                 }
             ).Select(p => new CharacterConfig
             {
@@ -62,7 +62,7 @@ namespace Autogram
                 BaselineCount = p.BaselineCount,
                 IsVariable = p.IsVariable,
                 VariableIndex = p.IsVariable ? variableIndex++ : null,
-                MinimumCount = p.BaselineCount > 0 || forced.ToLower().Contains(p.Char) ? p.BaselineCount + 1 : 0,
+                MinimumCount = p.BaselineCount > 0 || forced.ToLower().Contains(p.Char) ? p.BaselineCount + 1 : 0, // TODO should this factor in IncludeSelf?
                 VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
             }).ToList();
 
@@ -88,17 +88,13 @@ namespace Autogram
                 }
             }
 
-            // comma special case
-            var commaConfig = letters.FirstOrDefault(p => p.Char == separatorChar);
-            if (commaConfig != null)
-            {
-                var commaDelta =
-                    invariantLetters.Count // all the invariant chars 
-                    - 2 // final and penultimate won't need one
-                    ;
-                commaConfig.BaselineCount += commaDelta;
-                commaConfig.MinimumCount += commaDelta;
-                commaConfig.VariableBaselineCount += commaDelta;
+            // comma, space special case
+            var perDistinctCountLetters = letters.Where(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers);
+            foreach(var letter in perDistinctCountLetters) { 
+                var countDelta = (letter.PerDistinctCountMultiplier * invariantLetters.Count) + letter.PerDistinctCountModifier;
+                letter.BaselineCount += countDelta;
+                letter.MinimumCount += countDelta;
+                letter.VariableBaselineCount += countDelta;
             }
 
             // remove pluralisation for the pre-pluralized special cases.

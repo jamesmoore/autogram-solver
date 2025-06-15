@@ -27,6 +27,7 @@ namespace Autogram
         private readonly byte[] variableMinimumCount;
 
         private readonly byte[] addDistinctCountOfOthersIndex;
+        private readonly int[] addDistinctCountOfOthersMultiplier;
         private readonly bool[] includeSelfInCount;
 
         public AutogramBytesNoStringsV4(
@@ -42,12 +43,12 @@ namespace Autogram
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
 
-            var variableChars = config.Letters.Where(p => p.IsVariable);
+            var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
             variableAlphabetCount = variableChars.Count();
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
             addDistinctCountOfOthersIndex = variableChars.Where(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers).Select(p => p.VariableIndex!.Value).ToByteArray();
-
+            addDistinctCountOfOthersMultiplier = addDistinctCountOfOthersIndex.Select(p => variableChars[p]).Select(p => p.PerDistinctCountMultiplier).ToArray();
             includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
@@ -127,7 +128,7 @@ namespace Autogram
                         nonZeroComputedCounts++;
                     }
                 }
-                computedCounts[addDistinctCountOfOthersIndex[i]] += nonZeroComputedCounts;
+                computedCounts[addDistinctCountOfOthersIndex[i]] += (byte)(nonZeroComputedCounts * addDistinctCountOfOthersMultiplier[i]);
             }
 
 #if DEBUG

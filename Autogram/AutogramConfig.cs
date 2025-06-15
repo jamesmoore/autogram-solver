@@ -22,8 +22,22 @@ namespace Autogram
         public CountBasis CountBasis => Char switch
         {
             ',' => CountBasis.PerDistinctCountOfOthers,
-            '\'' => CountBasis.PerNonZeroPlural,
+            ' ' => CountBasis.PerDistinctCountOfOthers,
             _ => CountBasis.PerInstance,
+        };
+
+        public int PerDistinctCountModifier => Char switch
+        {
+            ',' => -2, // for commas the penultimate and final don't have a separator.
+            ' ' => -2, // ditto for spaces
+            _ => 0,
+        };
+
+        public int PerDistinctCountMultiplier => Char switch
+        {
+            ',' => 1, // one comma per itemised count
+            ' ' => 2, // spaces have two per itemised count "{count} {letter}, "
+            _ => 0,
         };
 
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
@@ -47,9 +61,5 @@ namespace Autogram
         /// for each instance of the character PLUS one for each non zero of the others (eg for commas)
         /// </summary>
         PerDistinctCountOfOthers,
-        /// <summary>
-        /// For each instance of the counts that are plural excluding zero
-        /// </summary>
-        PerNonZeroPlural,
     }
 }
