@@ -42,7 +42,7 @@ namespace Autogram
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
 
             var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
-            variableAlphabetCount = variableChars.Count();
+            variableAlphabetCount = variableChars.Count;
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
             includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
