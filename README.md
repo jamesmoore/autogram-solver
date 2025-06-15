@@ -28,6 +28,11 @@ Options:
   --version                        Show version information
   -?, -h, --help                   Show help and usage information
 ```
+## Run in docker
+
+```sh
+docker run ghcr.io/jamesmoore/autogram-solver:main
+```
 
 ## Default
 ```powershell
