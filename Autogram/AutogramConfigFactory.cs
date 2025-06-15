@@ -80,7 +80,7 @@ namespace Autogram
                 }
 
                 // add the cardinals of the invariants into the variant baseline.
-                var numericCount2 = variableNumericCounts[letter.BaselineCount + 1]; // baseline incrememted by 1 to include the letter itself
+                var numericCount2 = variableNumericCounts[letter.BaselineCount + 1]; // baseline incremented by 1 to include the letter itself
                 for (int i = 0; i < numericCount2.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);
@@ -92,14 +92,13 @@ namespace Autogram
             var commaConfig = letters.FirstOrDefault(p => p.Char == separatorChar);
             if (commaConfig != null)
             {
-                var commaBaseline =
-                    commaConfig.BaselineCount + // however many commas in the baseline template, conjunction
+                var commaDelta =
                     invariantLetters.Count // all the invariant chars 
                     - 2 // final and penultimate won't need one
                     ;
-                commaConfig.BaselineCount = commaBaseline;
-                commaConfig.MinimumCount = commaBaseline;
-                commaConfig.VariableBaselineCount = commaBaseline;
+                commaConfig.BaselineCount += commaDelta;
+                commaConfig.MinimumCount += commaDelta;
+                commaConfig.VariableBaselineCount += commaDelta;
             }
 
             // remove pluralisation for the pre-pluralized special cases.
