@@ -38,11 +38,10 @@ namespace Autogram
 
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
-
-            variableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
-
-            variableBaselineCount = config.Letters.Where(p => p.IsVariable && p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
-            variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
+            var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
+            variableAlphabetCount = variableChars.Count;
+            variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
+            variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
