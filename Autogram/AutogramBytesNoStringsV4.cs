@@ -26,6 +26,8 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
+        private readonly bool[] includeSelfInCount;
+
         public AutogramBytesNoStringsV4(
             AutogramConfig config,
             int? randomSeed)
@@ -38,10 +40,12 @@ namespace Autogram
 
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
+
             var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
             variableAlphabetCount = variableChars.Count;
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
+            includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
@@ -102,9 +106,13 @@ namespace Autogram
                     computedCounts[j] += numericCount[j];
                 }
 
-                // actual letter
-                computedCounts[i]++;
+                // actual letter - for commas, hyphens and apostrophes we don't want to include the char itself.
+                if (includeSelfInCount[i])
+                {
+                    computedCounts[i]++;
+                }
             }
+
 
 #if DEBUG
             for (var i = 0; i < variableAlphabetCount; i++)
@@ -162,15 +170,20 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var RelevantToVariableCharMap = config.Letters.ToDictionary(p => p.Char, p => p.VariableIndex); //   relevantAlphabet.ToDictionary(p => p, p => variableAlphabet.Contains(p) ? variableAlphabet.IndexOf(p) : (int?)null);
-            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], p.Key, config.PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var relevantToVariableCharMap = config.Letters.Select(p => new {
+                p.Char,
+                Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
+            }).Where(p => p.Count > 0);
+            var numberItems = relevantToVariableCharMap.Select(p => NumberToListEntry((byte)p.Count, p.Char)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(config.Conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(config.Conjunction);
             return string.Format(config.Template, arg0);
         }
 
-        private static string NumberToListEntry(byte quantity, char character, string pluralExtension)
+        private static string NumberToListEntry(byte quantity, char character)
         {
-            return quantity == 0 ? string.Empty : quantity.ToCardinalNumberStringPrecomputed() + " " + character + (quantity == 1 ? "" : pluralExtension);
+            return quantity == 0 ?
+                string.Empty :
+                quantity.ToCardinalNumberStringPrecomputed() + " " + (quantity == 1 ? character.GetCharacterName() : character.GetPluralisedCharacterName());
         }
 
         public int HistoryCount => history.Count;

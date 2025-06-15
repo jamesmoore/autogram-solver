@@ -20,9 +20,10 @@ namespace Autogram.Extensions
             lower = lower.Replace("commas", ",'s");
             lower = lower.Replace("hyphens", "-'s");
             lower = lower.Replace("apostrophes", "''s");
+            lower = lower.Replace("spaces", " 's");
 
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-'])(?:'s)?\b";
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?\b";
             var matches = Regex.Matches(lower, pattern);
 
             var dictionary = new Dictionary<char, int>();
