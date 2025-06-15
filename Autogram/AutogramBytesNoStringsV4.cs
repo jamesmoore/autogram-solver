@@ -116,10 +116,18 @@ namespace Autogram
                 }
             }
 
+            // for commas we want to increment by the number of chars that would form the itemised list.
             for (var i = 0; i < addDistinctCountOfOthersIndex.Length; i++)
             {
-                // for commas we want to increment by the number of chars that would form the itemised list.
-                computedCounts[addDistinctCountOfOthersIndex[i]] += (byte)computedCounts.Count(p => p != 0);
+                byte nonZeroComputedCounts = 0;
+                for (var j = 0; j < computedCounts.Length; j++)
+                {
+                    if (computedCounts[j] != 0)
+                    {
+                        nonZeroComputedCounts++;
+                    }
+                }
+                computedCounts[addDistinctCountOfOthersIndex[i]] += nonZeroComputedCounts;
             }
 
 #if DEBUG
