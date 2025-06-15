@@ -170,8 +170,11 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var RelevantToVariableCharMap = config.Letters.ToDictionary(p => p.Char, p => p.VariableIndex); //   relevantAlphabet.ToDictionary(p => p, p => variableAlphabet.Contains(p) ? variableAlphabet.IndexOf(p) : (int?)null);
-            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], p.Key)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var relevantToVariableCharMap = config.Letters.Select(p => new {
+                p.Char,
+                Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
+            }).Where(p => p.Count > 0);
+            var numberItems = relevantToVariableCharMap.Select(p => NumberToListEntry((byte)p.Count, p.Char)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(config.Conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(config.Conjunction);
             return string.Format(config.Template, arg0);
         }

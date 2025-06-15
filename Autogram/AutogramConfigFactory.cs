@@ -50,6 +50,7 @@ namespace Autogram
                     Char = p,
                     BaselineCount = baselineString.Count(c => c == p),
                     IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
+                    Forced = forced.ToLower().Contains(p),
                 }
             ).Select(p => new CharacterConfig
             {
@@ -58,7 +59,7 @@ namespace Autogram
                 BaselineCount = p.BaselineCount,
                 IsVariable = p.IsVariable,
                 VariableIndex = p.IsVariable ? variableIndex++ : null,
-                MinimumCount = p.BaselineCount > 0 || forced.ToLower().Contains(p.Char) ? p.BaselineCount + 1 : 0, // TODO should this factor in IncludeSelf?
+                MinimumCount = p.BaselineCount + (p.Char.HasExtendedName() == false && (p.BaselineCount > 0 || p.Forced) ? 1 : 0), // increment by 1 if guaranteed to be present unless it's got an extended name.
                 VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
             }).ToList();
 
