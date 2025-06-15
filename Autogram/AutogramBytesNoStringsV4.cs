@@ -26,7 +26,7 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
-        private readonly bool[] addDistinctCountOfOthers;
+        private readonly byte[] addDistinctCountOfOthersIndex;
         private readonly bool[] includeSelfInCount;
 
         public AutogramBytesNoStringsV4(
@@ -42,13 +42,14 @@ namespace Autogram
             // minimum count is baseline + 1 if present, to account for the character itself in the list.
             minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
 
-            variableAlphabetCount = config.Letters.Where(p => p.IsVariable).Count();
+            var variableChars = config.Letters.Where(p => p.IsVariable);
+            variableAlphabetCount = variableChars.Count();
+            variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
+            variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
+            addDistinctCountOfOthersIndex = variableChars.Where(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers).Select(p => p.VariableIndex!.Value).ToByteArray();
 
-            variableBaselineCount = config.Letters.Where(p => p.IsVariable && p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
-            variableMinimumCount = config.Letters.Where(p => p.IsVariable).Select(p => p.MinimumCount).ToByteArray();
-            addDistinctCountOfOthers = config.Letters.Where(p => p.IsVariable).Select(p => p.CountBasis == CountBasis.PerDistinctCountOfOthers).ToArray();
-            includeSelfInCount = config.Letters.Where(p => p.IsVariable).Select(p => p.IncludeSelfInCount).ToArray();
-            
+            includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
+
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
             proposedCounts = variableBaselineCount.ToArray();
@@ -115,13 +116,10 @@ namespace Autogram
                 }
             }
 
-            for (var i = 0; i < variableAlphabetCount; i++)
+            for (var i = 0; i < addDistinctCountOfOthersIndex.Length; i++)
             {
                 // for commas we want to increment by the number of chars that would form the itemised list.
-                if (addDistinctCountOfOthers[i])
-                {
-                    computedCounts[i] += (byte)computedCounts.Count(p => p != 0);
-                }
+                computedCounts[addDistinctCountOfOthersIndex[i]] += (byte)computedCounts.Count(p => p != 0);
             }
 
 #if DEBUG
