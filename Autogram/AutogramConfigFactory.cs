@@ -65,7 +65,9 @@ namespace Autogram
 
             var variableLetters = letters.Where(c => c.IsVariable).ToList();
             var invariantLetters = letters.Where(c => c.IsVariable == false).ToList();
-            var variableNumericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(variableLetters.Select(p => p.Char)).ToByteArray()).ToList();
+            var variableChars = variableLetters.Select(p => p.Char).ToList();
+
+            var variableNumericCounts = letters.Select(p => p.GetStringRepresentationFrequencies(variableChars)).ToArray();
 
             // increment minimums with invariants
             foreach (var letter in invariantLetters)
@@ -77,11 +79,11 @@ namespace Autogram
                 }
 
                 // add the cardinals of the invariants into the variant baseline.
-                var numericCount2 = variableNumericCounts[letter.BaselineCount + 1]; // baseline incremented by 1 to include the letter itself
-                for (int i = 0; i < numericCount2.Length; i++)
+                var numericCount3 = variableNumericCounts[letter.Index][letter.BaselineCount + 1];
+                for (int i = 0; i < numericCount3.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);
-                    letterConfig.VariableBaselineCount += numericCount2[i];
+                    letterConfig.VariableBaselineCount += numericCount3[i];
                 }
             }
 
@@ -95,19 +97,6 @@ namespace Autogram
                 letter.VariableBaselineCount += countDelta;
             }
 
-            // remove pluralisation for the pre-pluralized special cases.
-            var prePluralised = specialChars.Count;
-            foreach (var prePluralisedChar in pluralExtension)
-            {
-                var character = letters.Where(p => p.Char == prePluralisedChar).FirstOrDefault();
-                if (character != null)
-                {
-                    character.BaselineCount -= prePluralised;
-                    character.MinimumCount -= prePluralised;
-                    character.VariableBaselineCount -= prePluralised;
-                }
-            }
-
             Debug.Assert(letters.All(p => p.MinimumCount >= p.BaselineCount));
             Debug.Assert(variableLetters.All(p => p.MinimumCount >= p.VariableBaselineCount));
 
@@ -115,9 +104,7 @@ namespace Autogram
             {
                 Template = template,
                 Conjunction = conjunction,
-                PluralExtension = pluralExtension,
                 Letters = letters,
-                VariableNumericCounts = variableNumericCounts,
             };
         }
 

@@ -15,18 +15,12 @@ namespace Autogram
 
         private readonly int variableAlphabetCount;
 
-        // Minimum counts required for template, conjunction, plural and the corresponding cardinals.
-        // This will be used for the cardinal counts of the invariant characters.
-        private readonly byte[] minimumCount;
-
         // Counts of chars that intersect with the chars that represent the numeric+plural
         private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction PLUS the cardinals of the invariant characters. 
-        private readonly byte[][] variableNumericCounts; // counts of characters per cardnal number plus plural if applicable
+        private readonly byte[][][] variableNumericCount;
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
-
-        private readonly bool[] includeSelfInCount;
 
         public AutogramBytesNoStringsV4(
             AutogramConfig config,
@@ -36,16 +30,12 @@ namespace Autogram
 
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
-            variableNumericCounts = config.VariableNumericCounts.ToArray();
-
-            // minimum count is baseline + 1 if present, to account for the character itself in the list.
-            minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
+            variableNumericCount = config.GetVariableNumericCounts();
 
             var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
             variableAlphabetCount = variableChars.Count;
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
-            includeSelfInCount = variableChars.Select(p => p.IncludeSelfInCount).ToArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
@@ -99,20 +89,12 @@ namespace Autogram
                 var c = currentGuess[i];
                 if (c == 0) continue;
 
-                // numeric + plural part
-                var numericCount = variableNumericCounts[c];
+                var numericCount = variableNumericCount[i][c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
                     computedCounts[j] += numericCount[j];
                 }
-
-                // actual letter - for commas, hyphens and apostrophes we don't want to include the char itself.
-                if (includeSelfInCount[i])
-                {
-                    computedCounts[i]++;
-                }
             }
-
 
 #if DEBUG
             for (var i = 0; i < variableAlphabetCount; i++)

@@ -18,7 +18,6 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(pluralExtension, config.PluralExtension);
             Assert.Single(config.Letters);
 
             var letterConfig = config.Letters.First();
@@ -48,7 +47,6 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(pluralExtension, config.PluralExtension);
             Assert.Equal(2, config.Letters.Count);
 
             var letterConfigA = config.Letters.First();
@@ -88,7 +86,6 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(pluralExtension, config.PluralExtension);
             Assert.Equal(4, config.Letters.Count);
 
             var letterConfigA = config.Letters.First();
@@ -145,7 +142,6 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(pluralExtension, config.PluralExtension);
             Assert.Equal(7, config.Letters.Count);
 
             var letterConfigSpace = config.Letters.First();
@@ -161,9 +157,9 @@ namespace AutogramTest
             Assert.Equal('\'', letterConfigApostrophe.Char);
             Assert.Equal(1, letterConfigApostrophe.Index);
             Assert.True(letterConfigApostrophe.IsVariable);
-            Assert.Equal(-4, letterConfigApostrophe.BaselineCount); // There are 0 in the template but we take off 4 because of the pluralisation of the 4 special chars
-            Assert.Equal(-3, letterConfigApostrophe.MinimumCount); // baseline + 1 for the "a's"
-            Assert.Equal(-3, letterConfigApostrophe.VariableBaselineCount);
+            Assert.Equal(0, letterConfigApostrophe.BaselineCount); // There are 0 in the template
+            Assert.Equal(1, letterConfigApostrophe.MinimumCount); // baseline + 1 for the "a's"
+            Assert.Equal(1, letterConfigApostrophe.VariableBaselineCount);
             Assert.Equal(1, letterConfigApostrophe.VariableIndex);
 
             var letterConfigComma = config.Letters.Skip(2).First();
