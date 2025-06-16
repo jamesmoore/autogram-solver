@@ -63,11 +63,16 @@ namespace Autogram
                 VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
             }).ToList();
 
-            var variableLetters = letters.Where(c => c.IsVariable).ToList();
-            var invariantLetters = letters.Where(c => c.IsVariable == false).ToList();
-            var variableChars = variableLetters.Select(p => p.Char).ToList();
+            AutogramConfig autogramConfig = new()
+            {
+                Template = template,
+                Conjunction = conjunction,
+                AllChars = letters,
+            };
 
-            var variableNumericCounts = letters.Select(p => p.GetStringRepresentationFrequencies(variableChars)).ToArray();
+            var invariantLetters = letters.Where(c => c.IsVariable == false).ToList();
+
+            var variableNumericCounts = autogramConfig.GetNumericCounts();
 
             // increment minimums with invariants
             foreach (var letter in invariantLetters)
@@ -97,15 +102,8 @@ namespace Autogram
                 letter.VariableBaselineCount += countDelta;
             }
 
-            Debug.Assert(letters.All(p => p.MinimumCount >= p.BaselineCount));
-            Debug.Assert(variableLetters.All(p => p.MinimumCount >= p.VariableBaselineCount));
-
-            return new AutogramConfig()
-            {
-                Template = template,
-                Conjunction = conjunction,
-                Letters = letters,
-            };
+            autogramConfig.Validate();
+            return autogramConfig;
         }
 
         private static IEnumerable<string> GetNumericStrings()

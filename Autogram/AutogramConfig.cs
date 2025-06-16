@@ -7,14 +7,27 @@ namespace Autogram
     {
         public required string Template { get; init; }
         public required string Conjunction { get; init; }
-        public required IList<CharacterConfig> Letters { get; init; }
-        public IEnumerable<char> VariableChars => this.Letters.Where(p => p.IsVariable).Select(p => p.Char);
+        public required IList<CharacterConfig> AllChars { get; init; }
+
+        public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
+
+        public byte[][][] GetNumericCounts()
+        {
+            return this.AllChars.Select(p => p.GetStringRepresentationFrequencies(this.VariableCharsChars)).ToArray();
+        }
 
         public byte[][][] GetVariableNumericCounts()
         {
-            return this.Letters.Where(p => p.IsVariable).Select(p => p.GetStringRepresentationFrequencies(this.VariableChars)).ToArray();
+            return this.AllChars.Where(p => p.IsVariable).Select(p => p.GetStringRepresentationFrequencies(this.VariableCharsChars)).ToArray();
         }
 
+        private IEnumerable<char> VariableCharsChars => this.AllChars.Where(p => p.IsVariable).Select(p => p.Char);
+
+        public void Validate()
+        {
+            Debug.Assert(AllChars.All(p => p.MinimumCount >= p.BaselineCount));
+            Debug.Assert(VariableChars.All(p => p.MinimumCount >= p.VariableBaselineCount));
+        }
     }
 
     [DebuggerDisplay("{Char.ToString()}")]
@@ -28,16 +41,19 @@ namespace Autogram
         public required int? VariableIndex { get; init; }
         public required int? VariableBaselineCount { get; set; }
 
-        public int PerDistinctCountModifier => Char switch
-        {
-            ',' => -2, // for commas the penultimate and final don't have a separator.
-            ' ' => -2, // ditto for spaces
-            _ => 0,
-        };
+        /// <summary>
+        /// For the separator chars (comma and space typically) it should be reduced by 2 because in the itemised string they don't appear on the last two entries.
+        /// </summary>
+        public int PerDistinctCountModifier => ExtensionsClass.Separator.Contains(this.Char) ? -2 : 0;
 
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
 
-        public IList<string> GetStringRepresentations()
+        public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
+        {
+            return this.GetStringRepresentations().Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
+        }
+
+        private IList<string> GetStringRepresentations()
         {
             return Enumerable.Range(0, 100).Select(StringRepresentationFor).ToList();
         }
@@ -46,22 +62,5 @@ namespace Autogram
         {
             return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i) : string.Empty) + ExtensionsClass.Separator;
         }
-
-        public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
-        {
-            return this.GetStringRepresentations().Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
-        }
-    }
-
-    public enum CountBasis
-    {
-        /// <summary>
-        /// the count is for each instance of character in the sentence (Regular letters).
-        /// </summary>
-        PerInstance,
-        /// <summary>
-        /// for each instance of the character PLUS one for each non zero of the others (eg for commas)
-        /// </summary>
-        PerDistinctCountOfOthers,
     }
 }

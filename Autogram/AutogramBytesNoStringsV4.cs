@@ -32,16 +32,16 @@ namespace Autogram
 
             variableNumericCount = config.GetVariableNumericCounts();
 
-            var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
+            var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
-            proposedCounts = variableBaselineCount.ToArray();
-            computedCounts = variableBaselineCount.ToArray();
-            UpdateComputedCounts(proposedCounts);
+            proposedCounts = variableMinimumCount.ToArray();
+            computedCounts = variableMinimumCount.ToArray();
+            UpdateComputedCounts();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Autogram
 
             history.Add(proposedCounts);
 
-            UpdateComputedCounts(proposedCounts);
+            UpdateComputedCounts();
 
             var reorderedEquals = ((ReadOnlySpan<byte>)computedCounts.AsSpan()).UnorderedByteSpanEquals(proposedCounts);
 
@@ -80,13 +80,13 @@ namespace Autogram
             }
         }
 
-        private void UpdateComputedCounts(byte[] currentGuess)
+        private void UpdateComputedCounts()
         {
             variableBaselineCount.CopyTo(computedCounts.AsSpan());
 
             for (var i = 0; i < variableAlphabetCount; i++)
             {
-                var c = currentGuess[i];
+                var c = proposedCounts[i];
                 if (c == 0) continue;
 
                 var numericCount = variableNumericCount[i][c];
@@ -152,7 +152,7 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var relevantToVariableCharMap = config.Letters.Select(p => new {
+            var relevantToVariableCharMap = config.AllChars.Select(p => new {
                 p.Char,
                 Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);

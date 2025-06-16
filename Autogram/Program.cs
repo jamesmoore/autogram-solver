@@ -159,7 +159,7 @@ void DoAutogramSearch(
         Console.WriteLine("---------------");
         Console.WriteLine("Index\tChar\tBase\tMin\tFixed\tVIndex\tVBase\tVMin\tIncludeSelf");
 
-        foreach (var letterConfig in config.Letters)
+        foreach (var letterConfig in config.AllChars)
         {
             Console.WriteLine($"{letterConfig.Index}\t" +
                 $"{letterConfig.Char}\t" +

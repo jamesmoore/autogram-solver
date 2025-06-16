@@ -18,9 +18,10 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Single(config.Letters);
+            var allChars = config.AllChars;
+            Assert.Single(allChars);
 
-            var letterConfig = config.Letters.First();
+            var letterConfig = allChars.First();
             Assert.Equal('a', letterConfig.Char);
             Assert.Equal(0, letterConfig.Index);
             Assert.False(letterConfig.IsVariable);
@@ -29,8 +30,8 @@ namespace AutogramTest
             Assert.Null(letterConfig.VariableBaselineCount);
             Assert.Null(letterConfig.VariableIndex);
 
-            Assert.All(config.Letters, TestLetterConfig);
-            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
+            Assert.All(allChars, TestLetterConfig);
+            Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         [Fact]
@@ -47,9 +48,10 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(2, config.Letters.Count);
+            var allChars = config.AllChars;
+            Assert.Equal(2, allChars.Count);
 
-            var letterConfigA = config.Letters.First();
+            var letterConfigA = allChars.First();
             Assert.Equal('a', letterConfigA.Char);
             Assert.Equal(0, letterConfigA.Index);
             Assert.False(letterConfigA.IsVariable);
@@ -58,7 +60,7 @@ namespace AutogramTest
             Assert.Null(letterConfigA.VariableBaselineCount);
             Assert.Null(letterConfigA.VariableIndex);
 
-            var letterConfigE = config.Letters.Last();
+            var letterConfigE = allChars.Last();
             Assert.Equal('e', letterConfigE.Char);
             Assert.Equal(1, letterConfigE.Index);
             Assert.True(letterConfigE.IsVariable);
@@ -67,8 +69,8 @@ namespace AutogramTest
             Assert.Equal(3, letterConfigE.VariableBaselineCount); // a test three a and => 3 x 'e'
             Assert.Equal(0, letterConfigE.VariableIndex);
 
-            Assert.All(config.Letters, TestLetterConfig);
-            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
+            Assert.All(allChars, TestLetterConfig);
+            Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         [Fact]
@@ -86,9 +88,10 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(4, config.Letters.Count);
+            var allChars = config.AllChars;
+            Assert.Equal(4, allChars.Count);
 
-            var letterConfigA = config.Letters.First();
+            var letterConfigA = allChars.First();
             Assert.Equal('a', letterConfigA.Char);
             Assert.Equal(0, letterConfigA.Index);
             Assert.False(letterConfigA.IsVariable);
@@ -97,7 +100,7 @@ namespace AutogramTest
             Assert.Null(letterConfigA.VariableBaselineCount);
             Assert.Null(letterConfigA.VariableIndex);
 
-            var letterConfigE = config.Letters.Skip(1).First();
+            var letterConfigE = allChars.Skip(1).First();
             Assert.Equal('e', letterConfigE.Char);
             Assert.Equal(1, letterConfigE.Index);
             Assert.True(letterConfigE.IsVariable);
@@ -106,7 +109,7 @@ namespace AutogramTest
             Assert.Equal(4, letterConfigE.VariableBaselineCount); // a test three a and one e => 4 x 'e'
             Assert.Equal(0, letterConfigE.VariableIndex);
 
-            var letterConfigR = config.Letters.Skip(2).First();
+            var letterConfigR = allChars.Skip(2).First();
             Assert.Equal('r', letterConfigR.Char);
             Assert.Equal(2, letterConfigR.Index);
             Assert.True(letterConfigR.IsVariable); // in cardinals
@@ -115,7 +118,7 @@ namespace AutogramTest
             Assert.Equal(1, letterConfigR.VariableBaselineCount); // "thRee" a's
             Assert.Equal(1, letterConfigR.VariableIndex);
 
-            var letterConfigZ = config.Letters.Last();
+            var letterConfigZ = allChars.Last();
             Assert.Equal('z', letterConfigZ.Char);
             Assert.Equal(3, letterConfigZ.Index);
             Assert.False(letterConfigZ.IsVariable);
@@ -124,8 +127,8 @@ namespace AutogramTest
             Assert.Null(letterConfigZ.VariableBaselineCount);
             Assert.Null(letterConfigZ.VariableIndex);
 
-            Assert.All(config.Letters, TestLetterConfig);
-            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
+            Assert.All(config.AllChars, TestLetterConfig);
+            Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         [Fact]
@@ -142,9 +145,10 @@ namespace AutogramTest
             Assert.NotNull(config);
             Assert.Equal(template, config.Template);
             Assert.Equal(conjunction, config.Conjunction);
-            Assert.Equal(7, config.Letters.Count);
+            var allChars = config.AllChars;
+            Assert.Equal(7, allChars.Count);
 
-            var letterConfigSpace = config.Letters.First();
+            var letterConfigSpace = allChars.First();
             Assert.Equal(' ', letterConfigSpace.Char);
             Assert.Equal(0, letterConfigSpace.Index);
             Assert.True(letterConfigSpace.IsVariable);
@@ -153,7 +157,7 @@ namespace AutogramTest
             Assert.Equal(4, letterConfigSpace.VariableBaselineCount);
             Assert.Equal(0, letterConfigSpace.VariableIndex);
 
-            var letterConfigApostrophe = config.Letters.Skip(1).First();
+            var letterConfigApostrophe = allChars.Skip(1).First();
             Assert.Equal('\'', letterConfigApostrophe.Char);
             Assert.Equal(1, letterConfigApostrophe.Index);
             Assert.True(letterConfigApostrophe.IsVariable);
@@ -162,7 +166,7 @@ namespace AutogramTest
             Assert.Equal(1, letterConfigApostrophe.VariableBaselineCount);
             Assert.Equal(1, letterConfigApostrophe.VariableIndex);
 
-            var letterConfigComma = config.Letters.Skip(2).First();
+            var letterConfigComma = allChars.Skip(2).First();
             Assert.Equal(',', letterConfigComma.Char);
             Assert.Equal(2, letterConfigComma.Index);
             Assert.True(letterConfigComma.IsVariable);
@@ -171,7 +175,7 @@ namespace AutogramTest
             Assert.Equal(-1, letterConfigComma.VariableBaselineCount);
             Assert.Equal(2, letterConfigComma.VariableIndex);
 
-            var letterConfigHyphen = config.Letters.Skip(3).First();
+            var letterConfigHyphen = allChars.Skip(3).First();
             Assert.Equal('-', letterConfigHyphen.Char);
             Assert.Equal(3, letterConfigHyphen.Index);
             Assert.True(letterConfigHyphen.IsVariable);
@@ -180,7 +184,7 @@ namespace AutogramTest
             Assert.Equal(0, letterConfigHyphen.VariableBaselineCount);
             Assert.Equal(3, letterConfigHyphen.VariableIndex);
 
-            var letterConfigA = config.Letters.Skip(4).First();
+            var letterConfigA = allChars.Skip(4).First();
             Assert.Equal('a', letterConfigA.Char);
             Assert.Equal(4, letterConfigA.Index);
             Assert.False(letterConfigA.IsVariable); // in cardinals
@@ -189,7 +193,7 @@ namespace AutogramTest
             Assert.Null(letterConfigA.VariableBaselineCount);
             Assert.Null(letterConfigA.VariableIndex);
 
-            var letterConfigE = config.Letters.Skip(5).First();
+            var letterConfigE = allChars.Skip(5).First();
             Assert.Equal('e', letterConfigE.Char);
             Assert.Equal(5, letterConfigE.Index);
             Assert.True(letterConfigE.IsVariable); // in cardinals
@@ -198,7 +202,7 @@ namespace AutogramTest
             Assert.Equal(4, letterConfigE.VariableBaselineCount); 
             Assert.Equal(4, letterConfigE.VariableIndex);
 
-            var letterConfigR = config.Letters.Last();
+            var letterConfigR = allChars.Last();
             Assert.Equal('r', letterConfigR.Char);
             Assert.Equal(6, letterConfigR.Index);
             Assert.True(letterConfigR.IsVariable);
@@ -207,8 +211,8 @@ namespace AutogramTest
             Assert.Equal(1, letterConfigR.VariableBaselineCount);
             Assert.Equal(5, letterConfigR.VariableIndex);
 
-            Assert.All(config.Letters, TestLetterConfig);
-            Assert.All(config.Letters.Where(p => p.IsVariable), TestLetterConfig);
+            Assert.All(allChars, TestLetterConfig);
+            Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
 
         private static void TestLetterConfig(CharacterConfig p)
