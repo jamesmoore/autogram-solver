@@ -148,68 +148,68 @@ namespace AutogramTest
             var allChars = config.AllChars;
             Assert.Equal(7, allChars.Count);
 
-            var letterConfigSpace = allChars.First();
-            Assert.Equal(' ', letterConfigSpace.Char);
-            Assert.Equal(0, letterConfigSpace.Index);
-            Assert.True(letterConfigSpace.IsVariable);
-            Assert.Equal(2, letterConfigSpace.BaselineCount); // 4 in template+conjunction BUT 2 deducted (end of listify)
-            Assert.Equal(4, letterConfigSpace.MinimumCount); // baseline + 2 for the "a" invariant
-            Assert.Equal(4, letterConfigSpace.VariableBaselineCount);
-            Assert.Equal(0, letterConfigSpace.VariableIndex);
-
-            var letterConfigApostrophe = allChars.Skip(1).First();
-            Assert.Equal('\'', letterConfigApostrophe.Char);
-            Assert.Equal(1, letterConfigApostrophe.Index);
-            Assert.True(letterConfigApostrophe.IsVariable);
-            Assert.Equal(0, letterConfigApostrophe.BaselineCount); // There are 0 in the template
-            Assert.Equal(1, letterConfigApostrophe.MinimumCount); // baseline + 1 for the "a's"
-            Assert.Equal(1, letterConfigApostrophe.VariableBaselineCount);
-            Assert.Equal(1, letterConfigApostrophe.VariableIndex);
-
-            var letterConfigComma = allChars.Skip(2).First();
-            Assert.Equal(',', letterConfigComma.Char);
-            Assert.Equal(2, letterConfigComma.Index);
-            Assert.True(letterConfigComma.IsVariable);
-            Assert.Equal(-2, letterConfigComma.BaselineCount); // 0 in template+conjunction BUT 2 deducted (end of listify)
-            Assert.Equal(-1, letterConfigComma.MinimumCount); // baseline + 1 for the "a's" 
-            Assert.Equal(-1, letterConfigComma.VariableBaselineCount);
-            Assert.Equal(2, letterConfigComma.VariableIndex);
-
-            var letterConfigHyphen = allChars.Skip(3).First();
-            Assert.Equal('-', letterConfigHyphen.Char);
-            Assert.Equal(3, letterConfigHyphen.Index);
-            Assert.True(letterConfigHyphen.IsVariable);
-            Assert.Equal(0, letterConfigHyphen.BaselineCount); // Zero in template and cardinals
-            Assert.Equal(0, letterConfigHyphen.MinimumCount); // No reason to increment from baseline
-            Assert.Equal(0, letterConfigHyphen.VariableBaselineCount);
-            Assert.Equal(3, letterConfigHyphen.VariableIndex);
-
-            var letterConfigA = allChars.Skip(4).First();
+            var letterConfigA = allChars.First();
             Assert.Equal('a', letterConfigA.Char);
-            Assert.Equal(4, letterConfigA.Index);
+            Assert.Equal(0, letterConfigA.Index);
             Assert.False(letterConfigA.IsVariable); // in cardinals
             Assert.Equal(5, letterConfigA.BaselineCount); // 1 (template) + 1 (conjunction) + 3 (Apostrophe, spAce, commA) 
             Assert.Equal(6, letterConfigA.MinimumCount); // baseline + 1 for self
             Assert.Null(letterConfigA.VariableBaselineCount);
             Assert.Null(letterConfigA.VariableIndex);
 
-            var letterConfigE = allChars.Skip(5).First();
+            var letterConfigE = allChars.Skip(1).First();
             Assert.Equal('e', letterConfigE.Char);
-            Assert.Equal(5, letterConfigE.Index);
+            Assert.Equal(1, letterConfigE.Index);
             Assert.True(letterConfigE.IsVariable); // in cardinals
             Assert.Equal(4, letterConfigE.BaselineCount); // 1 (template) + 3 (apostrophE, spacE, hyphEn) 
             Assert.Equal(5, letterConfigE.MinimumCount); // baseline + 1 for self
             Assert.Equal(4, letterConfigE.VariableBaselineCount); 
-            Assert.Equal(4, letterConfigE.VariableIndex);
+            Assert.Equal(0, letterConfigE.VariableIndex);
 
-            var letterConfigR = allChars.Last();
+            var letterConfigR = allChars.Skip(2).First();
             Assert.Equal('r', letterConfigR.Char);
-            Assert.Equal(6, letterConfigR.Index);
+            Assert.Equal(2, letterConfigR.Index);
             Assert.True(letterConfigR.IsVariable);
             Assert.Equal(1, letterConfigR.BaselineCount); // 1 (apostRophe)  
             Assert.Equal(2, letterConfigR.MinimumCount); // baseline + 1 for self 
             Assert.Equal(1, letterConfigR.VariableBaselineCount);
-            Assert.Equal(5, letterConfigR.VariableIndex);
+            Assert.Equal(1, letterConfigR.VariableIndex);
+
+            var letterConfigSpace = allChars.Skip(3).First();
+            Assert.Equal(' ', letterConfigSpace.Char);
+            Assert.Equal(3, letterConfigSpace.Index);
+            Assert.True(letterConfigSpace.IsVariable);
+            Assert.Equal(2, letterConfigSpace.BaselineCount); // 4 in template+conjunction BUT 2 deducted (end of listify)
+            Assert.Equal(4, letterConfigSpace.MinimumCount); // baseline + 2 for the "a" invariant
+            Assert.Equal(4, letterConfigSpace.VariableBaselineCount);
+            Assert.Equal(2, letterConfigSpace.VariableIndex);
+
+            var letterConfigApostrophe = allChars.Skip(4).First();
+            Assert.Equal('\'', letterConfigApostrophe.Char);
+            Assert.Equal(4, letterConfigApostrophe.Index);
+            Assert.True(letterConfigApostrophe.IsVariable);
+            Assert.Equal(0, letterConfigApostrophe.BaselineCount); // There are 0 in the template
+            Assert.Equal(1, letterConfigApostrophe.MinimumCount); // baseline + 1 for the "a's"
+            Assert.Equal(1, letterConfigApostrophe.VariableBaselineCount);
+            Assert.Equal(3, letterConfigApostrophe.VariableIndex);
+
+            var letterConfigComma = allChars.Skip(5).First();
+            Assert.Equal(',', letterConfigComma.Char);
+            Assert.Equal(5, letterConfigComma.Index);
+            Assert.True(letterConfigComma.IsVariable);
+            Assert.Equal(-2, letterConfigComma.BaselineCount); // 0 in template+conjunction BUT 2 deducted (end of listify)
+            Assert.Equal(-1, letterConfigComma.MinimumCount); // baseline + 1 for the "a's" 
+            Assert.Equal(-1, letterConfigComma.VariableBaselineCount);
+            Assert.Equal(4, letterConfigComma.VariableIndex);
+
+            var letterConfigHyphen = allChars.Skip(6).First();
+            Assert.Equal('-', letterConfigHyphen.Char);
+            Assert.Equal(6, letterConfigHyphen.Index);
+            Assert.True(letterConfigHyphen.IsVariable);
+            Assert.Equal(0, letterConfigHyphen.BaselineCount); // Zero in template and cardinals
+            Assert.Equal(0, letterConfigHyphen.MinimumCount); // No reason to increment from baseline
+            Assert.Equal(0, letterConfigHyphen.VariableBaselineCount);
+            Assert.Equal(5, letterConfigHyphen.VariableIndex);
 
             Assert.All(allChars, TestLetterConfig);
             Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);

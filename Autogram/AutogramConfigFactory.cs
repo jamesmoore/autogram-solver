@@ -35,7 +35,7 @@
             var relevantAlphabetArray = (
                 baselineString +
                 forced +
-                pluralisedNumericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => p).ToList();
+                pluralisedNumericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
 
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
@@ -106,6 +106,17 @@
         private static IEnumerable<string> GetNumericStrings()
         {
             return Enumerable.Range(0, 100).Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).ToList();
+        }
+
+        private int GetOrder(char p)
+        {
+            switch (p)
+            {
+                case >= 'a' and <= 'z':
+                    return p;
+                default:
+                    return p + 100;
+            }
         }
     }
 }
