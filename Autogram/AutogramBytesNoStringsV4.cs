@@ -17,7 +17,7 @@ namespace Autogram
 
         // Counts of chars that intersect with the chars that represent the numeric+plural
         private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction PLUS the cardinals of the invariant characters. 
-        private readonly byte[][][] variableNumericCount;
+        private readonly byte[][][] variableNumericCounts;
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
@@ -30,7 +30,7 @@ namespace Autogram
 
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
-            variableNumericCount = config.GetVariableNumericCounts();
+            variableNumericCounts = config.GetVariableNumericCounts();
 
             var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
@@ -89,7 +89,7 @@ namespace Autogram
                 var c = proposedCounts[i];
                 if (c == 0) continue;
 
-                var numericCount = variableNumericCount[i][c];
+                var numericCount = variableNumericCounts[i][c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
                     computedCounts[j] += numericCount[j];
