@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Autogram
+﻿namespace Autogram
 {
     public class AutogramConfigFactory
     {
@@ -93,8 +91,7 @@ namespace Autogram
             }
 
             // comma, space special case - when these get joined, the last two won't need a comma + space separator
-            var perDistinctCountLetters = letters.Where(p => separatorString.Contains(p.Char));
-            foreach (var letter in perDistinctCountLetters)
+            foreach (var letter in letters)
             {
                 var countDelta = letter.PerDistinctCountModifier;
                 letter.BaselineCount += countDelta;

@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Autogram;
+﻿using Autogram;
 using Autogram.Extensions;
 
 namespace AutogramTest
