@@ -15,6 +15,7 @@ namespace AutogramTest.Extensions
             Assert.Equal(3, result['t']);
             Assert.Equal(2, result['i']);
             Assert.Equal(1, result['.']);
+            Assert.Equal(4, result[' ']);
         }
 
         [Fact]
@@ -32,6 +33,19 @@ namespace AutogramTest.Extensions
             Assert.Equal(2, result['a']);
             Assert.Equal(2, result['d']);
             Assert.Equal(28, result['e']);
+        }
+
+        [Fact]
+        public void GetStatedFrequency_Extended_Char_Tests()
+        {
+            // https://en.wikipedia.org/wiki/Autogram
+            const string example = @"Ten spaces, two commas, three a's.";
+            var result = example.GetStatedFrequency();
+            Assert.NotNull(result);
+            Assert.NotEmpty(result);
+            Assert.Equal(3, result['a']);
+            Assert.Equal(2, result[',']);
+            Assert.Equal(10, result[' ']);
         }
 
         [Fact]

@@ -15,13 +15,9 @@ namespace Autogram
 
         private readonly int variableAlphabetCount;
 
-        // Minimum counts required for template, conjunction, plural and the corresponding cardinals.
-        // This will be used for the cardinal counts of the invariant characters.
-        private readonly byte[] minimumCount;
-
         // Counts of chars that intersect with the chars that represent the numeric+plural
         private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction PLUS the cardinals of the invariant characters. 
-        private readonly byte[][] variableNumericCounts; // counts of characters per cardnal number plus plural if applicable
+        private readonly byte[][][] variableNumericCounts;
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
@@ -34,20 +30,18 @@ namespace Autogram
 
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
-            variableNumericCounts = config.VariableNumericCounts.ToArray();
+            variableNumericCounts = config.GetVariableNumericCounts();
 
-            // minimum count is baseline + 1 if present, to account for the character itself in the list.
-            minimumCount = config.Letters.Select(p => p.MinimumCount).ToByteArray();
-            var variableChars = config.Letters.Where(p => p.IsVariable).ToList();
+            var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
-            proposedCounts = variableBaselineCount.ToArray();
-            computedCounts = variableBaselineCount.ToArray();
-            UpdateComputedCounts(proposedCounts);
+            proposedCounts = variableMinimumCount.ToArray();
+            computedCounts = variableMinimumCount.ToArray();
+            UpdateComputedCounts();
         }
 
         /// <summary>
@@ -70,7 +64,7 @@ namespace Autogram
 
             history.Add(proposedCounts);
 
-            UpdateComputedCounts(proposedCounts);
+            UpdateComputedCounts();
 
             var reorderedEquals = ((ReadOnlySpan<byte>)computedCounts.AsSpan()).UnorderedByteSpanEquals(proposedCounts);
 
@@ -86,24 +80,20 @@ namespace Autogram
             }
         }
 
-        private void UpdateComputedCounts(byte[] currentGuess)
+        private void UpdateComputedCounts()
         {
             variableBaselineCount.CopyTo(computedCounts.AsSpan());
 
             for (var i = 0; i < variableAlphabetCount; i++)
             {
-                var c = currentGuess[i];
+                var c = proposedCounts[i];
                 if (c == 0) continue;
 
-                // numeric + plural part
-                var numericCount = variableNumericCounts[c];
+                var numericCount = variableNumericCounts[i][c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
                     computedCounts[j] += numericCount[j];
                 }
-
-                // actual letter
-                computedCounts[i]++;
             }
 
 #if DEBUG
@@ -162,15 +152,20 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public override string ToString()
         {
-            var RelevantToVariableCharMap = config.Letters.ToDictionary(p => p.Char, p => p.VariableIndex); //   relevantAlphabet.ToDictionary(p => p, p => variableAlphabet.Contains(p) ? variableAlphabet.IndexOf(p) : (int?)null);
-            var numberItems = RelevantToVariableCharMap.Select((p, index) => NumberToListEntry(p.Value == null ? minimumCount[index] : proposedCounts[p.Value.Value], p.Key, config.PluralExtension)).Where(p => string.IsNullOrWhiteSpace(p) == false).ToList();
+            var relevantToVariableCharMap = config.AllChars.Select(p => new {
+                p.Char,
+                Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
+            }).Where(p => p.Count > 0);
+            var numberItems = relevantToVariableCharMap.Select(p => NumberToListEntry((byte)p.Count, p.Char)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(config.Conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(config.Conjunction);
             return string.Format(config.Template, arg0);
         }
 
-        private static string NumberToListEntry(byte quantity, char character, string pluralExtension)
+        private static string NumberToListEntry(byte quantity, char character)
         {
-            return quantity == 0 ? string.Empty : quantity.ToCardinalNumberStringPrecomputed() + " " + character + (quantity == 1 ? "" : pluralExtension);
+            return quantity == 0 ?
+                string.Empty :
+                quantity.ToCardinalNumberStringPrecomputed() + " " + (quantity == 1 ? character.GetCharacterName() : character.GetPluralisedCharacterName());
         }
 
         public int HistoryCount => history.Count;
