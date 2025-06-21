@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Autogram;
@@ -20,66 +21,66 @@ const string defaultTemplate = "This sentence is an autogram and it contains {0}
 const string defaultConjunction = " and ";
 const string defaultForced = "";
 
-var templateOption = new Option<string>(
-    aliases: ["--template", "-t"],
-    description: "The template of the autogram to search for. Must contain a {0}.",
-    getDefaultValue: () => defaultTemplate
-    );
-
-var conjunctionOption = new Option<string>(
-    aliases: ["--conjunction", "-c"],
-    description: "The conjunction to add to the list of letters, appearing before the final one. This is typically \" and \" but you could leave it empty or use \" and lastly \", \" and last but not least\" etc.",
-    getDefaultValue: () => defaultConjunction
-    );
-
-var seedOption = new Option<int?>(
-    aliases: ["--seed", "-s"],
-    description: "The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose",
-    getDefaultValue: () => null
-    );
-
-var resetOption = new Option<int?>(
-    aliases: ["--reset", "-r"],
-    description: "Reset (clear history and increment random seed) after N iterations",
-    getDefaultValue: () => null
-    );
-
-var alphabetRegexOption = new Option<string>(
-    aliases: ["--alphabet", "-a"],
-    description: @"A regex defining the letters of the alphabet to use. Eg, [a-y\.].",
-    getDefaultValue: () => defaultAlphabetRegex
-    );
-alphabetRegexOption.AddValidator(result =>
+var templateOption = new Option<string>("--template", "-t")
 {
-    var value = result.GetValueForOption(alphabetRegexOption);
+    Description = "The template of the autogram to search for. Must contain a {0}.",
+    DefaultValueFactory = (ArgumentResult r) => defaultTemplate,
+};
+
+var conjunctionOption = new Option<string>("--conjunction", "-c")
+{
+    Description = "The conjunction to add to the list of letters, appearing before the final one. This is typically \" and \" but you could leave it empty or use \" and lastly \", \" and last but not least\" etc.",
+    DefaultValueFactory = (ArgumentResult r) => defaultConjunction,
+};
+
+var seedOption = new Option<int?>("--seed", "-s")
+{
+    Description = "The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose",
+    DefaultValueFactory = (ArgumentResult r) => null
+};
+
+var resetOption = new Option<int?>("--reset", "-r")
+{
+    Description = "Reset (clear history and increment random seed) after N iterations",
+    DefaultValueFactory = (ArgumentResult r) => null
+};
+
+var alphabetRegexOption = new Option<string>("--alphabet", "-a")
+{
+    Description = @"A regex defining the letters of the alphabet to use. Eg, [a-y\.].",
+    DefaultValueFactory = (ArgumentResult r) => defaultAlphabetRegex
+};
+alphabetRegexOption.Validators.Add(result =>
+{
+    var value = result.GetValue(alphabetRegexOption);
 
     if (value == null || value.IsValidRegex() == false)
     {
-        result.ErrorMessage = $"Alphabet regex: {value} is not a valid regex.";
+        result.AddError($"Alphabet regex: {value} is not a valid regex.");
     }
 });
 
-var forcedRegexOption = new Option<string>(
-    aliases: ["--forced", "-f"],
-    description: @"A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz].",
-    getDefaultValue: () => defaultForced
-    );
-
-forcedRegexOption.AddValidator(result =>
+var forcedRegexOption = new Option<string>("--forced", "-f")
 {
-    var value = result.GetValueForOption(forcedRegexOption);
+    Description = @"A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz].",
+    DefaultValueFactory = (ArgumentResult r) => defaultForced
+};
+
+forcedRegexOption.Validators.Add(result =>
+{
+    var value = result.GetValue(forcedRegexOption);
 
     if (string.IsNullOrWhiteSpace(value) == false && value.IsValidRegex() == false)
     {
-        result.ErrorMessage = $"Forced regex: {value} is not a valid regex.";
+        result.AddError($"Forced regex: {value} is not a valid regex.");
     }
 });
 
-var quietOption = new Option<bool>(
-    aliases: ["--quiet", "-q"],
-    description: "If true then only a final success will be shown",
-    getDefaultValue: () => false
-    );
+var quietOption = new Option<bool>("--quiet", "-q")
+{
+    Description = "If true then only a final success will be shown",
+    DefaultValueFactory = (ArgumentResult r) => false
+};
 
 var rootCommand = new RootCommand("Autogram searcher")
 {
@@ -92,34 +93,22 @@ var rootCommand = new RootCommand("Autogram searcher")
     quietOption,
 };
 
-rootCommand.SetHandler((
-    template,
-    conjunction,
-    seed,
-    alphabetRegexString,
-    forcedRegexString,
-    reset,
-    quiet) =>
+rootCommand.SetAction(parseResult =>
 {
     DoAutogramSearch(
-        alphabetRegexString,
-        seed,
-        template,
-        conjunction,
-        forcedRegexString,
-        reset,
-        quiet
+        parseResult.GetValue(alphabetRegexOption),
+        parseResult.GetValue(seedOption),
+        parseResult.GetValue(templateOption),
+        parseResult.GetValue(conjunctionOption),
+        parseResult.GetValue(forcedRegexOption),
+        parseResult.GetValue(resetOption),
+        parseResult.GetValue(quietOption)
         );
-},
-templateOption,
-conjunctionOption,
-seedOption,
-alphabetRegexOption,
-forcedRegexOption,
-resetOption,
-quietOption);
+    return 0;
+});
 
-return rootCommand.InvokeAsync(args).Result;
+var parseResult = rootCommand.Parse(args);
+return parseResult.Invoke();
 
 void DoAutogramSearch(
     string alphabetRegexString,
