@@ -16,22 +16,23 @@ Supports
 ```
 ```
 Description:
-  Autogram solver
+  Autogram searcher
 
 Usage:
   Autogram [options]
 
 Options:
-  -t, --template <template>        The template of the autogram to search for. Must contain a {0}. [default: This sentence is an autogram and it contains {0}.]
-  -c, --conjunction <conjunction>  The conjunction to add to the list of letters, appearing before the final one. This is typically " and " but you could leave it empty or use " and lastly ", " and last but not least" etc.
-                                   [default:  and ]
-  -s, --seed <seed>                The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose []
-  -a, --alphabet <alphabet>        A regex defining the letters of the alphabet to use. Eg, [a-y\.]. [default: [a-z]]
-  -f, --forced <forced>            A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz]. []
-  -r, --reset <reset>              Reset (clear history and increment random seed) after N iterations []
-  -q, --quiet                      If true then only a final success will be shown [default: False]
-  --version                        Show version information
-  -?, -h, --help                   Show help and usage information
+  -?, -h, --help     Show help and usage information
+  --version          Show version information
+  -t, --template     The template of the autogram to search for. Must contain a {0}. [default: This sentence is an autogram and it contains {0}.]
+  -c, --conjunction  The conjunction to add to the list of letters, appearing before the final one. This is typically " and " but you could leave it empty or use " and lastly ", " and last but not
+                     least" etc. [default:  and ]
+  --separator        The separator between the itemised letter counts. This defaults to ", " [default: , ]
+  -s, --seed         The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose []
+  -a, --alphabet     A regex defining the letters of the alphabet to use. Eg, [a-y\.]. [default: [a-z]]
+  -f, --forced       A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz]. []
+  -r, --reset        Reset (clear history and increment random seed) after N iterations []
+  -q, --quiet        If true then only a final success will be shown [default: False]
 ```
 ## Run in docker
 
