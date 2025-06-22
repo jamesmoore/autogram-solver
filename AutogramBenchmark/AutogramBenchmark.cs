@@ -11,7 +11,7 @@ namespace AutogramBenchmark
         {
             var factory = new AutogramConfigFactory();
 
-            autogramConfig = factory.MakeAutogramConfig("abcdefghijklmnopqrstz", "This sentence employs {0}.", " and ", "'s", "z");
+            autogramConfig = factory.MakeAutogramConfig("abcdefghijklmnopqrstz", "This sentence employs {0}.", " and ", ", ", "'s", "z");
         }
 
 

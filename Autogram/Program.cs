@@ -20,35 +20,42 @@ const string defaultAlphabetRegex = "[a-z]";
 const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
 const string defaultConjunction = " and ";
 const string defaultForced = "";
+const string defaultSeparator = ", ";
 
 var templateOption = new Option<string>("--template", "-t")
 {
     Description = "The template of the autogram to search for. Must contain a {0}.",
-    DefaultValueFactory = (ArgumentResult r) => defaultTemplate,
+    DefaultValueFactory = _ => defaultTemplate,
 };
 
 var conjunctionOption = new Option<string>("--conjunction", "-c")
 {
     Description = "The conjunction to add to the list of letters, appearing before the final one. This is typically \" and \" but you could leave it empty or use \" and lastly \", \" and last but not least\" etc.",
-    DefaultValueFactory = (ArgumentResult r) => defaultConjunction,
+    DefaultValueFactory = _ => defaultConjunction,
+};
+
+var separatorOption = new Option<string>("--separator")
+{
+    Description = "The separator between the itemised letter counts. This defaults to \", \"",
+    DefaultValueFactory = _ => defaultSeparator,
 };
 
 var seedOption = new Option<int?>("--seed", "-s")
 {
     Description = "The seed to use in the random number generator, to create repeatable runs. Leave undefined to allow the system to choose",
-    DefaultValueFactory = (ArgumentResult r) => null
+    DefaultValueFactory = _ => null
 };
 
 var resetOption = new Option<int?>("--reset", "-r")
 {
     Description = "Reset (clear history and increment random seed) after N iterations",
-    DefaultValueFactory = (ArgumentResult r) => null
+    DefaultValueFactory = _ => null
 };
 
 var alphabetRegexOption = new Option<string>("--alphabet", "-a")
 {
     Description = @"A regex defining the letters of the alphabet to use. Eg, [a-y\.].",
-    DefaultValueFactory = (ArgumentResult r) => defaultAlphabetRegex
+    DefaultValueFactory = _ => defaultAlphabetRegex
 };
 alphabetRegexOption.Validators.Add(result =>
 {
@@ -63,7 +70,7 @@ alphabetRegexOption.Validators.Add(result =>
 var forcedRegexOption = new Option<string>("--forced", "-f")
 {
     Description = @"A regex defining the letters that should be present in the count even if they aren't in the template. Eg, [kqz].",
-    DefaultValueFactory = (ArgumentResult r) => defaultForced
+    DefaultValueFactory = _ => defaultForced
 };
 
 forcedRegexOption.Validators.Add(result =>
@@ -79,13 +86,14 @@ forcedRegexOption.Validators.Add(result =>
 var quietOption = new Option<bool>("--quiet", "-q")
 {
     Description = "If true then only a final success will be shown",
-    DefaultValueFactory = (ArgumentResult r) => false
+    DefaultValueFactory = _ => false
 };
 
 var rootCommand = new RootCommand("Autogram searcher")
 {
     templateOption,
     conjunctionOption,
+    separatorOption,
     seedOption,
     alphabetRegexOption,
     forcedRegexOption,
@@ -100,6 +108,7 @@ rootCommand.SetAction(parseResult =>
         parseResult.GetValue(seedOption),
         parseResult.GetValue(templateOption),
         parseResult.GetValue(conjunctionOption),
+        parseResult.GetValue(separatorOption),
         parseResult.GetValue(forcedRegexOption),
         parseResult.GetValue(resetOption),
         parseResult.GetValue(quietOption)
@@ -115,6 +124,7 @@ void DoAutogramSearch(
     int? seed,
     string template,
     string conjunction,
+    string separator,
     string forcedRegexString,
     int? reset,
     bool quiet)
@@ -140,7 +150,13 @@ void DoAutogramSearch(
         seed = rootRandom.Next();
     }
 
-    var config = new AutogramConfigFactory().MakeAutogramConfig(new string(alphabet), template, conjunction, "'s", new string(forced));
+    var config = new AutogramConfigFactory().MakeAutogramConfig(
+        new string(alphabet), 
+        template, 
+        conjunction, 
+        separator,
+        "'s", 
+        new string(forced));
 
     if (quiet == false)
     {
@@ -168,7 +184,7 @@ void DoAutogramSearch(
 
     if (quiet == false)
     {
-        Console.WriteLine("Starting: " + autogram.ToString());
+        Console.WriteLine("Starting: " + autogram.ToString(template, conjunction, separator));
     }
 
     int i = 0;
@@ -194,7 +210,7 @@ void DoAutogramSearch(
         if (status.Success)
         {
             var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegex);
-            ReportSuccess(quiet, autogram.ToString(), i, randomized, sw, status, commandLine);
+            ReportSuccess(quiet, autogram.ToString(template, conjunction, separator), i, randomized, sw, status, commandLine);
             break;
         }
 
