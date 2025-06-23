@@ -17,6 +17,7 @@ namespace AutogramTest
                 "abcdefghijklmnopqrstuvwxyz",
                 defaultTemplate,
                 " and lastly ",
+                ", ",
                 "'s",
                 "");
 

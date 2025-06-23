@@ -150,15 +150,15 @@ namespace Autogram
         /// Builds the sentence based off the current state, and may not be a valid autogram.
         /// </summary>
         /// <returns>The current sentence.</returns>
-        public override string ToString()
+        public string ToString(string template, string conjunction, string separator)
         {
             var relevantToVariableCharMap = config.AllChars.Select(p => new {
                 p.Char,
                 Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);
             var numberItems = relevantToVariableCharMap.Select(p => NumberToListEntry((byte)p.Count, p.Char)).ToList();
-            var arg0 = string.IsNullOrWhiteSpace(config.Conjunction) ? numberItems.Listify() : numberItems.ListifyWithConjunction(config.Conjunction);
-            return string.Format(config.Template, arg0);
+            var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify(separator) : numberItems.ListifyWithConjunction(separator, conjunction);
+            return string.Format(template, arg0);
         }
 
         private static string NumberToListEntry(byte quantity, char character)

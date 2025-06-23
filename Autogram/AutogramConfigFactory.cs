@@ -15,6 +15,7 @@
             string alphabet,
             string template,
             string conjunction,
+            string separatorString,
             string pluralExtension,
             string forced
             )
@@ -27,8 +28,6 @@
             var baselineString = (baselineTemplate + conjunction + (specialChars.Count != 0 ? specialChars.Aggregate((p, q) => p + q) : string.Empty)).ToLower();
 
             var numericStrings = GetNumericStrings();
-
-            var separatorString = ExtensionsClass.Separator; // ", "
 
             var pluralisedNumericStrings = numericStrings.Select((p, i) => p + " " + (i == 1 ? String.Empty : pluralExtension) + separatorString);
 
@@ -50,7 +49,7 @@
                     IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
                     Forced = forced.ToLower().Contains(p),
                 }
-            ).Select(p => new CharacterConfig
+            ).Select(p => new CharacterConfig(separatorString)
             {
                 Index = p.Index,
                 Char = p.Char,
@@ -63,8 +62,6 @@
 
             AutogramConfig autogramConfig = new()
             {
-                Template = template,
-                Conjunction = conjunction,
                 AllChars = letters,
             };
 

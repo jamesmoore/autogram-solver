@@ -80,9 +80,7 @@ namespace Autogram
             return precomputed[i];
         }
 
-        public const string Separator = ", ";
-
-        public static string Listify(this IEnumerable<string> items)
+        public static string Listify(this IEnumerable<string> items, string separator)
         {
             var materialized = items?.ToList();
 
@@ -92,11 +90,11 @@ namespace Autogram
             }
             else
             {
-                return string.Join(Separator, materialized);
+                return string.Join(separator, materialized);
             }
         }
 
-        public static string ListifyWithConjunction(this IEnumerable<string> items, string conjunction)
+        public static string ListifyWithConjunction(this IEnumerable<string> items, string separator, string conjunction)
         {
             var materialized = items?.ToList();
 
@@ -110,7 +108,7 @@ namespace Autogram
             }
             else
             {
-                return string.Join(Separator, materialized.Take(materialized.Count - 1)) + conjunction + materialized.Last();
+                return string.Join(separator, materialized.Take(materialized.Count - 1)) + conjunction + materialized.Last();
             }
         }
 

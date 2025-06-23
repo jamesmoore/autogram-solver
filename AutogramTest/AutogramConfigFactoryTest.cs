@@ -4,6 +4,8 @@ namespace AutogramTest
 {
     public class AutogramConfigFactoryTest
     {
+        private const string SeparatorString = ", ";
+
         [Fact]
         public void Test_AutogramConfigFactory_Single_Invariant()
         {
@@ -13,11 +15,9 @@ namespace AutogramTest
             const string pluralExtension = "'s";
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
 
             Assert.NotNull(config);
-            Assert.Equal(template, config.Template);
-            Assert.Equal(conjunction, config.Conjunction);
             var allChars = config.AllChars;
             Assert.Single(allChars);
 
@@ -43,11 +43,9 @@ namespace AutogramTest
             const string pluralExtension = "'s";
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
 
             Assert.NotNull(config);
-            Assert.Equal(template, config.Template);
-            Assert.Equal(conjunction, config.Conjunction);
             var allChars = config.AllChars;
             Assert.Equal(2, allChars.Count);
 
@@ -83,11 +81,9 @@ namespace AutogramTest
             const string forced = "z";
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension, forced);
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, forced);
 
             Assert.NotNull(config);
-            Assert.Equal(template, config.Template);
-            Assert.Equal(conjunction, config.Conjunction);
             var allChars = config.AllChars;
             Assert.Equal(4, allChars.Count);
 
@@ -140,11 +136,9 @@ namespace AutogramTest
             const string pluralExtension = "'s";
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
 
             Assert.NotNull(config);
-            Assert.Equal(template, config.Template);
-            Assert.Equal(conjunction, config.Conjunction);
             var allChars = config.AllChars;
             Assert.Equal(7, allChars.Count);
 

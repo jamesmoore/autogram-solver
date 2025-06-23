@@ -5,8 +5,6 @@ namespace Autogram
 {
     public class AutogramConfig
     {
-        public required string Template { get; init; }
-        public required string Conjunction { get; init; }
         public required IList<CharacterConfig> AllChars { get; init; }
 
         public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
@@ -31,7 +29,7 @@ namespace Autogram
     }
 
     [DebuggerDisplay("{Char.ToString()}")]
-    public class CharacterConfig
+    public class CharacterConfig(string separator)
     {
         public required int Index { get; init; }
         public required char Char { get; init; }
@@ -44,7 +42,7 @@ namespace Autogram
         /// <summary>
         /// For the separator chars (comma and space typically) it should be reduced by 2 because in the itemised string they don't appear on the last two entries.
         /// </summary>
-        public int PerDistinctCountModifier => ExtensionsClass.Separator.Contains(this.Char) ? -2 : 0;
+        public int PerDistinctCountModifier => separator.Contains(this.Char) ? -2 : 0;
 
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
 
@@ -60,7 +58,7 @@ namespace Autogram
 
         private string StringRepresentationFor(int i)
         {
-            return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i) : string.Empty) + ExtensionsClass.Separator;
+            return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i) : string.Empty) + separator;
         }
     }
 }
