@@ -37,7 +37,13 @@ Options:
 ## Run in docker
 
 ```sh
-docker run ghcr.io/jamesmoore/autogram-solver:main
+docker run --rm ghcr.io/jamesmoore/autogram-solver:main
+```
+
+### with parameters
+```sh
+docker run --rm ghcr.io/jamesmoore/autogram-solver:main --template "This is an autogram with punctuation and it has {0}, one left brace, one right brace, and one full stop (aka period)." --conj
+unction ", " --alphabet "[a-z\-', ]" --seed 1002327068
 ```
 
 ## Default
