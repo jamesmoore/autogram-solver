@@ -1,6 +1,6 @@
 ﻿namespace Autogram
 {
-    internal static class CharExtensions
+    public static class CharExtensions
     {
         public static string GetCharacterName(this char character)
         {
@@ -17,7 +17,7 @@
             if (character == '-') return "hyphens";
             if (character == '\'') return "apostrophes";
             if (character == ' ') return "spaces";
-            return character + "\'s";
+            return character + "'s";
         }
 
         public static string GetCharacterName(this char character, int numberOf)
