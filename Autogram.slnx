@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Autogram/Autogram.csproj" />
+  <Project Path="AutogramBenchmark/AutogramBenchmark.csproj" />
+  <Project Path="AutogramTest/AutogramTest.csproj" />
+</Solution>
