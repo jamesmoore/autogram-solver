@@ -19,3 +19,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      nuget-version-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types:
+          - "minor"
+          - "patch"
