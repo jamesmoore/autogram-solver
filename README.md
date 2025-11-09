@@ -45,10 +45,10 @@ docker run --rm ghcr.io/jamesmoore/autogram-solver:main
 docker run \
   --rm \
   ghcr.io/jamesmoore/autogram-solver:main \
-  --template "This is an autogram with punctuation and it has {0}, one left brace, one right brace, and one full stop (aka period)." \
+  --template "This is an autogram with punctuation and it has {0}, one left parenthesis, one right parenthesis, and one full stop (aka period)." \
   --conjunction ", " \
   --alphabet "[a-z\-', ]" \
-  --seed 1002327068
+  --seed 1933830823
 ```
 
 ## Default
@@ -181,16 +181,16 @@ Only a fool would take the time to verify that this sentence is composed of elev
 
 ```powershell
 Autogram\bin\Release\net9.0\Autogram.exe `
---template "This is an autogram with punctuation and it has {0}, one left brace, one right brace, and one full stop (aka period)." `
+--template "This is an autogram with punctuation and it has {0}, one left parenthesis, one right parenthesis, and one full stop (aka period)." `
 --conjunction ", " `
 --alphabet "[a-z\-', ]" `
---seed 1002327068
+--seed 1933830823
 ```
 ```
 🎉 Finished 🎉
-⏱️ Duration:                    00:00:03
-🔁 Iterations:                  3,770,502
-🔁/⏱️ Iterations per second:    1.211M
-🎲 Randomized:                  11.08%
-This is an autogram with punctuation and it has fifteen a's, three b's, six c's, four d's, fifty-one e's, twelve f's, seven g's, seventeen h's, twenty-one i's, two k's, five l's, four m's, thirty n's, nineteen o's, eight p's, sixteen r's, forty-one s's, thirty-eight t's, eight u's, eight v's, seven w's, three x's, ten y's, seventy-four spaces, twenty-three apostrophes, twenty-nine commas, seven hyphens, one left brace, one right brace, and one full stop (aka period).
+⏱️ Duration:                    00:00:01
+🔁 Iterations:                  1,364,369
+🔁/⏱️ Iterations per second:    1.344M
+🎲 Randomized:                  4.70%
+This is an autogram with punctuation and it has fifteen a's, four c's, four d's, forty-one e's, sixteen f's, five g's, twelve h's, nineteen i's, two k's, six l's, four m's, twenty-eight n's, twenty-four o's, ten p's, fifteen r's, forty-two s's, forty t's, ten u's, six v's, twelve w's, four x's, ten y's, seventy-two spaces, twenty-two apostrophes, twenty-eight commas, seven hyphens, one left parenthesis, one right parenthesis, and one full stop (aka period).
 ```
