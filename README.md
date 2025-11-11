@@ -59,7 +59,7 @@ This will run using the template `This sentence is an autogram and it contains {
 
 After a number of iterations you will get an output like
 ```
-Autogram\bin\Release\net9.0\Autogram.exe --seed 673268347
+Autogram\bin\Release\net10.0\Autogram.exe --seed 673268347
 🎉 Finished 🎉
 ⏱️ Duration:                    00:00:04
 🔁 Iterations:                  4,879,276
@@ -74,7 +74,7 @@ On a reasonable PC you should get 1M+ iterations per second, but as the history 
 
 ## Wikipedia example
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe --template "This sentence employs {0}." `
+Autogram\bin\Release\net10.0\Autogram.exe --template "This sentence employs {0}." `
 --forced z `
 --seed 1423524136
 ```
@@ -89,7 +89,7 @@ This sentence employs two a's, two c's, two d's, twenty-eight e's, five f's, thr
 
 ## Wikipedia example (alternate solution)
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe --template "This sentence employs {0}." `
+Autogram\bin\Release\net10.0\Autogram.exe --template "This sentence employs {0}." `
 --forced z `
 --seed 812627953
 ```
@@ -104,7 +104,7 @@ This sentence employs two a's, two c's, two d's, thirty-three e's, three f's, tw
 
 ## Pangrammatic autogram
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe `
+Autogram\bin\Release\net10.0\Autogram.exe `
 --template "the quick brown fox jumped over the lazy dog and yelled 'this sentence contains {0}.'" `
 --seed 56262793
 ```
@@ -119,7 +119,7 @@ the quick brown fox jumped over the lazy dog and yelled 'this sentence contains 
 
 ## Pangrammatic autogram #2
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe `
+Autogram\bin\Release\net10.0\Autogram.exe `
 --template "jackdaws love my big sphinx of quartz and they also love this sentence which has {0}." `
 --seed 1632955351
 ```
@@ -134,7 +134,7 @@ jackdaws love my big sphinx of quartz and they also love this sentence which has
 
 ## Custom conjunction (for unknown reasons this seems to solve rapidly)
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe --conjunction " and lastly " --seed 526894180
+Autogram\bin\Release\net10.0\Autogram.exe --conjunction " and lastly " --seed 526894180
 ```
 ```
 🎉 Finished 🎉
@@ -147,7 +147,7 @@ This sentence is an autogram and it contains eight a's, three c's, three d's, th
 
 # Second Wikipedia Example (Lee Sallows)
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe `
+Autogram\bin\Release\net10.0\Autogram.exe `
 --template "Only the fool would take trouble to verify that his sentence was composed of {0} and, last but not least, a single !" `
 --conjunction ", " `
 --alphabet "[a-z\-',]" `
@@ -164,7 +164,7 @@ Only the fool would take trouble to verify that his sentence was composed of ten
 
 # Including spaces in the count
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe `
+Autogram\bin\Release\net10.0\Autogram.exe `
 --template "Only a fool would take the time to verify that this sentence is composed of {0} and one exclamation mark!" `
 --conjunction ", " `
 --alphabet "[a-z\-', ]" `
@@ -180,7 +180,7 @@ Only a fool would take the time to verify that this sentence is composed of elev
 ```
 
 ```powershell
-Autogram\bin\Release\net9.0\Autogram.exe `
+Autogram\bin\Release\net10.0\Autogram.exe `
 --template "This is an autogram with punctuation and it has {0}, one left parenthesis, one right parenthesis, and one full stop (aka period)." `
 --conjunction ", " `
 --alphabet "[a-z\-', ]" `

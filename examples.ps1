@@ -1,6 +1,6 @@
 dotnet build --configuration Release
 
-$p = ".\Autogram\bin\Release\net9.0\"
+$p = ".\Autogram\bin\Release\net10.0\"
 
 . $p\Autogram.exe -r 1000000 -q
 . $p\Autogram.exe --template "This sentence employs {0}." --forced z -r 100000000 -q
