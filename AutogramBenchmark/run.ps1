@@ -1,2 +1,2 @@
 dotnet build --configuration Release
-.\bin\Release\net9.0\AutogramBenchmark.exe
+.\bin\Release\net10.0\AutogramBenchmark.exe
