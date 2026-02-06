@@ -50,16 +50,18 @@ namespace Autogram
         /// <returns>The status of the current guess.</returns>
         public Status Iterate()
         {
-            var nextGuess = AdjustGuessTowardsActualCounts();
             var randomized = false;
-            if (history.Contains(nextGuess))
+            
+            // Check if computedCounts is already in history before cloning
+            if (history.Contains(computedCounts))
             {
                 proposedCounts = Randomize();
                 randomized = true;
             }
             else
             {
-                proposedCounts = nextGuess;
+                // Only clone when we need to store in proposedCounts
+                proposedCounts = (byte[])computedCounts.Clone();
             }
 
             history.Add(proposedCounts);
@@ -71,7 +73,15 @@ namespace Autogram
             if (reorderedEquals)
             {
                 reorderedEquals = computedCounts.AsSpan().SequenceEqual(proposedCounts) == false;
-                proposedCounts = computedCounts.ToArray();
+                // Avoid ToArray() - reuse existing array or clone
+                if (!reorderedEquals)
+                {
+                    // Arrays are exactly equal, no need to change proposedCounts
+                }
+                else
+                {
+                    proposedCounts = (byte[])computedCounts.Clone();
+                }
                 return new Status(true, randomized, reorderedEquals);
             }
             else
@@ -104,17 +114,6 @@ namespace Autogram
 #endif
         }
 
-        private byte[] AdjustGuessTowardsActualCounts()
-        {
-            var result = (byte[])computedCounts.Clone();
-#if DEBUG
-            for (int i = 0; i < computedCounts.Length; i++)
-            {
-                Debug.Assert(result[i] >= variableMinimumCount[i]);
-            }
-#endif
-            return result;
-        }
 
         private byte[] Randomize()
         {

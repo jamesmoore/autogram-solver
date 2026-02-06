@@ -10,13 +10,11 @@
         public int GetHashCode(byte[] obj)
         {
             if (obj == null) return 0;
-            unchecked
-            {
-                int hash = 17;
-                foreach (int i in obj)
-                    hash = hash * 31 + i;
-                return hash;
-            }
+            
+            // Use System.HashCode for better performance
+            var hash = new HashCode();
+            hash.AddBytes(obj);
+            return hash.ToHashCode();
         }
     }
 }
