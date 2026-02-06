@@ -73,12 +73,8 @@ namespace Autogram
             if (reorderedEquals)
             {
                 reorderedEquals = computedCounts.AsSpan().SequenceEqual(proposedCounts) == false;
-                // Avoid ToArray() - reuse existing array or clone
-                if (!reorderedEquals)
-                {
-                    // Arrays are exactly equal, no need to change proposedCounts
-                }
-                else
+                // Only clone if arrays have same content but different order
+                if (reorderedEquals)
                 {
                     proposedCounts = (byte[])computedCounts.Clone();
                 }
