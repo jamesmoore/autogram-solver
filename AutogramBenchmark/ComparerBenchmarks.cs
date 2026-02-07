@@ -7,6 +7,7 @@ namespace AutogramBenchmark
     {
         private ByteArrayComparer BComparer = new();
         private ByteArraySpanComparer BSpanComparer = new();
+        private ByteArraySpanWithHashCodeComparer BSpanWithHashCodeComparer = new();
 
         private readonly byte[] ByteData;
         private readonly byte[] ByteDataCopy;
@@ -38,6 +39,18 @@ namespace AutogramBenchmark
         public void ByteSpanDataCompare()
         {
             var x = BSpanComparer.Equals(ByteData, ByteDataCopy);
+        }
+
+        [Benchmark]
+        public void ByteSpanDataHashCode()
+        {
+            var x = BSpanComparer.GetHashCode(ByteData);
+        }
+
+        [Benchmark]
+        public void ByteSpanWithHashCodeDataHashCode()
+        {
+            var x = BSpanWithHashCodeComparer.GetHashCode(ByteData);
         }
     }
 }
