@@ -5,7 +5,7 @@ namespace Autogram
 {
     public class AutogramBytesNoStringsV5 : IAutogramFinder
     {
-        private readonly HashSet<byte[]> history = new(new ByteArraySpanWithHashCodeComparer());
+        private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly Random random;
 
         private byte[] proposedCounts;

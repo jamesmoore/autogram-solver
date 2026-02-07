@@ -8,7 +8,7 @@ namespace AutogramBenchmark
         private ByteArrayComparer BComparer = new();
         private ByteArraySpanComparer BSpanComparer = new();
         private ByteArraySpanWithHashCodeComparer BSpanWithHashCodeComparer = new();
-
+        private ByteArraySpanWithChunkedHashCodeComparer BSpanWithChunkedHashCodeComparer = new();
         private readonly byte[] ByteData;
         private readonly byte[] ByteDataCopy;
 
@@ -48,9 +48,16 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
-        public void BByteArraySpanWithHashCodeComparer_HashCode()
+        public void ByteArraySpanWithHashCodeComparer_HashCode()
         {
             var x = BSpanWithHashCodeComparer.GetHashCode(ByteData);
+        }
+
+
+        [Benchmark]
+        public void ByteArraySpanWithChunkedHashCodeComparer_HashCode()
+        {
+            var x = BSpanWithChunkedHashCodeComparer.GetHashCode(ByteData);
         }
     }
 }
