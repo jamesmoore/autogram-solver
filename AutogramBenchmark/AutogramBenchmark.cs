@@ -16,7 +16,7 @@ namespace AutogramBenchmark
 
 
         [Benchmark]
-        public void RunAutogramBytesNoStringsV4()
+        public void AutogramBytesNoStringsV4_Solve_Average_Seeds_0_100()
         {
             for (int i = 0; i < 100; i++)
             {
@@ -30,7 +30,7 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
-        public void RunAutogramBytesNoStringsV5()
+        public void AutogramBytesNoStringsV5_Solve_Average_Seeds_0_100()
         {
             for (int i = 0; i < 100; i++)
             {
