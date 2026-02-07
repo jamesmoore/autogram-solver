@@ -28,5 +28,19 @@ namespace AutogramBenchmark
                 }
             }
         }
+
+        [Benchmark]
+        public void RunAutogramBytesNoStringsV5()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                var x = new AutogramBytesNoStringsV5(autogramConfig, i);
+                while (true)
+                {
+                    var result = x.Iterate();
+                    if (result.Success) break;
+                }
+            }
+        }
     }
 }

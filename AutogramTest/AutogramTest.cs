@@ -36,5 +36,32 @@ namespace AutogramTest
                 }
             }
         }
+
+        [Fact]
+        public void TestV5()
+        {
+            var autogramConfig = new AutogramConfigFactory().MakeAutogramConfig(
+                "abcdefghijklmnopqrstuvwxyz",
+                defaultTemplate,
+                " and lastly ",
+                ", ",
+                "'s",
+                "");
+
+            const int RandomSeed = 2021428396; // cherry picked for fast resolve
+            var sut = new AutogramBytesNoStringsV5(autogramConfig, RandomSeed);
+
+            while (true)
+            {
+                var status = sut.Iterate();
+
+                if (status.Success)
+                {
+                    var result = sut.ToString();
+                    Assert.True(result.IsAutogram());
+                    break;
+                }
+            }
+        }
     }
 }
