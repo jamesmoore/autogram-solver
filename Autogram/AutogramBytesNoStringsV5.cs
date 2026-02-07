@@ -3,7 +3,7 @@ using Autogram.Comparer;
 
 namespace Autogram
 {
-    public class AutogramBytesNoStringsV4 : IAutogramFinder
+    public class AutogramBytesNoStringsV5 : IAutogramFinder
     {
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly Random random;
@@ -22,7 +22,7 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
-        public AutogramBytesNoStringsV4(
+        public AutogramBytesNoStringsV5(
             AutogramConfig config,
             int? randomSeed)
         {
@@ -50,16 +50,18 @@ namespace Autogram
         /// <returns>The status of the current guess.</returns>
         public Status Iterate()
         {
-            var nextGuess = AdjustGuessTowardsActualCounts();
             var randomized = false;
-            if (history.Contains(nextGuess))
+            
+            // Check if computedCounts is already in history before cloning
+            if (history.Contains(computedCounts))
             {
                 proposedCounts = Randomize();
                 randomized = true;
             }
             else
             {
-                proposedCounts = nextGuess;
+                // Only clone when we need to store in proposedCounts
+                proposedCounts = (byte[])computedCounts.Clone();
             }
 
             history.Add(proposedCounts);
@@ -71,7 +73,11 @@ namespace Autogram
             if (reorderedEquals)
             {
                 reorderedEquals = computedCounts.AsSpan().SequenceEqual(proposedCounts) == false;
-                proposedCounts = computedCounts.ToArray();
+                // Only clone if arrays have same content but different order
+                if (reorderedEquals)
+                {
+                    proposedCounts = (byte[])computedCounts.Clone();
+                }
                 return new Status(true, randomized, reorderedEquals);
             }
             else
@@ -102,18 +108,6 @@ namespace Autogram
                 Debug.Assert(computedCounts[i] >= variableMinimumCount[i]);
             }
 #endif
-        }
-
-        private byte[] AdjustGuessTowardsActualCounts()
-        {
-            var result = (byte[])computedCounts.Clone();
-#if DEBUG
-            for (int i = 0; i < computedCounts.Length; i++)
-            {
-                Debug.Assert(result[i] >= variableMinimumCount[i]);
-            }
-#endif
-            return result;
         }
 
 
