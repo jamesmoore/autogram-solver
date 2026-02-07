@@ -8,9 +8,9 @@ namespace AutogramBenchmark
         [Params(10, 50, 100)]
         public int SeedCount;
 
-        private AutogramConfig autogramConfig;
-        private List<AutogramBytesNoStringsV4> solver4List;
-        private List<AutogramBytesNoStringsV5> solver5List;
+        private AutogramConfig? autogramConfig;
+        private List<AutogramBytesNoStringsV4>? solver4List;
+        private List<AutogramBytesNoStringsV5>? solver5List;
 
         [GlobalSetup]
         public void Setup()
@@ -28,13 +28,13 @@ namespace AutogramBenchmark
         [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
         public void IterationSetupV4()
         {
-            solver4List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV4(autogramConfig, p)).ToList();
+            solver4List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV4(autogramConfig!, p)).ToList();
         }
 
         [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
         public void IterationSetupV5()
         {
-            solver5List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV5(autogramConfig, p)).ToList();
+            solver5List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV5(autogramConfig!, p)).ToList();
         }
 
 
@@ -53,7 +53,7 @@ namespace AutogramBenchmark
         [Benchmark]
         public void AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds()
         {
-            foreach (var solver in solver4List)
+            foreach (var solver in solver4List!)
             {
                 while (true)
                 {
@@ -66,7 +66,7 @@ namespace AutogramBenchmark
         [Benchmark]
         public void AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds()
         {
-            foreach (var solver in solver5List)
+            foreach (var solver in solver5List!)
             {
                 while (true)
                 {
@@ -81,7 +81,7 @@ namespace AutogramBenchmark
         {
             for (int i = 0; i < SeedCount; i++)
             {
-                var x = new AutogramBytesNoStringsV4(autogramConfig, i);
+                var x = new AutogramBytesNoStringsV4(autogramConfig!, i);
                 while (true)
                 {
                     var result = x.Iterate();
@@ -95,7 +95,7 @@ namespace AutogramBenchmark
         {
             for (int i = 0; i < SeedCount; i++)
             {
-                var x = new AutogramBytesNoStringsV5(autogramConfig, i);
+                var x = new AutogramBytesNoStringsV5(autogramConfig!, i);
                 while (true)
                 {
                     var result = x.Iterate();
