@@ -24,31 +24,31 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
-        public void ByteDataCompare()
+        public void ByteArrayComparer_Equals()
         {
             var x = BComparer.Equals(ByteData, ByteDataCopy);
         }
 
         [Benchmark]
-        public void ByteDataHashCode()
+        public void ByteArrayComparer_HashCode()
         {
             var x = BComparer.GetHashCode(ByteData);
         }
 
         [Benchmark]
-        public void ByteSpanDataCompare()
+        public void ByteArraySpanComparer_Equals()
         {
             var x = BSpanComparer.Equals(ByteData, ByteDataCopy);
         }
 
         [Benchmark]
-        public void ByteSpanDataHashCode()
+        public void ByteArraySpanComparer_HashCode()
         {
             var x = BSpanComparer.GetHashCode(ByteData);
         }
 
         [Benchmark]
-        public void ByteSpanWithHashCodeDataHashCode()
+        public void BByteArraySpanWithHashCodeComparer_HashCode()
         {
             var x = BSpanWithHashCodeComparer.GetHashCode(ByteData);
         }
