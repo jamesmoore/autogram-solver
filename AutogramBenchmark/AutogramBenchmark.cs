@@ -8,9 +8,9 @@ namespace AutogramBenchmark
         [Params(10, 50, 100)]
         public int SeedCount;
 
-        private AutogramConfig autogramConfig;
-        private List<AutogramBytesNoStringsV4> solver4List;
-        private List<AutogramBytesNoStringsV5> solver5List;
+        private AutogramConfig autogramConfig = null!;
+        private List<AutogramBytesNoStringsV4> solver4List = null!;
+        private List<AutogramBytesNoStringsV5> solver5List = null!;
 
         [GlobalSetup]
         public void Setup()
@@ -41,13 +41,13 @@ namespace AutogramBenchmark
         [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationV4()
         {
-            solver4List = null;
+            solver4List = null!;
         }
 
         [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationV5()
         {
-            solver5List = null;
+            solver5List = null!;
         }
 
         [Benchmark]
