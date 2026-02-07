@@ -25,17 +25,28 @@ namespace AutogramBenchmark
                 "z");
         }
 
-        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds), nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
-        public void IterationSetup()
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV4()
         {
             solver4List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV4(autogramConfig, p)).ToList();
+        }
+
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5()
+        {
             solver5List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV5(autogramConfig, p)).ToList();
         }
 
-        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds), nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
-        public void CleanupIteration()
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV4()
         {
             solver4List = null;
+        }
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5()
+        {
             solver5List = null;
         }
 
