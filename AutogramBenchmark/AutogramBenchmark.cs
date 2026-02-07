@@ -5,15 +5,23 @@ namespace AutogramBenchmark
 {
     public class AutogramBenchmark
     {
+        [Params(100)]
+        public int SeedCount;
+
         private AutogramConfig autogramConfig;
 
-        public AutogramBenchmark()
+        [GlobalSetup]
+        public void Setup()
         {
             var factory = new AutogramConfigFactory();
-
-            autogramConfig = factory.MakeAutogramConfig("abcdefghijklmnopqrstz", "This sentence employs {0}.", " and ", ", ", "'s", "z");
+            autogramConfig = factory.MakeAutogramConfig(
+                "abcdefghijklmnopqrstz",
+                "This sentence employs {0}.",
+                " and ",
+                ", ",
+                "'s",
+                "z");
         }
-
 
         [Benchmark]
         public void AutogramBytesNoStringsV4_Solve_Average_Seeds_0_100()
