@@ -3,6 +3,10 @@ using System.Diagnostics;
 
 namespace Autogram
 {
+    /// <summary>
+    /// Implementation where the variableNumericCounts was flattened.
+    /// Benchmarks showed no perf gain so not actively used but preserved for reference..
+    /// </summary>
     public class AutogramBytesNoStringsV6 : IAutogramFinder
     {
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
