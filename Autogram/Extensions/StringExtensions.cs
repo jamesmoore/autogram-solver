@@ -48,9 +48,14 @@ namespace Autogram.Extensions
             var actualCounts = lower.GetCharFrequency();
             var declared = lower.GetStatedFrequency();
 
-            foreach(var item in declared)
+            if (declared.Count == 0)
             {
-                if(!actualCounts.TryGetValue(item.Key, out int count))
+                return false;
+            }
+
+            foreach (var item in declared)
+            {
+                if (!actualCounts.TryGetValue(item.Key, out int count))
                 {
                     return false;
                 }

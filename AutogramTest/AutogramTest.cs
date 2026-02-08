@@ -5,20 +5,19 @@ namespace AutogramTest
 {
     public class AutogramTest
     {
-        const string defaultAlphabetRegex = "[a-z]";
-        const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
-        const string defaultConjunction = " and ";
-        const string defaultForced = "";
+        private const string defaultTemplate = "This sentence is an autogram and it contains {0}."; // from https://en.wikipedia.org/wiki/Autogram
         private const int ExpectedIterations = 1710690;
-        const int RandomSeed = 2021428396; // cherry picked for fast resolve
+        private const int RandomSeed = 2021428396; // cherry picked for fast resolve
+        private const string Conjunction = " and lastly ";
+        private const string SeparatorString = ", ";
 
         private static AutogramConfig GetConfig()
         {
             return new AutogramConfigFactory().MakeAutogramConfig(
                 "abcdefghijklmnopqrstuvwxyz",
                 defaultTemplate,
-                " and lastly ",
-                ", ",
+                Conjunction,
+                SeparatorString,
                 "'s",
                 "");
         }
@@ -36,7 +35,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = sut.ToString();
+                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
                     Assert.True(result.IsAutogram());
                     Assert.Equal(ExpectedIterations, i);
                     break;
@@ -57,7 +56,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = sut.ToString();
+                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
                     Assert.True(result.IsAutogram());
                     Assert.Equal(ExpectedIterations, i);
                     break;
@@ -78,7 +77,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = sut.ToString();
+                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
                     Assert.True(result.IsAutogram());
                     Assert.Equal(ExpectedIterations, i);
                     break;
