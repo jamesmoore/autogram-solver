@@ -64,5 +64,26 @@ namespace AutogramTest
                 }
             }
         }
+
+        [Fact]
+        public void TestV6()
+        {
+            var autogramConfig = GetConfig();
+
+            var sut = new AutogramBytesNoStringsV6(autogramConfig, RandomSeed);
+            int i = 0;
+            while (true)
+            {
+                var status = sut.Iterate();
+                i++;
+                if (status.Success)
+                {
+                    var result = sut.ToString();
+                    Assert.True(result.IsAutogram());
+                    Assert.Equal(ExpectedIterations, i);
+                    break;
+                }
+            }
+        }
     }
 }
