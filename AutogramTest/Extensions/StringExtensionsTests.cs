@@ -61,6 +61,14 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
+        public void IsAutogram_Invalid_Test()
+        {
+            const string example = @"Not an autogram.";
+
+            Assert.False(example.IsAutogram());
+        }
+
+        [Fact]
         public void IsAutogram_Failure_Test()
         {
             const string example = @"This sentence employs
