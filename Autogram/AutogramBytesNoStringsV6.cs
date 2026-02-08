@@ -1,7 +1,5 @@
 ﻿using Autogram.Comparer;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 
 namespace Autogram
 {
@@ -25,7 +23,8 @@ namespace Autogram
         // Second level = quantity of those letters(eg, 3 for 3 "a's")
         // Third level = quantity of letters in that number(eg 3 => 1xt, 1xh, 1xr, 2xe)
         private readonly byte[][][] variableNumericCounts;
-        
+        private readonly byte[] variableNumericCountsFlattened;
+
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
@@ -39,6 +38,8 @@ namespace Autogram
             random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 
             variableNumericCounts = config.GetVariableNumericCounts();
+            variableNumericCountsFlattened = variableNumericCounts.SelectMany(p => p).SelectMany(p => p).ToArray();
+
 
             var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
@@ -47,6 +48,14 @@ namespace Autogram
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
+            for (int i = 0; i < variableNumericCounts.Length; i++)
+            {
+                int offset = i * 100 * variableAlphabetCount;
+                for (int k = 0; k < variableNumericCounts.Length; k++)
+                {
+                    variableNumericCountsFlattened[offset + k] = 0;
+                }
+            }
             proposedCounts = variableMinimumCount.ToArray();
             computedCounts = variableMinimumCount.ToArray();
             UpdateComputedCounts();
@@ -59,7 +68,7 @@ namespace Autogram
         public Status Iterate()
         {
             var randomized = false;
-            
+
             // Check if computedCounts is already in history before cloning
             if (history.Contains(computedCounts))
             {
@@ -86,6 +95,7 @@ namespace Autogram
                 {
                     proposedCounts = (byte[])computedCounts.Clone();
                 }
+
                 return new Status(true, randomized, reorderedEquals);
             }
             else
@@ -96,17 +106,18 @@ namespace Autogram
 
         private void UpdateComputedCounts()
         {
-            variableBaselineCount.CopyTo(computedCounts.AsSpan());
-
+            for (var i = 0; i < variableAlphabetCount; i++)
+            {
+                computedCounts[i] = variableBaselineCount[i];
+            }
             for (var i = 0; i < variableAlphabetCount; i++)
             {
                 var c = proposedCounts[i];
-                if (c == 0) continue;
+                int startIdx = (i * 100 + c) * variableAlphabetCount;
 
-                var numericCount = variableNumericCounts[i][c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
-                    computedCounts[j] += numericCount[j];
+                    computedCounts[j] += variableNumericCountsFlattened[startIdx + j];
                 }
             }
 
@@ -155,7 +166,8 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public string ToString(string template, string conjunction, string separator)
         {
-            var relevantToVariableCharMap = config.AllChars.Select(p => new {
+            var relevantToVariableCharMap = config.AllChars.Select(p => new
+            {
                 p.Char,
                 Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);

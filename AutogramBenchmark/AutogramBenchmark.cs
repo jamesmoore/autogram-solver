@@ -11,6 +11,7 @@ namespace AutogramBenchmark
         private AutogramConfig autogramConfig = null!;
         private List<AutogramBytesNoStringsV4> solver4List = null!;
         private List<AutogramBytesNoStringsV5> solver5List = null!;
+        private List<AutogramBytesNoStringsV6> solver6List = null!;
 
         [GlobalSetup]
         public void Setup()
@@ -37,6 +38,11 @@ namespace AutogramBenchmark
             solver5List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV5(autogramConfig, p)).ToList();
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV6()
+        {
+            solver6List = Enumerable.Range(0, SeedCount).Select(p => new AutogramBytesNoStringsV6(autogramConfig, p)).ToList();
+        }
 
         [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationV4()
@@ -48,6 +54,12 @@ namespace AutogramBenchmark
         public void CleanupIterationV5()
         {
             solver5List = null!;
+        }
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV6()
+        {
+            solver6List = null!;
         }
 
         [Benchmark]
@@ -77,28 +89,13 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
-        public void AutogramBytesNoStringsV4_Solve_For_SeedCount_With_Ctor()
+        public void AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds()
         {
-            for (int i = 0; i < SeedCount; i++)
+            foreach (var solver in solver6List)
             {
-                var x = new AutogramBytesNoStringsV4(autogramConfig, i);
                 while (true)
                 {
-                    var result = x.Iterate();
-                    if (result.Success) break;
-                }
-            }
-        }
-
-        [Benchmark]
-        public void AutogramBytesNoStringsV5_Solve_For_SeedCount_With_Ctor()
-        {
-            for (int i = 0; i < SeedCount; i++)
-            {
-                var x = new AutogramBytesNoStringsV5(autogramConfig, i);
-                while (true)
-                {
-                    var result = x.Iterate();
+                    var result = solver.Iterate();
                     if (result.Success) break;
                 }
             }
