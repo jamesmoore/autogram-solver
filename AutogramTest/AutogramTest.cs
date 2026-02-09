@@ -11,6 +11,29 @@ namespace AutogramTest
         private const string Conjunction = " and lastly ";
         private const string SeparatorString = ", ";
 
+        private static void RunAutogramTest<TAutogram>(
+            Func<AutogramConfig, int, TAutogram> factory,
+            Func<TAutogram, string> formatter,
+            int expectedIterations)
+            where TAutogram : IAutogramFinder
+        {
+            var autogramConfig = GetConfig();
+            var sut = factory(autogramConfig, RandomSeed);
+            int i = 0;
+            while (true)
+            {
+                var status = sut.Iterate();
+                i++;
+                if (status.Success)
+                {
+                    var result = formatter(sut);
+                    Assert.True(result.IsAutogram());
+                    Assert.Equal(expectedIterations, i);
+                    break;
+                }
+            }
+        }
+
         private static AutogramConfig GetConfig()
         {
             return new AutogramConfigFactory().MakeAutogramConfig(
@@ -25,85 +48,48 @@ namespace AutogramTest
         [Fact]
         public void Test()
         {
-            var autogramConfig = GetConfig();
-
-            var sut = new AutogramBytesNoStringsV4(autogramConfig, RandomSeed);
-            int i = 0;
-            while (true)
-            {
-                var status = sut.Iterate();
-                i++;
-                if (status.Success)
-                {
-                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
-                    Assert.True(result.IsAutogram());
-                    Assert.Equal(ExpectedIterations, i);
-                    break;
-                }
-            }
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV4(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
         }
 
         [Fact]
         public void TestV5()
         {
-            var autogramConfig = GetConfig();
-
-            var sut = new AutogramBytesNoStringsV5(autogramConfig, RandomSeed);
-            int i = 0;
-            while (true)
-            {
-                var status = sut.Iterate();
-                i++;
-                if (status.Success)
-                {
-                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
-                    Assert.True(result.IsAutogram());
-                    Assert.Equal(ExpectedIterations, i);
-                    break;
-                }
-            }
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
         }
+
+        [Fact]
+        public void TestV5a()
+        {
+            const int Expected = 1042770;
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5a(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                Expected);
+        }
+
 
         [Fact]
         public void TestV6()
         {
-            var autogramConfig = GetConfig();
-
-            var sut = new AutogramBytesNoStringsV6(autogramConfig, RandomSeed);
-            int i = 0;
-            while (true)
-            {
-                var status = sut.Iterate();
-                i++;
-                if (status.Success)
-                {
-                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
-                    Assert.True(result.IsAutogram());
-                    Assert.Equal(ExpectedIterations, i);
-                    break;
-                }
-            }
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV6(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
         }
 
         [Fact]
         public void TestV7()
         {
-            var autogramConfig = GetConfig();
-
-            var sut = new AutogramIntsNoStringsV7(autogramConfig, RandomSeed);
-            int i = 0;
-            while (true)
-            {
-                var status = sut.Iterate();
-                i++;
-                if (status.Success)
-                {
-                    var result = sut.ToString(defaultTemplate, Conjunction, SeparatorString);
-                    Assert.True(result.IsAutogram());
-                    Assert.Equal(ExpectedIterations, i);
-                    break;
-                }
-            }
+            RunAutogramTest(
+                (config, seed) => new AutogramIntsNoStringsV7(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
         }
     }
 }
