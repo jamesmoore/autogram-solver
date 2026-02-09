@@ -9,7 +9,7 @@ namespace AutogramBenchmark
         private ByteArraySpanComparer BSpanComparer = new();
         private ByteArraySpanWithHashCodeComparer BSpanWithHashCodeComparer = new();
         private ByteArraySpanWithChunkedHashCodeComparer BSpanWithChunkedHashCodeComparer = new();
-        private IntArraySpanComparer IntArraySpanComparer = new();
+        private readonly IntArraySpanComparer IntArraySpanComparer = new();
 
         private readonly byte[] ByteData;
         private readonly byte[] ByteDataCopy;
