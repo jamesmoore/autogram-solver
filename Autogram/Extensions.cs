@@ -220,6 +220,32 @@ namespace Autogram
             return true;
         }
 
+        public static bool UnorderedIntSpanEquals2(this ReadOnlySpan<int> x, ReadOnlySpan<int> y)
+        {
+            if (x.Length != y.Length)
+            {
+                return false;
+            }
+
+            Span<int> xSorted = stackalloc int[x.Length];
+            Span<int> ySorted = stackalloc int[y.Length];
+            x.CopyTo(xSorted);
+            y.CopyTo(ySorted);
+            xSorted.Sort();
+            ySorted.Sort();
+
+            for (int i = 0; i < xSorted.Length; i++)
+            {
+                if (xSorted[i] != ySorted[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
         public static int[] GetFrequencies(this string referenceString, IEnumerable<char> alphabet)
         {
             return alphabet.Select(p => referenceString.Where(q => q == p).Count()).ToArray();
