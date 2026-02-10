@@ -4,7 +4,7 @@ using Autogram.Comparer;
 namespace Autogram
 {
     /// <summary>
-    /// Same general approach as 5, except only a single mismatch is changed during when Randomize is called.
+    /// Same general approach as 5, except only a single mismatch is changed when Randomize is called.
     /// </summary>
     public class AutogramBytesNoStringsV5a : IAutogramFinder
     {
