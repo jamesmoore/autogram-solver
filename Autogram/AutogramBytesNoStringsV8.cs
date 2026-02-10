@@ -3,6 +3,10 @@ using Autogram.Comparer;
 
 namespace Autogram
 {
+    /// <summary>
+    /// This implementation uses delta to update the computed count.
+    /// No significant performance gains over V5.
+    /// </summary>
     public class AutogramBytesNoStringsV8 : IAutogramFinder
     {
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
