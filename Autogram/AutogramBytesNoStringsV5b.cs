@@ -4,9 +4,9 @@ using Autogram.Comparer;
 namespace Autogram
 {
     /// <summary>
-    /// Same general approach as 5, except only a single mismatch is changed when Randomize is called.
+    /// Same as v5 except there is a 50/50 chance of doing a somewhat deterministic walk when Randomize is called.
     /// </summary>
-    public class AutogramBytesNoStringsV5a : IAutogramFinder
+    public class AutogramBytesNoStringsV5b : IAutogramFinder
     {
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly Random random;
@@ -25,7 +25,7 @@ namespace Autogram
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
-        public AutogramBytesNoStringsV5a(
+        public AutogramBytesNoStringsV5b(
             AutogramConfig config,
             int? randomSeed)
         {
@@ -54,11 +54,11 @@ namespace Autogram
         public Status Iterate()
         {
             var randomized = false;
-            
+
             // Check if computedCounts is already in history before cloning
             if (history.Contains(computedCounts))
             {
-                proposedCounts = Randomize();
+                proposedCounts = random.Next(0, 2) == 0 ? RandomizeDiffs() : Randomize(); // 50/50 
                 randomized = true;
             }
             else
@@ -113,36 +113,79 @@ namespace Autogram
 #endif
         }
 
+        // Special case Randomize that does an iterative history walk.
+        // Some randomness is present to pick the initial mismatch index.
         private byte[] Randomize()
+        {
+            var result = new byte[proposedCounts.Length];
+            Buffer.BlockCopy(computedCounts, 0, result, 0, computedCounts.Length);
+
+            var adjustment = new sbyte[proposedCounts.Length];
+            var adjustmentIndex = new byte[proposedCounts.Length]; // limited to mismatched
+            var mismatchCount = 0;
+
+            for (var i = 0; i < proposedCounts.Length; i++)
+            {
+                if (computedCounts[i] != proposedCounts[i])
+                {
+                    adjustmentIndex[mismatchCount++] = (byte)i;
+                }
+            }
+
+            var mismatchIndex = random.Next(0, mismatchCount);
+
+            while (true)
+            {
+                var realIndex = adjustmentIndex[mismatchIndex];
+
+                var currentAdjustment = adjustment[realIndex];
+                var newAdjustment = 0;
+                if (currentAdjustment == 0) // Initially go upwards
+                {
+                    newAdjustment = 1;
+                }
+                else if (currentAdjustment < 0) // If negative go upwards
+                {
+                    newAdjustment = (currentAdjustment * -1) + 1;
+                }
+                else // if positive go negative - except if it would go below minimum
+                {
+                    newAdjustment = computedCounts[realIndex] - currentAdjustment < variableMinimumCount[realIndex]
+                        ? currentAdjustment + 1
+                        : currentAdjustment * -1;
+                }
+
+                adjustment[realIndex] = (sbyte)newAdjustment;
+
+                result[realIndex] = (byte)(computedCounts[realIndex] + newAdjustment);
+
+                if (history.Contains(result) == false)
+                {
+                    return result;
+                }
+
+                mismatchIndex++;
+                if (mismatchIndex >= mismatchCount)
+                {
+                    mismatchIndex = 0;
+                }
+            }
+        }
+
+        // Regular randomization of non-matching counts
+        private byte[] RandomizeDiffs()
         {
             var result = new byte[proposedCounts.Length];
             var randomizationLevel = 1;
             while (true)
             {
-                Buffer.BlockCopy(computedCounts, 0, result, 0, computedCounts.Length);
-                
-                // Reservoir sampling to choose a random index among the mismatches.
-                var mismatchCount = 0;
-                var chosenIndex = -1;
-                for (var i = 0; i < proposedCounts.Length; i++)
+                for (int i = 0; i < proposedCounts.Length; i++)
                 {
-                    if (computedCounts[i] != proposedCounts[i])
-                    {
-                        mismatchCount++;
-                        if (random.Next(mismatchCount) == 0)
-                        {
-                            chosenIndex = i;
-                        }
-                    }
+                    var computedCount = computedCounts[i];
+                    result[i] = computedCount == proposedCounts[i]
+                        ? computedCount
+                        : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
-
-                Debug.Assert(chosenIndex >= 0);
-                //if (mismatchCount == 0)
-                //{
-                //    chosenIndex = random.Next(proposedCounts.Length);
-                //}
-
-                result[chosenIndex] = OffsetGuess(computedCounts[chosenIndex], variableMinimumCount[chosenIndex], randomizationLevel);
 
                 if (history.Contains(result) == false)
                 {
@@ -166,7 +209,8 @@ namespace Autogram
         /// <returns>The current sentence.</returns>
         public string ToString(string template, string conjunction, string separator)
         {
-            var relevantToVariableCharMap = config.AllChars.Select(p => new {
+            var relevantToVariableCharMap = config.AllChars.Select(p => new
+            {
                 p.Char,
                 Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);
