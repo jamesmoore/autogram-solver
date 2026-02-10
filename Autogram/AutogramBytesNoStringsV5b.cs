@@ -152,14 +152,9 @@ namespace Autogram
                 }
                 else // if positive go negative - except if it would go below minimum
                 {
-                    if (computedCounts[realIndex] - currentAdjustment < variableMinimumCount[realIndex])
-                    {
-                        newAdjustment = currentAdjustment + 1;
-                    }
-                    else
-                    {
-                        newAdjustment = currentAdjustment * -1;
-                    }
+                    newAdjustment = computedCounts[realIndex] - currentAdjustment < variableMinimumCount[realIndex]
+                        ? currentAdjustment + 1
+                        : currentAdjustment * -1;
                 }
 
                 adjustment[realIndex] = (sbyte)newAdjustment;
