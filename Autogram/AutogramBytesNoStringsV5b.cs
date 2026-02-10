@@ -120,7 +120,6 @@ namespace Autogram
             var result = new byte[proposedCounts.Length];
             Buffer.BlockCopy(computedCounts, 0, result, 0, computedCounts.Length);
 
-            var canAdjust = new byte[proposedCounts.Length];
             var adjustment = new sbyte[proposedCounts.Length];
             var adjustmentIndex = new byte[proposedCounts.Length]; // limited to mismatched
             var mismatchCount = 0;
@@ -129,7 +128,6 @@ namespace Autogram
             {
                 if (computedCounts[i] != proposedCounts[i])
                 {
-                    canAdjust[i] = 1;
                     adjustmentIndex[mismatchCount++] = (byte)i;
                 }
             }
