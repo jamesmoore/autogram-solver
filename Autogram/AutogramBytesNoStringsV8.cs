@@ -91,29 +91,41 @@ namespace Autogram
 
         private void DeltaUpdateComputedCounts()
         {
-            int[] delta = new int[variableAlphabetCount];
+            var alphabetCount = variableAlphabetCount;
+            var computed = computedCounts;
+            var vnc = variableNumericCounts;
 
-            for (int i = 0; i < variableAlphabetCount; i++)
+            for (int i = 0; i < alphabetCount; i++)
             {
                 byte lastCount = lastProposedCounts[i];
                 byte currentCount = proposedCounts[i];
-                if (lastCount != currentCount)
-                {
-                    var charInQuestion = variableNumericCounts[i];
-                    var toAdd = charInQuestion[currentCount];
-                    var toDeduct = charInQuestion[lastCount];
+                if (lastCount == currentCount) continue;
 
-                    for (int j = 0; j < variableAlphabetCount; j++)
+                if (currentCount == 0)
+                {
+                    var toDeduct = vnc[i][lastCount];
+                    for (int j = 0; j < alphabetCount; j++)
                     {
-                        delta[j] = delta[j] + (currentCount > 0 ? toAdd[j] : 0) - (lastCount > 0 ? toDeduct[j] : 0);
+                        computed[j] = (byte)(computed[j] - toDeduct[j]);
                     }
                 }
-            }
-
-            for (int i = 0; i < variableAlphabetCount; i++)
-            {
-                int v = computedCounts[i] + delta[i];
-                computedCounts[i] = (byte)v;
+                else if (lastCount == 0)
+                {
+                    var toAdd = vnc[i][currentCount];
+                    for (int j = 0; j < alphabetCount; j++)
+                    {
+                        computed[j] = (byte)(computed[j] + toAdd[j]);
+                    }
+                }
+                else
+                {
+                    var toAdd = vnc[i][currentCount];
+                    var toDeduct = vnc[i][lastCount];
+                    for (int j = 0; j < alphabetCount; j++)
+                    {
+                        computed[j] = (byte)(computed[j] + toAdd[j] - toDeduct[j]);
+                    }
+                }
             }
 
 #if DEBUG
