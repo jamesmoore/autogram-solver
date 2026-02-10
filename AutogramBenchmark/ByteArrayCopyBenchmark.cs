@@ -34,7 +34,7 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
-        public void ManualForeach()
+        public void ManualForLoop()
         {
             for (int i = 0; i < sourceArray.Length; i++)
             {
