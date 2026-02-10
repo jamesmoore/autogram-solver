@@ -12,6 +12,7 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV4> solver4List = null!;
         private List<AutogramBytesNoStringsV5> solver5List = null!;
         private List<AutogramBytesNoStringsV5a> solver5aList = null!;
+        private List<AutogramBytesNoStringsV5b> solver5bList = null!;
         private List<AutogramBytesNoStringsV6> solver6List = null!;
         private List<AutogramIntsNoStringsV7> solver7List = null!;
 
@@ -74,6 +75,12 @@ namespace AutogramBenchmark
             solver5aList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5a(autogramConfig, p));
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5b_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5b()
+        {
+            solver5bList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5b(autogramConfig, p));
+        }
+
         [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds) })]
         public void IterationSetupV6()
         {
@@ -104,6 +111,12 @@ namespace AutogramBenchmark
             ClearSolvers(ref solver5aList);
         }
 
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5b_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5b()
+        {
+            ClearSolvers(ref solver5bList);
+        }
+
         [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationV6()
         {
@@ -122,7 +135,7 @@ namespace AutogramBenchmark
             SolveAll(solver4List);
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5List);
@@ -133,7 +146,13 @@ namespace AutogramBenchmark
         {
             SolveAll(solver5aList);
         }
-        
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV5b_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5bList);
+        }
+
         [Benchmark]
         public void AutogramBytesNoStringsV6_Solve_Average_Batched_Seeds()
         {
