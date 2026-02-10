@@ -9,7 +9,7 @@ namespace Autogram
         private readonly Random random;
 
         private byte[] proposedCounts;
-        private byte[] lastProposedCounts;
+        private readonly byte[] lastProposedCounts;
         private readonly byte[] computedCounts;
 
         private readonly AutogramConfig config;
