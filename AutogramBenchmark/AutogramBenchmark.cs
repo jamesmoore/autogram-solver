@@ -15,6 +15,7 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV5b> solver5bList = null!;
         private List<AutogramBytesNoStringsV6> solver6List = null!;
         private List<AutogramIntsNoStringsV7> solver7List = null!;
+        private List<AutogramBytesNoStringsV8> solver8List = null!;
 
         private static List<TSolver> CreateSolvers<TSolver>(int seedCount, Func<int, TSolver> factory)
         {
@@ -93,6 +94,12 @@ namespace AutogramBenchmark
             solver7List = CreateSolvers(SeedCount, p => new AutogramIntsNoStringsV7(autogramConfig, p));
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV8_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV8()
+        {
+            solver8List = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV8(autogramConfig, p));
+        }
+
         [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationV4()
         {
@@ -129,6 +136,12 @@ namespace AutogramBenchmark
             ClearSolvers(ref solver7List);
         }
 
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV8_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV8()
+        {
+            ClearSolvers(ref solver8List);
+        }
+
         [Benchmark]
         public void AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds()
         {
@@ -163,6 +176,12 @@ namespace AutogramBenchmark
         public void AutogramIntsNoStringsV7_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver7List);
+        }
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV8_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver8List);
         }
     }
 }

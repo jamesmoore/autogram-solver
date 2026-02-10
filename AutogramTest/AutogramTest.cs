@@ -100,5 +100,14 @@ namespace AutogramTest
                 sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
+
+        [Fact]
+        public void TestV8()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV8(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
+        }
     }
 }
