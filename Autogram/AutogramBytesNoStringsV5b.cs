@@ -114,7 +114,7 @@ namespace Autogram
         }
 
         // Special case Randomize that does an iterative history walk.
-        // Some randomness is presen to pick the initial mismatch index.
+        // Some randomness is present to pick the initial mismatch index.
         private byte[] Randomize()
         {
             var result = new byte[proposedCounts.Length];
