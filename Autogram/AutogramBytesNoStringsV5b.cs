@@ -4,7 +4,7 @@ using Autogram.Comparer;
 namespace Autogram
 {
     /// <summary>
-    /// Same as v5 except there is a 50/50 chance of doing a somewhat determinstic walk when Randomize is called.
+    /// Same as v5 except there is a 50/50 chance of doing a somewhat deterministic walk when Randomize is called.
     /// </summary>
     public class AutogramBytesNoStringsV5b : IAutogramFinder
     {
