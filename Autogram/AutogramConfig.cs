@@ -35,13 +35,13 @@ namespace Autogram
         public required char Char { get; init; }
         
         /// <summary>
-        /// Baseline count of the character 'Char' 
+        /// Baseline count of the character <c>Char</c> 
         /// </summary>
         /// <remarks>Baseline is defined as present in template, conjunction or any of the pluralised extended chars (eg, 'commas')</remarks>
         public required int BaselineCount { get; set; }
 
         /// <summary>
-        /// The minimum count of the character 'Char' that is required in the autogram, 
+        /// The minimum count of the character <c>Char</c> that is required in the autogram, 
         /// </summary>
         /// <remarks>
         /// * The <c>BaselineCount</c><br/>
@@ -54,7 +54,9 @@ namespace Autogram
         /// <summary>
         /// Gets a value indicating whether the character count is variable, or fixed from the outset.
         /// </summary>
-        /// <remarks>Chars in the template that are not part of the numeric alphabet are not variable.</remarks>
+        /// <remarks>
+        /// Variable means it is present in the numeric alphabet and can vary.<br/>
+        /// Non-Variable chars can have their counts precomputed.</remarks>
         public required bool IsVariable { get; init; }
         public required int? VariableIndex { get; init; }
 
