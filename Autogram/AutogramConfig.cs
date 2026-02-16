@@ -47,7 +47,7 @@ namespace Autogram
         /// * The <c>BaselineCount</c><br/>
         /// * plus 1 if guaranteed to be present, to represent itself in the list.<br/>
         /// * plus the counts of the chars in the cardinals of the invariant characters.<br/>
-        /// For invariant chars this is the acutal count.
+        /// For invariant chars this is the actual count.
         /// </remarks>
         public required int MinimumCount { get; set; }
         
