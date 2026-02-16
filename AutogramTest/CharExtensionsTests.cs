@@ -12,7 +12,7 @@ namespace AutogramTest
         [InlineData('a', "a")]
         public void GetCharacterName_ReturnsExpectedName(char character, string expected)
         {
-            var result = character.GetCharacterName();
+            var result = character.GetCharacterName(1);
             Assert.Equal(expected, result);
         }
 
@@ -24,7 +24,7 @@ namespace AutogramTest
         [InlineData('a', "a's")]
         public void GetPluralisedCharacterName_ReturnsExpectedName(char character, string expected)
         {
-            var result = character.GetPluralisedCharacterName();
+            var result = character.GetCharacterName(2);
             Assert.Equal(expected, result);
         }
 
@@ -51,7 +51,7 @@ namespace AutogramTest
         [Fact]
         public void GetPluralisedCharacterName_ReturnsApostropheSWithoutBackslash()
         {
-            var result = 'a'.GetPluralisedCharacterName();
+            var result = 'a'.GetCharacterName(2);
             Assert.Equal("a's", result);
         }
     }

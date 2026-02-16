@@ -22,8 +22,9 @@
         {
             var baselineTemplate = string.Format(template, String.Empty);
 
-            // CAVEAT#1: There is an assumption that the non-pluralised punctuation words will be present in the output
-            var specialChars = alphabet.Where(p => p.HasExtendedName()).Select(p => p.GetPluralisedCharacterName()).ToList();
+            // CAVEAT#1: There is an assumption that the pluralised punctuation words will be present in the output
+            // This may affect unusual cases eg, very short alphabets where there is only a single comma, but comma was included in the alphabet.
+            var specialChars = alphabet.Where(p => p.HasExtendedName()).Select(p => p.GetCharacterName(2)).ToList();
 
             var baselineString = (baselineTemplate + conjunction + (specialChars.Count != 0 ? specialChars.Aggregate((p, q) => p + q) : string.Empty)).ToLower();
 

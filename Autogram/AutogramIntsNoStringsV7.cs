@@ -178,7 +178,7 @@ namespace Autogram
         {
             return quantity == 0 ?
                 string.Empty :
-                ((byte)quantity).ToCardinalNumberStringPrecomputed() + " " + (quantity == 1 ? character.GetCharacterName() : character.GetPluralisedCharacterName());
+                ((byte)quantity).ToCardinalNumberStringPrecomputed() + " " + character.GetCharacterName(quantity);
         }
 
         public int HistoryCount => history.Count;

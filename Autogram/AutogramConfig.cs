@@ -16,10 +16,10 @@ namespace Autogram
 
         public byte[][][] GetVariableNumericCounts()
         {
-            return this.AllChars.Where(p => p.IsVariable).Select(p => p.GetStringRepresentationFrequencies(this.VariableCharsChars)).ToArray();
+            return this.VariableChars.Select(p => p.GetStringRepresentationFrequencies(this.VariableCharsChars)).ToArray();
         }
 
-        private IEnumerable<char> VariableCharsChars => this.AllChars.Where(p => p.IsVariable).Select(p => p.Char);
+        private IEnumerable<char> VariableCharsChars => this.VariableChars.Select(p => p.Char);
 
         public void Validate()
         {
@@ -33,10 +33,38 @@ namespace Autogram
     {
         public required int Index { get; init; }
         public required char Char { get; init; }
+        
+        /// <summary>
+        /// Baseline count of the character 'Char' 
+        /// </summary>
+        /// <remarks>Baseline is defined as present in template, conjunction or any of the pluralised extended chars (eg, 'commas')</remarks>
         public required int BaselineCount { get; set; }
+
+        /// <summary>
+        /// The minimum count of the character 'Char' that is required in the autogram, 
+        /// </summary>
+        /// <remarks>
+        /// * The <c>BaselineCount</c><br/>
+        /// * plus 1 if guaranteed to be present, to represent itself in the list.<br/>
+        /// * plus the counts of the chars in the cardinals of the invariant characters.<br/>
+        /// For invariant chars this is the acutal count.
+        /// </remarks>
         public required int MinimumCount { get; set; }
+        
+        /// <summary>
+        /// Gets a value indicating whether the character count is variable, or fixed from the outset.
+        /// </summary>
+        /// <remarks>Chars in the template that are not part of the numeric alphabet are not variable.</remarks>
         public required bool IsVariable { get; init; }
         public required int? VariableIndex { get; init; }
+
+        /// <summary>
+        /// The variable baseline count
+        /// </summary>
+        /// <remarks>
+        /// The <c>BaselineCount</c>
+        /// Plus the counts of the chars in the cardinals of the invariant characters.
+        /// </remarks>
         public required int? VariableBaselineCount { get; set; }
 
         /// <summary>
