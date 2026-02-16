@@ -2,7 +2,7 @@
 {
     public static class CharExtensions
     {
-        public static string GetCharacterName(this char character)
+        private static string GetCharacterName(this char character)
         {
             if (character == ',') return "comma";
             if (character == '-') return "hyphen";
@@ -11,7 +11,7 @@
             return character.ToString();
         }
 
-        public static string GetPluralisedCharacterName(this char character)
+        private static string GetPluralisedCharacterName(this char character)
         {
             if (character == ',') return "commas";
             if (character == '-') return "hyphens";
