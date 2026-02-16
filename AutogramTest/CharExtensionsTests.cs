@@ -5,26 +5,19 @@ namespace AutogramTest
     public class CharExtensionsTests
     {
         [Theory]
-        [InlineData(',', "comma")]
-        [InlineData('-', "hyphen")]
-        [InlineData('\'', "apostrophe")]
-        [InlineData(' ', "space")]
-        [InlineData('a', "a")]
-        public void GetCharacterName_ReturnsExpectedName(char character, string expected)
+        [InlineData(1,',', "comma")]
+        [InlineData(1, '-', "hyphen")]
+        [InlineData(1, '\'', "apostrophe")]
+        [InlineData(1, ' ', "space")]
+        [InlineData(1, 'a', "a")]
+        [InlineData(2, ',', "commas")]
+        [InlineData(2, '-', "hyphens")]
+        [InlineData(2, '\'', "apostrophes")]
+        [InlineData(2, ' ', "spaces")]
+        [InlineData(2, 'a', "a's")]
+        public void GetCharacterName_ReturnsExpectedName(int count, char character, string expected)
         {
-            var result = character.GetCharacterName(1);
-            Assert.Equal(expected, result);
-        }
-
-        [Theory]
-        [InlineData(',', "commas")]
-        [InlineData('-', "hyphens")]
-        [InlineData('\'', "apostrophes")]
-        [InlineData(' ', "spaces")]
-        [InlineData('a', "a's")]
-        public void GetPluralisedCharacterName_ReturnsExpectedName(char character, string expected)
-        {
-            var result = character.GetCharacterName(2);
+            var result = character.GetCharacterName(count);
             Assert.Equal(expected, result);
         }
 
