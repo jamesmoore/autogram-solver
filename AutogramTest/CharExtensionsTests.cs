@@ -47,5 +47,16 @@ namespace AutogramTest
             var result = 'a'.GetCharacterName(2);
             Assert.Equal("a's", result);
         }
+        [Theory]
+        [InlineData('a', 1, "one a")]
+        [InlineData('a', 2, "two a's")]
+        [InlineData(',', 1, "one comma")]
+        [InlineData(',', 3, "three commas")]
+        [InlineData('a', 0, "")]
+        public void ToListEntry_ReturnsExpected(char character, int quantity, string expected)
+        {
+            var result = character.ToListEntry(quantity);
+            Assert.Equal(expected, result);
+        }
     }
 }

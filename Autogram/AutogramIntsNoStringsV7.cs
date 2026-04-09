@@ -169,16 +169,9 @@ namespace Autogram
                 p.Char,
                 Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);
-            var numberItems = relevantToVariableCharMap.Select(p => NumberToListEntry(p.Count, p.Char)).ToList();
+            var numberItems = relevantToVariableCharMap.Select(p => p.Char.ToListEntry(p.Count)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify(separator) : numberItems.ListifyWithConjunction(separator, conjunction);
             return string.Format(template, arg0);
-        }
-
-        private static string NumberToListEntry(int quantity, char character)
-        {
-            return quantity == 0 ?
-                string.Empty :
-                ((byte)quantity).ToCardinalNumberStringPrecomputed() + " " + character.GetCharacterName(quantity);
         }
 
         public int HistoryCount => history.Count;
