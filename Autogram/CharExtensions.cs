@@ -36,5 +36,12 @@
         {
             return character.ToString() != character.GetCharacterName();
         }
+
+        public static string ToListEntry(this char character, int quantity)
+        {
+            return quantity == 0 ?
+                string.Empty :
+                ((byte)quantity).ToCardinalNumberStringPrecomputed() + " " + character.GetCharacterName(quantity);
+        }
     }
 }
