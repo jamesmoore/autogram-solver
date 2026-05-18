@@ -64,6 +64,24 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestV5c()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5c(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
+        }
+
+        [Fact]
+        public void TestV5d()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5d(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                ExpectedIterations);
+        }
+
+        [Fact]
         public void TestV5a()
         {
             const int Expected = 1042770;
