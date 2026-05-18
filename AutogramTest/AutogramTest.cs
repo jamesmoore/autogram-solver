@@ -64,6 +64,26 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestV5a()
+        {
+            const int Expected = 1042770;
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5a(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                Expected);
+        }
+
+        [Fact]
+        public void TestV5b()
+        {
+            const int Expected = 661049;
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5b(config, seed),
+                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
+                Expected);
+        }
+
+        [Fact]
         public void TestV5c()
         {
             RunAutogramTest(
@@ -82,23 +102,12 @@ namespace AutogramTest
         }
 
         [Fact]
-        public void TestV5a()
+        public void TestV5e()
         {
-            const int Expected = 1042770;
             RunAutogramTest(
-                (config, seed) => new AutogramBytesNoStringsV5a(config, seed),
+                (config, seed) => new AutogramBytesNoStringsV5e(config, seed),
                 sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
-                Expected);
-        }
-
-        [Fact]
-        public void TestV5b()
-        {
-            const int Expected = 661049;
-            RunAutogramTest(
-                (config, seed) => new AutogramBytesNoStringsV5b(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
-                Expected);
+                1769732);
         }
 
         [Fact]

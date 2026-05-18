@@ -15,6 +15,7 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV5b> solver5bList = null!;
         private List<AutogramBytesNoStringsV5c> solver5cList = null!;
         private List<AutogramBytesNoStringsV5d> solver5dList = null!;
+        private List<AutogramBytesNoStringsV5e> solver5eList = null!;
         private List<AutogramBytesNoStringsV6> solver6List = null!;
         private List<AutogramIntsNoStringsV7> solver7List = null!;
         private List<AutogramBytesNoStringsV8> solver8List = null!;
@@ -84,6 +85,12 @@ namespace AutogramBenchmark
             solver5dList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5d(autogramConfig, p));
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5e()
+        {
+            solver5eList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5e(autogramConfig, p));
+        }
+
         //[IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
         //public void IterationSetupV5a()
         //{
@@ -138,6 +145,12 @@ namespace AutogramBenchmark
             ClearSolvers(ref solver5dList);
         }
 
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5e()
+        {
+            ClearSolvers(ref solver5eList);
+        }
+
         //[IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
         //public void CleanupIterationV5a()
         //{
@@ -190,6 +203,12 @@ namespace AutogramBenchmark
         public void AutogramBytesNoStringsV5d_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5dList);
+        }
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5eList);
         }
         //[Benchmark]
         //public void AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds()
