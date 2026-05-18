@@ -2,6 +2,9 @@ using System.Diagnostics;
 
 namespace Autogram
 {
+    /// <summary>
+    /// Based on version 5c, but reuses proposed counts array.
+    /// </summary>
     public class AutogramBytesNoStringsV5d : IAutogramFinder
     {
         private readonly HashSet<ByteHistoryKey64> history = [];
