@@ -184,7 +184,7 @@ void DoAutogramSearch(
 
     if (quiet == false)
     {
-        Console.WriteLine("Starting: " + autogram.ToString(template, conjunction, separator));
+        Console.WriteLine("Starting: " + autogram.GetAutogramSnapshot().ToString(template, conjunction, separator));
     }
 
     int i = 0;
@@ -210,7 +210,7 @@ void DoAutogramSearch(
         if (status.Success)
         {
             var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegex);
-            ReportSuccess(quiet, autogram.ToString(template, conjunction, separator), i, randomized, sw, status, commandLine);
+            ReportSuccess(quiet, autogram.GetAutogramSnapshot().ToString(template, conjunction, separator), i, randomized, sw, status, commandLine);
             break;
         }
 
