@@ -13,7 +13,6 @@ namespace AutogramTest
 
         private static void RunAutogramTest<TAutogram>(
             Func<AutogramConfig, int, TAutogram> factory,
-            Func<TAutogram, string> formatter,
             int expectedIterations)
             where TAutogram : IAutogramFinder
         {
@@ -26,7 +25,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = formatter(sut);
+                    var result = sut.GetAutogramSnapshot().ToString(defaultTemplate, Conjunction, SeparatorString);
                     Assert.True(result.IsAutogram());
                     Assert.Equal(expectedIterations, i);
                     break;
@@ -50,7 +49,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV4(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -59,7 +57,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -69,7 +66,6 @@ namespace AutogramTest
             const int Expected = 1042770;
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5a(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 Expected);
         }
 
@@ -79,7 +75,6 @@ namespace AutogramTest
             const int Expected = 661049;
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5b(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 Expected);
         }
 
@@ -88,7 +83,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5c(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -97,7 +91,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5d(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -106,7 +99,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5e(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 1769732);
         }
 
@@ -115,7 +107,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV6(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -124,7 +115,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramIntsNoStringsV7(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
 
@@ -133,7 +123,6 @@ namespace AutogramTest
         {
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV8(config, seed),
-                sut => sut.ToString(defaultTemplate, Conjunction, SeparatorString),
                 ExpectedIterations);
         }
     }

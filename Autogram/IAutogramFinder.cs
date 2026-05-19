@@ -3,5 +3,6 @@
     public interface IAutogramFinder
     {
         Status Iterate();
+        AutogramSnapshot GetAutogramSnapshot();
     }
 }

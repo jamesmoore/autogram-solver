@@ -158,20 +158,12 @@ namespace Autogram
             return random.Next(min, max);
         }
 
-        /// <summary>
-        /// Builds the sentence based off the current state, and may not be a valid autogram.
-        /// </summary>
-        /// <returns>The current sentence.</returns>
-        public string ToString(string template, string conjunction, string separator)
+        public AutogramSnapshot GetAutogramSnapshot()
         {
-            var relevantToVariableCharMap = config.AllChars.Select(p => new
-            {
+            return new AutogramSnapshot(config.AllChars.Select(p => (
                 p.Char,
-                Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
-            }).Where(p => p.Count > 0);
-            var numberItems = relevantToVariableCharMap.Select(p => p.Char.ToListEntry(p.Count)).ToList();
-            var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify(separator) : numberItems.ListifyWithConjunction(separator, conjunction);
-            return string.Format(template, arg0);
+                Count: p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount
+            )).Where(p => p.Count > 0));
         }
 
         public int HistoryCount => history.Count;
