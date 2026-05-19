@@ -5,11 +5,16 @@ namespace Autogram
 {
     public class AutogramBytesNoStringsV5 : IAutogramFinder
     {
+        private sealed class StateSnapshot
+        {
+            public required byte[] ProposedCounts { get; set; }
+            public required byte[] ComputedCounts { get; set; }
+        }
+
         private readonly HashSet<byte[]> history = new(new ByteArraySpanComparer());
         private readonly Random random;
 
-        private byte[] proposedCounts;
-        private readonly byte[] computedCounts;
+        private readonly StateSnapshot state;
 
         private readonly AutogramConfig config;
 
@@ -39,8 +44,11 @@ namespace Autogram
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
-            proposedCounts = variableMinimumCount.ToArray();
-            computedCounts = variableMinimumCount.ToArray();
+            state = new StateSnapshot
+            {
+                ProposedCounts = variableMinimumCount.ToArray(),
+                ComputedCounts = variableMinimumCount.ToArray()
+            };
             UpdateComputedCounts();
         }
 
@@ -53,30 +61,30 @@ namespace Autogram
             var randomized = false;
             
             // Check if computedCounts is already in history before cloning
-            if (history.Contains(computedCounts))
+            if (history.Contains(state.ComputedCounts))
             {
-                proposedCounts = Randomize();
+                state.ProposedCounts = Randomize();
                 randomized = true;
             }
             else
             {
                 // Only clone when we need to store in proposedCounts
-                proposedCounts = (byte[])computedCounts.Clone();
+                state.ProposedCounts = (byte[])state.ComputedCounts.Clone();
             }
 
-            history.Add(proposedCounts);
+            history.Add(state.ProposedCounts);
 
             UpdateComputedCounts();
 
-            var reorderedEquals = computedCounts.AsSpan().UnorderedByteSpanEquals(proposedCounts);
+            var reorderedEquals = state.ComputedCounts.AsSpan().UnorderedByteSpanEquals(state.ProposedCounts);
 
             if (reorderedEquals)
             {
-                reorderedEquals = computedCounts.AsSpan().SequenceEqual(proposedCounts) == false;
+                reorderedEquals = state.ComputedCounts.AsSpan().SequenceEqual(state.ProposedCounts) == false;
                 // Only clone if arrays have same content but different order
                 if (reorderedEquals)
                 {
-                    proposedCounts = (byte[])computedCounts.Clone();
+                    state.ProposedCounts = (byte[])state.ComputedCounts.Clone();
                 }
                 return new Status(true, randomized, reorderedEquals);
             }
@@ -88,24 +96,24 @@ namespace Autogram
 
         private void UpdateComputedCounts()
         {
-            variableBaselineCount.CopyTo(computedCounts.AsSpan());
+            variableBaselineCount.CopyTo(state.ComputedCounts.AsSpan());
 
             for (var i = 0; i < variableAlphabetCount; i++)
             {
-                var c = proposedCounts[i];
+                var c = state.ProposedCounts[i];
                 if (c == 0) continue;
 
                 var numericCount = variableNumericCounts[i][c];
                 for (var j = 0; j < variableAlphabetCount; j++)
                 {
-                    computedCounts[j] += numericCount[j];
+                    state.ComputedCounts[j] += numericCount[j];
                 }
             }
 
 #if DEBUG
             for (var i = 0; i < variableAlphabetCount; i++)
             {
-                Debug.Assert(computedCounts[i] >= variableMinimumCount[i]);
+                Debug.Assert(state.ComputedCounts[i] >= variableMinimumCount[i]);
             }
 #endif
         }
@@ -113,14 +121,14 @@ namespace Autogram
 
         private byte[] Randomize()
         {
-            var result = new byte[proposedCounts.Length];
+            var result = new byte[state.ProposedCounts.Length];
             var randomizationLevel = 1;
             while (true)
             {
-                for (int i = 0; i < proposedCounts.Length; i++)
+                for (int i = 0; i < state.ProposedCounts.Length; i++)
                 {
-                    var computedCount = computedCounts[i];
-                    result[i] = computedCount == proposedCounts[i]
+                    var computedCount = state.ComputedCounts[i];
+                    result[i] = computedCount == state.ProposedCounts[i]
                         ? computedCount
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
@@ -149,7 +157,7 @@ namespace Autogram
         {
             var relevantToVariableCharMap = config.AllChars.Select(p => new {
                 p.Char,
-                Count = p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount,
+                Count = p.VariableIndex.HasValue ? state.ProposedCounts[p.VariableIndex.Value] : p.MinimumCount,
             }).Where(p => p.Count > 0);
             var numberItems = relevantToVariableCharMap.Select(p => p.Char.ToListEntry(p.Count)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify(separator) : numberItems.ListifyWithConjunction(separator, conjunction);
