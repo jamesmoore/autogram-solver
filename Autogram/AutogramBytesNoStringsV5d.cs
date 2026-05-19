@@ -12,7 +12,7 @@ namespace Autogram
 
         private readonly byte[] proposedCounts;
         private readonly byte[] computedCounts;
-        private readonly byte[] diffCount;
+        private readonly byte[] proposedCountsBackup;
 
         private readonly AutogramConfig config;
 
@@ -45,7 +45,7 @@ namespace Autogram
 
             proposedCounts = variableMinimumCount.ToArray();
             computedCounts = variableMinimumCount.ToArray();
-            diffCount = new byte[proposedCounts.Length];
+            proposedCountsBackup = new byte[proposedCounts.Length];
             UpdateComputedCounts();
         }
 
@@ -118,7 +118,7 @@ namespace Autogram
         {
             for(int i = 0; i < proposedCounts.Length; i++)
             {
-                diffCount[i] = proposedCounts[i] == computedCounts[i] ? (byte)0 : (byte)1;
+                proposedCountsBackup[i] = proposedCounts[i];
             }
 
             var randomizationLevel = 1;
@@ -127,7 +127,7 @@ namespace Autogram
                 for (int i = 0; i < proposedCounts.Length; i++)
                 {
                     var computedCount = computedCounts[i];
-                    proposedCounts[i] = diffCount[i] == 0
+                    proposedCounts[i] = proposedCountsBackup[i] == computedCount
                         ? computedCount
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
