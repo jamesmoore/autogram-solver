@@ -13,6 +13,9 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV5> solver5List = null!;
         private List<AutogramBytesNoStringsV5a> solver5aList = null!;
         private List<AutogramBytesNoStringsV5b> solver5bList = null!;
+        private List<AutogramBytesNoStringsV5c> solver5cList = null!;
+        private List<AutogramBytesNoStringsV5d> solver5dList = null!;
+        private List<AutogramBytesNoStringsV5e> solver5eList = null!;
         private List<AutogramBytesNoStringsV6> solver6List = null!;
         private List<AutogramIntsNoStringsV7> solver7List = null!;
         private List<AutogramBytesNoStringsV8> solver8List = null!;
@@ -70,6 +73,24 @@ namespace AutogramBenchmark
             solver5List = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5(autogramConfig, p));
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5c_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5c()
+        {
+            solver5cList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5c(autogramConfig, p));
+        }
+
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5d_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5d()
+        {
+            solver5dList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5d(autogramConfig, p));
+        }
+
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5e()
+        {
+            solver5eList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5e(autogramConfig, p));
+        }
+
         //[IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
         //public void IterationSetupV5a()
         //{
@@ -110,6 +131,24 @@ namespace AutogramBenchmark
         public void CleanupIterationV5()
         {
             ClearSolvers(ref solver5List);
+        }
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5c_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5c()
+        {
+            ClearSolvers(ref solver5cList);
+        }
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5d_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5d()
+        {
+            ClearSolvers(ref solver5dList);
+        }
+
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5e()
+        {
+            ClearSolvers(ref solver5eList);
         }
 
         //[IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
@@ -154,6 +193,23 @@ namespace AutogramBenchmark
             SolveAll(solver5List);
         }
 
+        [Benchmark]
+        public void AutogramBytesNoStringsV5c_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5cList);
+        }
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV5d_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5dList);
+        }
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5eList);
+        }
         //[Benchmark]
         //public void AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds()
         //{
