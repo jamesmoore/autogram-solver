@@ -66,9 +66,8 @@ namespace Autogram
             else
             {
                 computedCounts.CopyTo(proposedCounts);
+                history.Add(new ByteHistoryKey64(proposedCounts));
             }
-
-            history.Add(new ByteHistoryKey64(proposedCounts));
 
             UpdateComputedCounts();
 
@@ -133,8 +132,10 @@ namespace Autogram
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
 
-                if (history.Contains(new ByteHistoryKey64(proposedCounts)) == false)
+                ByteHistoryKey64 proposedKey = new(proposedCounts);
+                if (history.Contains(proposedKey) == false)
                 {
+                    history.Add(proposedKey);
                     return;
                 }
 
