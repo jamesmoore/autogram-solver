@@ -16,6 +16,7 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV5c> solver5cList = null!;
         private List<AutogramBytesNoStringsV5d> solver5dList = null!;
         private List<AutogramBytesNoStringsV5e> solver5eList = null!;
+        private List<AutogramBytesNoStringsV5f> solver5fList = null!;
         private List<AutogramBytesNoStringsV6> solver6List = null!;
         private List<AutogramIntsNoStringsV7> solver7List = null!;
         private List<AutogramBytesNoStringsV8> solver8List = null!;
@@ -91,6 +92,12 @@ namespace AutogramBenchmark
             solver5eList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5e(autogramConfig, p));
         }
 
+        [IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5f_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupV5f()
+        {
+            solver5fList = CreateSolvers(SeedCount, p => new AutogramBytesNoStringsV5f(autogramConfig, p));
+        }
+
         //[IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
         //public void IterationSetupV5a()
         //{
@@ -151,6 +158,12 @@ namespace AutogramBenchmark
             ClearSolvers(ref solver5eList);
         }
 
+        [IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5f_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationV5f()
+        {
+            ClearSolvers(ref solver5fList);
+        }
+
         //[IterationCleanup(Targets = new[] { nameof(AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds) })]
         //public void CleanupIterationV5a()
         //{
@@ -187,7 +200,7 @@ namespace AutogramBenchmark
         //    SolveAll(solver4List);
         //}
 
-        [Benchmark(Baseline = true)]
+        [Benchmark]
         public void AutogramBytesNoStringsV5_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5List);
@@ -199,7 +212,7 @@ namespace AutogramBenchmark
             SolveAll(solver5cList);
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void AutogramBytesNoStringsV5d_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5dList);
@@ -209,6 +222,12 @@ namespace AutogramBenchmark
         public void AutogramBytesNoStringsV5e_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5eList);
+        }
+
+        [Benchmark]
+        public void AutogramBytesNoStringsV5f_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solver5fList);
         }
         //[Benchmark]
         //public void AutogramBytesNoStringsV5a_Solve_Average_Batched_Seeds()
