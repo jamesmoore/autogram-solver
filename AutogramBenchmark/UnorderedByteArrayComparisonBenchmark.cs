@@ -37,6 +37,18 @@ namespace AutogramBenchmark
         }
 
         [Benchmark]
+        public void UnorderedByteArrayComparerWithSum()
+        {
+            foreach (var arr in testdata)
+            {
+                foreach (var arr2 in testdata)
+                {
+                    var matches = ((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEqualsWithSum(arr2);
+                }
+            }
+        }
+
+        [Benchmark]
         public void UnorderedByteArrayComparer2()
         {
             foreach (var arr in testdata)

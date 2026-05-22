@@ -103,6 +103,14 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestV5g()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5g(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
         public void TestV6()
         {
             RunAutogramTest(

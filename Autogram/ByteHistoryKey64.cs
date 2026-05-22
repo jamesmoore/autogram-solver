@@ -51,10 +51,7 @@ namespace Autogram
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                HashCode.Combine(length, chunk0, chunk1, chunk2),
-                HashCode.Combine(chunk3, chunk4, chunk5, chunk6),
-                chunk7);
+            return HashCode.Combine(chunk0, chunk1, chunk2, chunk3, chunk4, chunk5, chunk6, chunk7);
         }
 
         private static ulong ReadChunk(ReadOnlySpan<byte> values, int offset)
