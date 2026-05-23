@@ -111,6 +111,36 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestV5h64()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5h64(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
+        public void TestV5h16ThrowsWhenAlphabetIsTooLarge()
+        {
+            var autogramConfig = new AutogramConfig
+            {
+                AllChars = Enumerable.Range(0, ByteHistoryKey16.MaxLength + 1)
+                    .Select(i => new CharacterConfig(", ")
+                    {
+                        Index = i,
+                        Char = (char)('a' + i),
+                        BaselineCount = 0,
+                        MinimumCount = 0,
+                        IsVariable = true,
+                        VariableIndex = i,
+                        VariableBaselineCount = 0,
+                    })
+                    .ToList(),
+            };
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new AutogramBytesNoStringsV5h16(autogramConfig, RandomSeed));
+        }
+
+        [Fact]
         public void TestV6()
         {
             RunAutogramTest(
