@@ -7,10 +7,12 @@ namespace AutogramBenchmark
     {
         private const int TestDataSize = 1000;
         private const int V = 26;
-        private byte[][] testdata = new byte[TestDataSize][];
+        private byte[][] testdata = null!;
 
-        public UnorderedByteArrayComparisonBenchmark()
+        [GlobalSetup]
+        public void GlobalSetup()
         {
+            testdata = new byte[TestDataSize][];
             var random = new Random(1);
 
             for (int i = 0; i < TestDataSize; i++)
@@ -24,52 +26,80 @@ namespace AutogramBenchmark
             }
         }
 
-        [Benchmark]
-        public void UnorderedByteArrayComparer()
+        [Benchmark(OperationsPerInvoke = TestDataSize * TestDataSize)]
+        public int UnorderedByteArrayComparer()
         {
+            var matches = 0;
+
             foreach(var arr in testdata)
             {
                 foreach (var arr2 in testdata)
                 {
-                    var matches = ((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEquals(arr2);
+                    if (((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEquals(arr2))
+                    {
+                        matches++;
+                    }
                 }
             }
+
+            return matches;
         }
 
-        [Benchmark]
-        public void UnorderedByteArrayComparerWithSum()
+        [Benchmark(OperationsPerInvoke = TestDataSize * TestDataSize)]
+        public int UnorderedByteArrayComparerWithSum()
         {
+            var matches = 0;
+
             foreach (var arr in testdata)
             {
                 foreach (var arr2 in testdata)
                 {
-                    var matches = ((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEqualsWithSum(arr2);
+                    if (((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEqualsWithSum(arr2))
+                    {
+                        matches++;
+                    }
                 }
             }
+
+            return matches;
         }
 
-        [Benchmark]
-        public void UnorderedByteArrayComparer2()
+        [Benchmark(OperationsPerInvoke = TestDataSize * TestDataSize)]
+        public int UnorderedByteArrayComparer2()
         {
+            var matches = 0;
+
             foreach (var arr in testdata)
             {
                 foreach (var arr2 in testdata)
                 {
-                    var matches = ((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEquals2(arr2);
+                    if (((ReadOnlySpan<byte>)arr.AsSpan()).UnorderedByteSpanEquals2(arr2))
+                    {
+                        matches++;
+                    }
                 }
             }
+
+            return matches;
         }
 
-        [Benchmark]
-        public void ByteArraysHaveSameContents()
+        [Benchmark(OperationsPerInvoke = TestDataSize * TestDataSize)]
+        public int ByteArraysHaveSameContents()
         {
+            var matches = 0;
+
             foreach (var arr in testdata)
             {
                 foreach (var arr2 in testdata)
                 {
-                    var matches = ((ReadOnlySpan<byte>)arr.AsSpan()).ByteArraysHaveSameContents(arr2);
+                    if (((ReadOnlySpan<byte>)arr.AsSpan()).ByteArraysHaveSameContents(arr2))
+                    {
+                        matches++;
+                    }
                 }
             }
+
+            return matches;
         }
 
     }
