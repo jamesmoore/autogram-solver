@@ -180,7 +180,7 @@ void DoAutogramSearch(
         }
     }
 
-    var autogram = new Autogram.AutogramBytesNoStringsV5d(config, seed);
+    var autogram = new Autogram.AutogramBytesNoStringsV5g(config, seed);
 
     if (quiet == false)
     {
@@ -217,7 +217,7 @@ void DoAutogramSearch(
         if (reset.HasValue && i % reset == 0)
         {
             seed++;
-            autogram = new Autogram.AutogramBytesNoStringsV5d(config, seed);
+            autogram = new Autogram.AutogramBytesNoStringsV5g(config, seed);
         }
     }
 }
