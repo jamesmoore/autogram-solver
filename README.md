@@ -194,3 +194,26 @@ Autogram\bin\Release\net10.0\Autogram.exe `
 🎲 Randomized:                  4.70%
 This is an autogram with punctuation and it has fifteen a's, four c's, four d's, forty-one e's, sixteen f's, five g's, twelve h's, nineteen i's, two k's, six l's, four m's, twenty-eight n's, twenty-four o's, ten p's, fifteen r's, forty-two s's, forty t's, ten u's, six v's, twelve w's, four x's, ten y's, seventy-two spaces, twenty-two apostrophes, twenty-eight commas, seven hyphens, one left parenthesis, one right parenthesis, and one full stop (aka period).
 ```
+
+# Appendix: `IAutogramFinder` Implementations
+
+The solver interface is `IAutogramFinder`. Multiple implementations exist, primarily as a progression of performance experiments. `AutogramBytesNoStringsV5g` is the **active default** used by the application.
+
+| Implementation | Count type | History key | Randomization strategy | Notes |
+|---|---|---|---|---|
+| `AutogramBytesNoStringsV4` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Earliest byte-based implementation |
+| `AutogramBytesNoStringsV5` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Avoids redundant clone by checking history before allocating |
+| `AutogramBytesNoStringsV5a` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets a single randomly chosen mismatch (reservoir sampling) | Targets one mismatch at a time instead of all |
+| `AutogramBytesNoStringsV5b` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | 50/50: iterative deterministic walk or offset all mismatches | Hybrid escape strategy |
+| `AutogramBytesNoStringsV5c` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Switches history key from `byte[]` to a struct (`ByteHistoryKey64`, max 64 alphabet chars) |
+| `AutogramBytesNoStringsV5d` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Reuses proposed counts array (with backup) to reduce allocations |
+| `AutogramBytesNoStringsV5e` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all counts (including matching) | Does not preserve matching counts during randomization |
+| `AutogramBytesNoStringsV5g` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Uses `UnorderedByteSpanEqualsWithSum` for convergence check; **active default** |
+| `AutogramBytesNoStringsV5h<THistoryKey>` | `byte[]` | `HashSet<THistoryKey>` | Offsets all mismatched counts | Generic base class parameterised over any `IByteHistoryKey` struct |
+| `AutogramBytesNoStringsV5h16` | `byte[]` | `HashSet<ByteHistoryKey16>` (max 16 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
+| `AutogramBytesNoStringsV5h24` | `byte[]` | `HashSet<ByteHistoryKey24>` (max 24 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
+| `AutogramBytesNoStringsV5h32` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
+| `AutogramBytesNoStringsV5h64` | `byte[]` | `HashSet<ByteHistoryKey64>` (max 64 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
+| `AutogramBytesNoStringsV6` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Flattened `variableNumericCounts` array; no measurable perf gain over V5 — preserved for reference |
+| `AutogramIntsNoStringsV7` | `int[]` | `HashSet<int[]>` (`IntArraySpanComparer`) | Offsets all mismatched counts | Uses `int[]` counts instead of `byte[]`; preserved for reference |
+| `AutogramBytesNoStringsV8` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Delta update for computed counts (only recalculates changed positions); no significant perf gain over V5 — preserved for reference |
