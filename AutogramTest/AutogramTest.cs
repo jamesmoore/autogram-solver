@@ -1,5 +1,6 @@
 ﻿using Autogram;
 using Autogram.Extensions;
+using System.Reflection;
 
 namespace AutogramTest
 {
@@ -124,6 +125,33 @@ namespace AutogramTest
             RunAutogramTest(
                 (config, seed) => new AutogramBytesNoStringsV5h64(config, seed),
                 ExpectedIterations);
+        }
+
+        [Fact]
+        public void TestV5i()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramBytesNoStringsV5i(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
+        public void TestV5i_FlattensVariableNumericCounts()
+        {
+            var config = GetConfig();
+            var sut = new AutogramBytesNoStringsV5i(config, RandomSeed);
+
+            Assert.Null(typeof(AutogramBytesNoStringsV5i).GetField("variableNumericCounts", BindingFlags.Instance | BindingFlags.NonPublic));
+
+            var field = typeof(AutogramBytesNoStringsV5i).GetField("variableNumericCountsFlattened", BindingFlags.Instance | BindingFlags.NonPublic);
+            var actual = Assert.IsType<byte[][]>(field?.GetValue(sut));
+            var expected = config.GetVariableNumericCounts().SelectMany(p => p).ToArray();
+
+            Assert.Equal(expected.Length, actual.Length);
+            for (var i = 0; i < expected.Length; i++)
+            {
+                Assert.True(expected[i].SequenceEqual(actual[i]));
+            }
         }
 
         [Fact]
