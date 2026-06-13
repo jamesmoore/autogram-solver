@@ -136,6 +136,22 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestVector256()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramVector256(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
+        public void TestVector512()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramVector512(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
         public void TestV5i_FlattensVariableNumericCounts()
         {
             var config = GetConfig();
@@ -174,6 +190,50 @@ namespace AutogramTest
             };
 
             Assert.Throws<ArgumentOutOfRangeException>(() => new AutogramBytesNoStringsV5h16(autogramConfig, RandomSeed));
+        }
+
+        [Fact]
+        public void TestVector256ThrowsWhenAlphabetIsTooLarge()
+        {
+            var autogramConfig = new AutogramConfig
+            {
+                AllChars = Enumerable.Range(0, ByteHistoryKey32.MaxLength + 1)
+                    .Select(i => new CharacterConfig(", ")
+                    {
+                        Index = i,
+                        Char = (char)('a' + i),
+                        BaselineCount = 0,
+                        MinimumCount = 0,
+                        IsVariable = true,
+                        VariableIndex = i,
+                        VariableBaselineCount = 0,
+                    })
+                    .ToList(),
+            };
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new AutogramVector256(autogramConfig, RandomSeed));
+        }
+
+        [Fact]
+        public void TestVector512ThrowsWhenAlphabetIsTooLarge()
+        {
+            var autogramConfig = new AutogramConfig
+            {
+                AllChars = Enumerable.Range(0, ByteHistoryKey64.MaxLength + 1)
+                    .Select(i => new CharacterConfig(", ")
+                    {
+                        Index = i,
+                        Char = (char)('a' + i),
+                        BaselineCount = 0,
+                        MinimumCount = 0,
+                        IsVariable = true,
+                        VariableIndex = i,
+                        VariableBaselineCount = 0,
+                    })
+                    .ToList(),
+            };
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new AutogramVector512(autogramConfig, RandomSeed));
         }
 
         [Fact]

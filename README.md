@@ -210,6 +210,8 @@ The solver interface is `IAutogramFinder`. Multiple implementations exist, prima
 | `AutogramBytesNoStringsV5e` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all counts (including matching) | Does not preserve matching counts during randomization |
 | `AutogramBytesNoStringsV5g` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Uses `UnorderedByteSpanEqualsWithSum` for convergence check; **active default** |
 | `AutogramBytesNoStringsV5i` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Based on `V5g`, but pre-flattens `variableNumericCounts` from `[a][b][c]` to `[a*b][c]` to remove one lookup level; included in the benchmark suite |
+| `AutogramVector256` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Based on `V5i`, but precomputes each flattened numeric-count row as a single `Vector256<byte>` with zero padding up to 32 bytes; included in the benchmark suite |
+| `AutogramVector512` | `byte[]` | `HashSet<ByteHistoryKey64>` (max 64 chars) | Offsets all mismatched counts | Based on `V5i`, but precomputes each flattened numeric-count row as a single `Vector512<byte>` with zero padding up to 64 bytes; included in the benchmark suite |
 | `AutogramBytesNoStringsV5h<THistoryKey>` | `byte[]` | `HashSet<THistoryKey>` | Offsets all mismatched counts | Generic base class parameterised over any `IByteHistoryKey` struct |
 | `AutogramBytesNoStringsV5h16` | `byte[]` | `HashSet<ByteHistoryKey16>` (max 16 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
 | `AutogramBytesNoStringsV5h24` | `byte[]` | `HashSet<ByteHistoryKey24>` (max 24 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
