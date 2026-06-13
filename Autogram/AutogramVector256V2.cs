@@ -4,13 +4,13 @@ using System.Runtime.Intrinsics;
 namespace Autogram
 {
     /// <summary>
-    /// Based on version 5i, but uses a Vector512<byte> for optimized addition.
-    /// This will only use the Vector512<byte>. If the length of the variable counts is less than 64 then it will use Vector512<byte> with the remaining bytes set to 0. 
-    /// If the length of the variable counts is greater than 64 throw an exception in the constructor.
+    /// Based on version AutogramVector256V, but clears the zero count numeric count vector, so it doesn't need to check in the tight loop.
+    /// This will only use the Vector256<byte>. If the length of the variable counts is less than 32 then it will use Vector256<byte> with the remaining bytes set to 0. 
+    /// If the length of the variable counts is greater than 32 throw an exception in the constructor. A separate implementation Vector512 is present for that case.
     /// </summary>
-    public class AutogramVector512 : IAutogramFinder
+    public class AutogramVector256V2 : IAutogramFinder
     {
-        private readonly HashSet<ByteHistoryKey64> history = [];
+        private readonly HashSet<ByteHistoryKey32> history = [];
         private readonly Random random;
 
         private readonly byte[] proposedCounts;
@@ -24,14 +24,14 @@ namespace Autogram
 
         // Counts of chars that intersect with the chars that represent the numeric+plural
         private readonly byte[] variableBaselineCount; // counts of characters in the template and conjunction PLUS the cardinals of the invariant characters. 
-        private readonly Vector512<byte>[] variableNumericCountsVectors; // Flattened from [a][b][c] to [a*b][c]
-        private readonly Vector512<byte> variableBaselineCountVector;
+        private readonly Vector256<byte>[] variableNumericCountsVectors; // Flattened from [a][b][c] to [a*b][c]
+        private readonly Vector256<byte> variableBaselineCountVector;
         private readonly byte[] computedCountsVectorBuffer;
         // Minimum counts required for template, conjunction and the letter list that represents them.
         // This will be used as the initial guess, and a lower limit for guesses.
         private readonly byte[] variableMinimumCount;
 
-        public AutogramVector512(
+        public AutogramVector256V2(
             AutogramConfig config,
             int? randomSeed)
         {
@@ -41,17 +41,18 @@ namespace Autogram
 
             var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(variableAlphabetCount, ByteHistoryKey64.MaxLength);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(variableAlphabetCount, ByteHistoryKey32.MaxLength);
 
             var variableNumericCounts = config.GetVariableNumericCounts();
-            var variableNumericCountsFlattened = variableNumericCounts.SelectMany(p => p).ToArray();
             variableNumericCountStride = variableNumericCounts.FirstOrDefault()?.Length ?? 0;
 
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
-            variableBaselineCountVector = variableBaselineCount.ToVector512();
-            variableNumericCountsVectors = variableNumericCountsFlattened.Select(p => p.ToVector512()).ToArray();
-            computedCountsVectorBuffer = new byte[Vector512<byte>.Count];
+            variableBaselineCountVector = variableBaselineCount.ToVector256();
+            variableNumericCountsVectors = variableNumericCounts
+                .SelectMany(counts => counts.Select((countValues, count) => count == 0 ? Vector256<byte>.Zero : countValues.ToVector256()))
+                .ToArray();
+            computedCountsVectorBuffer = new byte[Vector256<byte>.Count];
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
 
@@ -68,7 +69,7 @@ namespace Autogram
         public Status Iterate()
         {
             var randomized = false;
-            var computedKey = new ByteHistoryKey64(computedCounts);
+            var computedKey = new ByteHistoryKey32(computedCounts);
 
             if (history.Contains(computedKey))
             {
@@ -78,7 +79,7 @@ namespace Autogram
             else
             {
                 computedCounts.CopyTo(proposedCounts);
-                history.Add(new ByteHistoryKey64(proposedCounts));
+                history.Add(new ByteHistoryKey32(proposedCounts));
             }
 
             UpdateComputedCounts();
@@ -107,9 +108,7 @@ namespace Autogram
             for (var i = 0; i < variableAlphabetCount; i++)
             {
                 var c = proposedCounts[i];
-                if (c == 0) continue;
-
-                computedCountVector = Vector512.Add(computedCountVector, variableNumericCountsVectors[(i * variableNumericCountStride) + c]);
+                computedCountVector = Vector256.Add(computedCountVector, variableNumericCountsVectors[(i * variableNumericCountStride) + c]);
             }
 
             computedCountVector.CopyTo(computedCountsVectorBuffer);
@@ -138,7 +137,7 @@ namespace Autogram
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
 
-                ByteHistoryKey64 proposedKey = new(proposedCounts);
+                ByteHistoryKey32 proposedKey = new(proposedCounts);
                 if (history.Contains(proposedKey) == false)
                 {
                     history.Add(proposedKey);
