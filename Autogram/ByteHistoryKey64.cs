@@ -34,6 +34,22 @@ namespace Autogram
             return new ByteHistoryKey64(values);
         }
 
+        public byte[] Decode()
+        {
+            var values = new byte[length];
+
+            WriteChunk(values, 0, chunk0);
+            WriteChunk(values, 8, chunk1);
+            WriteChunk(values, 16, chunk2);
+            WriteChunk(values, 24, chunk3);
+            WriteChunk(values, 32, chunk4);
+            WriteChunk(values, 40, chunk5);
+            WriteChunk(values, 48, chunk6);
+            WriteChunk(values, 56, chunk7);
+
+            return values;
+        }
+
         public bool Equals(ByteHistoryKey64 other)
         {
             return length == other.length
@@ -57,5 +73,18 @@ namespace Autogram
             return HashCode.Combine(chunk0, chunk1, chunk2, chunk3, chunk4, chunk5, chunk6, chunk7);
         }
 
+        private static void WriteChunk(Span<byte> values, int offset, ulong chunk)
+        {
+            var remaining = Math.Min(sizeof(ulong), values.Length - offset);
+            if (remaining <= 0)
+            {
+                return;
+            }
+
+            for (var i = 0; i < remaining; i++)
+            {
+                values[offset + i] = (byte)(chunk >> (i * 8));
+            }
+        }
     }
 }
