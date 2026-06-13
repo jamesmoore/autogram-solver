@@ -1,6 +1,7 @@
 ﻿using Autogram;
 using Autogram.Extensions;
 using System.Reflection;
+using System.Runtime.Intrinsics;
 
 namespace AutogramTest
 {
@@ -152,6 +153,14 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestVector256V2()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramVector256V2(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
         public void TestV5i_FlattensVariableNumericCounts()
         {
             var config = GetConfig();
@@ -167,6 +176,25 @@ namespace AutogramTest
             for (var i = 0; i < expected.Length; i++)
             {
                 Assert.True(expected[i].SequenceEqual(actual[i]));
+            }
+        }
+
+        [Fact]
+        public void TestVector256V2_ZeroesZeroCountVectors()
+        {
+            var config = GetConfig();
+            var sut = new AutogramVector256V2(config, RandomSeed);
+
+            var vectorsField = typeof(AutogramVector256V2).GetField("variableNumericCountsVectors", BindingFlags.Instance | BindingFlags.NonPublic);
+            var strideField = typeof(AutogramVector256V2).GetField("variableNumericCountStride", BindingFlags.Instance | BindingFlags.NonPublic);
+            var actual = Assert.IsType<Vector256<byte>[]>(vectorsField?.GetValue(sut));
+            var stride = Assert.IsType<int>(strideField?.GetValue(sut));
+            var zeroBuffer = new byte[Vector256<byte>.Count];
+
+            for (var i = 0; i < config.VariableChars.Count(); i++)
+            {
+                actual[i * stride].CopyTo(zeroBuffer);
+                Assert.True(zeroBuffer.All(b => b == 0));
             }
         }
 
