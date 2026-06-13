@@ -209,11 +209,12 @@ The solver interface is `IAutogramFinder`. Multiple implementations exist, prima
 | `AutogramBytesNoStringsV5d` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Reuses proposed counts array (with backup) to reduce allocations |
 | `AutogramBytesNoStringsV5e` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all counts (including matching) | Does not preserve matching counts during randomization |
 | `AutogramBytesNoStringsV5g` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Uses `UnorderedByteSpanEqualsWithSum` for convergence check; **active default** |
+| `AutogramBytesNoStringsV5i` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Based on `V5g`, but pre-flattens `variableNumericCounts` from `[a][b][c]` to `[a*b][c]` to remove one lookup level; included in the benchmark suite |
 | `AutogramBytesNoStringsV5h<THistoryKey>` | `byte[]` | `HashSet<THistoryKey>` | Offsets all mismatched counts | Generic base class parameterised over any `IByteHistoryKey` struct |
 | `AutogramBytesNoStringsV5h16` | `byte[]` | `HashSet<ByteHistoryKey16>` (max 16 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
 | `AutogramBytesNoStringsV5h24` | `byte[]` | `HashSet<ByteHistoryKey24>` (max 24 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
 | `AutogramBytesNoStringsV5h32` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
 | `AutogramBytesNoStringsV5h64` | `byte[]` | `HashSet<ByteHistoryKey64>` (max 64 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |
-| `AutogramBytesNoStringsV6` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Flattened `variableNumericCounts` array; no measurable perf gain over V5 — preserved for reference |
+| `AutogramBytesNoStringsV6` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Older flattened-count experiment using a fully linearised backing array; preserved for reference |
 | `AutogramIntsNoStringsV7` | `int[]` | `HashSet<int[]>` (`IntArraySpanComparer`) | Offsets all mismatched counts | Uses `int[]` counts instead of `byte[]`; preserved for reference |
 | `AutogramBytesNoStringsV8` | `byte[]` | `HashSet<byte[]>` (`ByteArraySpanComparer`) | Offsets all mismatched counts | Delta update for computed counts (only recalculates changed positions); no significant perf gain over V5 — preserved for reference |
