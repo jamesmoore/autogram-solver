@@ -1,7 +1,24 @@
-﻿namespace Autogram
+﻿using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+
+namespace Autogram
 {
     public static class ByteSpanExtensions
     {
+        public static Vector256<byte> ToVector256(this ReadOnlySpan<byte> values)
+        {
+            Span<byte> buffer = stackalloc byte[Vector256<byte>.Count];
+            values.CopyTo(buffer);
+            return MemoryMarshal.Cast<byte, Vector256<byte>>(buffer)[0];
+        }
+
+        public static Vector512<byte> ToVector512(this ReadOnlySpan<byte> values)
+        {
+            Span<byte> buffer = stackalloc byte[Vector512<byte>.Count];
+            values.CopyTo(buffer);
+            return MemoryMarshal.Cast<byte, Vector512<byte>>(buffer)[0];
+        }
+
         public static bool ByteArraysHaveSameContents(this ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
         {
             if (a.Length != b.Length)

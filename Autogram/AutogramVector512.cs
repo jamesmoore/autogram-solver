@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 
 namespace Autogram
@@ -50,8 +49,8 @@ namespace Autogram
 
             variableBaselineCount = variableChars.Where(p => p.VariableBaselineCount.HasValue).Select(p => p.VariableBaselineCount!.Value).ToByteArray();
             variableMinimumCount = variableChars.Select(p => p.MinimumCount).ToByteArray();
-            variableBaselineCountVector = CreateVector(variableBaselineCount);
-            variableNumericCountsVectors = variableNumericCountsFlattened.Select(p => CreateVector(p)).ToArray();
+            variableBaselineCountVector = variableBaselineCount.ToVector512();
+            variableNumericCountsVectors = variableNumericCountsFlattened.Select(p => p.ToVector512()).ToArray();
             computedCountsVectorBuffer = new byte[Vector512<byte>.Count];
 
             Debug.Assert(variableBaselineCount.Zip(variableMinimumCount).All(p => p.Second >= p.First));
@@ -122,13 +121,6 @@ namespace Autogram
                 Debug.Assert(computedCounts[i] >= variableMinimumCount[i]);
             }
 #endif
-        }
-
-        private static Vector512<byte> CreateVector(ReadOnlySpan<byte> values)
-        {
-            Span<byte> buffer = stackalloc byte[Vector512<byte>.Count];
-            values.CopyTo(buffer);
-            return MemoryMarshal.Cast<byte, Vector512<byte>>(buffer)[0];
         }
 
         private void Randomize()
