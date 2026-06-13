@@ -328,7 +328,7 @@ namespace AutogramBenchmark
         //    SolveAll(solver5eList);
         //}
 
-        [Benchmark(Baseline = true)]
+        [Benchmark]
         public void AutogramBytesNoStringsV5g_Solve_Average_Batched_Seeds()
         {
             SolveAll(solver5gList);
@@ -340,7 +340,7 @@ namespace AutogramBenchmark
             SolveAll(solver5iList);
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void AutogramVector256_Solve_Average_Batched_Seeds()
         {
             SolveAll(solverVector256List);
