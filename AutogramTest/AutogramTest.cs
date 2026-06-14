@@ -161,6 +161,14 @@ namespace AutogramTest
         }
 
         [Fact]
+        public void TestVector256V3()
+        {
+            RunAutogramTest(
+                (config, seed) => new AutogramVector256V3(config, seed),
+                ExpectedIterations);
+        }
+
+        [Fact]
         public void TestV5i_FlattensVariableNumericCounts()
         {
             var config = GetConfig();

@@ -20,6 +20,7 @@ namespace AutogramBenchmark
         private List<AutogramBytesNoStringsV5i> solver5iList = null!;
         private List<AutogramVector256> solverVector256List = null!;
         private List<AutogramVector256V2> solverVector256V2List = null!;
+        private List<AutogramVector256V3> solverVector256V3List = null!;
         private List<AutogramVector512> solverVector512List = null!;
         private List<AutogramBytesNoStringsV5h16> solver5h16List = null!;
         private List<AutogramBytesNoStringsV5h24> solver5h24List = null!;
@@ -122,6 +123,12 @@ namespace AutogramBenchmark
         public void IterationSetupVector256V2()
         {
             solverVector256V2List = CreateSolvers(SeedCount, p => new AutogramVector256V2(autogramConfig, p));
+        }
+
+        [IterationSetup(Targets = new[] { nameof(AutogramVector256V3_Solve_Average_Batched_Seeds) })]
+        public void IterationSetupVector256V3()
+        {
+            solverVector256V3List = CreateSolvers(SeedCount, p => new AutogramVector256V3(autogramConfig, p));
         }
 
         [IterationSetup(Targets = new[] { nameof(AutogramVector512_Solve_Average_Batched_Seeds) })]
@@ -238,6 +245,12 @@ namespace AutogramBenchmark
             ClearSolvers(ref solverVector256V2List);
         }
 
+        [IterationCleanup(Targets = new[] { nameof(AutogramVector256V3_Solve_Average_Batched_Seeds) })]
+        public void CleanupIterationVector256V3()
+        {
+            ClearSolvers(ref solverVector256V3List);
+        }
+
         [IterationCleanup(Targets = new[] { nameof(AutogramVector512_Solve_Average_Batched_Seeds) })]
         public void CleanupIterationVector512()
         {
@@ -350,6 +363,12 @@ namespace AutogramBenchmark
         public void AutogramVector256V2_Solve_Average_Batched_Seeds()
         {
             SolveAll(solverVector256V2List);
+        }
+
+        [Benchmark]
+        public void AutogramVector256V3_Solve_Average_Batched_Seeds()
+        {
+            SolveAll(solverVector256V3List);
         }
 
         [Benchmark]

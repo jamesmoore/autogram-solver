@@ -180,7 +180,7 @@ void DoAutogramSearch(
         }
     }
 
-    var autogram = new Autogram.AutogramVector256(config, seed);
+    var autogram = new Autogram.AutogramVector256V3(config, seed);
 
     if (quiet == false)
     {
@@ -217,7 +217,7 @@ void DoAutogramSearch(
         if (reset.HasValue && i % reset == 0)
         {
             seed++;
-            autogram = new Autogram.AutogramVector256(config, seed);
+            autogram = new Autogram.AutogramVector256V3(config, seed);
         }
     }
 }
