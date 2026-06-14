@@ -4,7 +4,7 @@ using System.Runtime.Intrinsics;
 namespace Autogram
 {
     /// <summary>
-    /// Based on AutogramVector256, but simplififes interaction with history hashset.
+    /// Based on AutogramVector256, but simplifies interaction with the history HashSet.
     /// This will only use the Vector256<byte>. If the length of the variable counts is less than 32 then it will use Vector256<byte> with the remaining bytes set to 0. 
     /// If the length of the variable counts is greater than 32 throw an exception in the constructor. A separate implementation Vector512 is present for that case.
     /// </summary>
