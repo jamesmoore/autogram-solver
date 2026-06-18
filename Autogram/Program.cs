@@ -211,6 +211,21 @@ void DoAutogramSearch(
         {
             var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegex);
             ReportSuccess(quiet, autogram.GetAutogramSnapshot().ToString(template, conjunction, separator), i, randomized, sw, status, commandLine);
+
+#if DEBUG
+            var history = autogram.History;
+
+            var groupedByHashCode = history.GroupBy(p => p.GetHashCode()).ToList();
+
+            var duplicateHashGroups = groupedByHashCode.Count(g => g.Count() > 1);
+            var duplicateHashItems = groupedByHashCode.Sum(g => g.Count() - 1);
+            var largestHashGroup = groupedByHashCode.Max(g => g.Count());
+            int historyCount = history.Count();
+            Console.WriteLine($"History: {historyCount:N0}");
+            Console.WriteLine($"Duplicated hashes: {duplicateHashGroups:N0} ({(double)duplicateHashGroups / historyCount:P})");
+            Console.WriteLine($"Duplicate hash items: {duplicateHashItems:N0} ({(double)duplicateHashItems / historyCount:P})");
+            Console.WriteLine($"Largest hash group: {largestHashGroup:N0}");
+#endif
             break;
         }
 
