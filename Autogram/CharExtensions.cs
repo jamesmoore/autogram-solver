@@ -8,8 +8,6 @@
             if (character == '-') return "hyphen";
             if (character == '\'') return "apostrophe";
             if (character == ' ') return "space";
-            if (character == '=') return "equals";
-            if (character == ':') return "colon";
             return character.ToString();
         }
 
@@ -19,8 +17,6 @@
             if (character == '-') return "hyphens";
             if (character == '\'') return "apostrophes";
             if (character == ' ') return "spaces";
-            if (character == '=') return "equals";
-            if (character == ':') return "colons";
             return character + "'s";
         }
 

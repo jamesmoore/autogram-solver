@@ -145,6 +145,19 @@ Autogram\bin\Release\net10.0\Autogram.exe --conjunction " and lastly " --seed 52
 This sentence is an autogram and it contains eight a's, three c's, three d's, thirty-one e's, seven f's, five g's, ten h's, fifteen i's, three l's, two m's, eighteen n's, seven o's, eight r's, twenty-nine s's, twenty-four t's, three u's, six v's, five w's, two x's and lastly five y's.
 ```
 
+## Declaring invariant characters in the template
+
+Characters that do not occur in the generated number list have a fixed count determined by the template. Instead of adding these invariant characters to `--alphabet`, you can write their counts directly in the template and override `--conjunction` so they follow the generated list naturally. This also gives you complete control over their wording—for example, `equals symbols` rather than `equals`.
+
+```powershell
+Autogram\bin\Release\net10.0\Autogram.exe `
+--template "===This autogram contains: {0}, six equals symbols and one colon ===" `
+--conjunction ", " `
+--alphabet "[a-z]"
+```
+
+The words in the manually supplied counts remain part of the template and are therefore included when the solver calculates the letter totals. Leave the invariant characters themselves out of `--alphabet`, since their counts are being stated manually.
+
 # Second Wikipedia Example (Lee Sallows)
 ```powershell
 Autogram\bin\Release\net10.0\Autogram.exe `
