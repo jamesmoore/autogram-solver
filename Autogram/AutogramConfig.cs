@@ -66,6 +66,7 @@ namespace Autogram
         /// <remarks>
         /// The <c>BaselineCount</c>
         /// Plus the counts of the chars in the cardinals of the invariant characters.
+        /// Note that this may be one lower than the MinimumCount - on the basis that the solver loop handles the addition of the letter itself.
         /// </remarks>
         public required int? VariableBaselineCount { get; set; }
 
