@@ -33,8 +33,8 @@ namespace Autogram.Extensions
                 string wordNumber = match.Groups[1].Value;
                 char letter = match.Groups[2].Value[0];
 
-                if (!wordToNumber.TryGetValue(wordNumber, out int declaredCount)) 
-                    throw new InvalidOperationException();
+                if (!wordToNumber.TryGetValue(wordNumber, out int declaredCount))
+                    throw new InvalidOperationException($"Unrecognized number word '{wordNumber}' while parsing stated frequencies.");
 
                 dictionary.Add(letter, declaredCount);
             }
