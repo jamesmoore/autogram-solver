@@ -80,7 +80,7 @@
                 }
 
                 // add the cardinals of the invariants into the variant baseline.
-                var numericCount3 = variableNumericCounts[letter.Index][letter.BaselineCount + 1];
+                var numericCount3 = variableNumericCounts[letter.Index][letter.MinimumCount];
                 for (int i = 0; i < numericCount3.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);

@@ -8,6 +8,8 @@
             if (character == '-') return "hyphen";
             if (character == '\'') return "apostrophe";
             if (character == ' ') return "space";
+            if (character == '=') return "equals";
+            if (character == ':') return "colon";
             return character.ToString();
         }
 
@@ -17,12 +19,14 @@
             if (character == '-') return "hyphens";
             if (character == '\'') return "apostrophes";
             if (character == ' ') return "spaces";
+            if (character == '=') return "equals";
+            if (character == ':') return "colons";
             return character + "'s";
         }
 
         public static string GetCharacterName(this char character, int numberOf)
         {
-            if(numberOf == 1)
+            if (numberOf == 1)
             {
                 return character.GetCharacterName();
             }

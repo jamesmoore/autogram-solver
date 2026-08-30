@@ -21,9 +21,11 @@ namespace Autogram.Extensions
             lower = lower.Replace("hyphens", "-'s");
             lower = lower.Replace("apostrophes", "''s");
             lower = lower.Replace("spaces", " 's");
+            lower = lower.Replace("colons", ":'s");
+            lower = lower.Replace("equals", "='s");
 
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?\b";
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,:=\-' ])(?:'s)?\b";
             var matches = Regex.Matches(lower, pattern);
 
             var dictionary = new Dictionary<char, int>();
@@ -33,7 +35,7 @@ namespace Autogram.Extensions
                 string wordNumber = match.Groups[1].Value;
                 char letter = match.Groups[2].Value[0];
 
-                if (!wordToNumber.TryGetValue(wordNumber, out int declaredCount))
+                if (!wordToNumber.TryGetValue(wordNumber, out int declaredCount)) 
                     throw new InvalidOperationException();
 
                 dictionary.Add(letter, declaredCount);
@@ -62,6 +64,7 @@ namespace Autogram.Extensions
 
                 if (item.Value != count)
                 {
+                    Console.WriteLine($"Mismatch for '{item.Key}': expected {item.Value}, found {count}");
                     return false;
                 }
             }
