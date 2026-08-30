@@ -22,7 +22,7 @@
 
         public static string GetCharacterName(this char character, int numberOf)
         {
-            if(numberOf == 1)
+            if (numberOf == 1)
             {
                 return character.GetCharacterName();
             }

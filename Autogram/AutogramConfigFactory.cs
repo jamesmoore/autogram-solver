@@ -70,21 +70,29 @@
 
             var variableNumericCounts = autogramConfig.GetNumericCounts();
 
-            // increment minimums with invariants
+            // An invariant character cannot occur in generated count wording, so its
+            // MinimumCount is already its exact final count. Account for each invariant's
+            // rendered list entry in the remaining character counts.
             foreach (var letter in invariantLetters)
             {
+                // Add the invariant's number word, plural suffix, and separator to the
+                // minimum counts. The character itself was accounted for when its
+                // MinimumCount was initialized.
+                // Example: "seven a's" contributes two e's, two s's, one v, one n, etc.
                 var numericCount = numericCounts[letter.MinimumCount];
                 for (int i = 0; i < numericCount.Length; i++)
                 {
                     letters[i].MinimumCount += numericCount[i];
                 }
 
-                // add the cardinals of the invariants into the variant baseline.
-                var numericCount3 = variableNumericCounts[letter.Index][letter.BaselineCount + 1];
-                for (int i = 0; i < numericCount3.Length; i++)
+                // Add the full rendered invariant entry to the baselines used by the
+                // variable-character search. This table contains only variable-character
+                // frequencies, but includes the invariant's self-reference when applicable.
+                var variableNumericCount = variableNumericCounts[letter.Index][letter.MinimumCount];
+                for (int i = 0; i < variableNumericCount.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);
-                    letterConfig.VariableBaselineCount += numericCount3[i];
+                    letterConfig.VariableBaselineCount += variableNumericCount[i];
                 }
             }
 
