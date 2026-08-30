@@ -64,7 +64,7 @@ namespace Autogram.Extensions
 
                 if (item.Value != count)
                 {
-                    Console.WriteLine($"Mismatch for '{item.Key}': expected {item.Value}, found {count}");
+                    System.Diagnostics.Debug.WriteLine($"Mismatch for '{item.Key}': expected {item.Value}, found {count}");
                     return false;
                 }
             }
