@@ -40,7 +40,7 @@ namespace Autogram
         /// Baseline count of the character <c>Char</c> 
         /// </summary>
         /// <remarks>Baseline is defined as present in template, conjunction or any of the pluralised extended chars (eg, 'commas')</remarks>
-        public int BaselineCount => UnadjustedBaselineCount + PerDistinctCountModifier;
+        public int BaselineCount => UnadjustedBaselineCount + SeparatorCountModifier;
 
         /// <summary>
         /// The minimum count this char will contribute to the character list.
@@ -85,7 +85,7 @@ namespace Autogram
         /// <summary>
         /// For the separator chars (comma and space typically) it should be reduced by 2 because in the itemised string they don't appear on the last two entries.
         /// </summary>
-        private int PerDistinctCountModifier => separator.Contains(this.Char) ? -2 : 0;
+        private int SeparatorCountModifier => separator.Contains(this.Char) ? -2 : 0;
 
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
 

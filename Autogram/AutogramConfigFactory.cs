@@ -40,22 +40,17 @@
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
 
+            var isVariable = relevantAlphabetArray.Select((p, i) => numericCounts.Skip(1).Any(q => q[i] > 0)).ToList(); // skip(1) is to exclude "zero"
+
             int variableIndex = 0;
-            var letters = relevantAlphabetArray.Select((p, i) =>
-                new
-                {
-                    Index = i,
-                    Char = p,
-                    IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
-                }
-            ).Select(p => new CharacterConfig(separatorString)
+            var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(separatorString)
             {
-                Index = p.Index,
-                Char = p.Char,
-                Forced = forced.ToLower().Contains(p.Char),
-                UnadjustedBaselineCount = baselineString.Count(c => c == p.Char),
-                IsVariable = p.IsVariable,
-                VariableIndex = p.IsVariable ? variableIndex++ : null,
+                Index = i,
+                Char = p,
+                Forced = forced.ToLower().Contains(p),
+                UnadjustedBaselineCount = baselineString.Count(c => c == p),
+                IsVariable = isVariable[i],
+                VariableIndex = isVariable[i] ? variableIndex++ : null,
             }).ToList();
 
             AutogramConfig autogramConfig = new()
