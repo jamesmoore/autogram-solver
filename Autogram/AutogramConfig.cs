@@ -13,7 +13,7 @@ namespace Autogram
         /// <summary>
         /// Combines proposed variable counts with fixed character counts into an independent snapshot.
         /// </summary>
-        /// <param name="proposedCounts">Counts indexed by each character's VariableIndex.</param>
+        /// <param name="proposedCounts">Counts indexed by each variable character in the same order as <see cref="VariableChars"/>.</param>
         public AutogramSnapshot GetAutogramSnapshot<T>(IReadOnlyList<T> proposedCounts)
             where T : IBinaryInteger<T>
         {
