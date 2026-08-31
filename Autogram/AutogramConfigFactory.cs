@@ -40,25 +40,17 @@
             // an array of counts for the cardinal numbers plus possible plural
             var numericCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
 
+            var isVariable = relevantAlphabetArray.Select((p, i) => numericCounts.Skip(1).Any(q => q[i] > 0)).ToList(); // skip(1) is to exclude "zero"
+
             int variableIndex = 0;
-            var letters = relevantAlphabetArray.Select((p, i) =>
-                new
-                {
-                    Index = i,
-                    Char = p,
-                    BaselineCount = baselineString.Count(c => c == p),
-                    IsVariable = numericCounts.Skip(1).Any(q => q[i] > 0), // skip(1) is to exclude "zero"
-                    Forced = forced.ToLower().Contains(p),
-                }
-            ).Select(p => new CharacterConfig(separatorString)
+            var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(separatorString)
             {
-                Index = p.Index,
-                Char = p.Char,
-                BaselineCount = p.BaselineCount,
-                IsVariable = p.IsVariable,
-                VariableIndex = p.IsVariable ? variableIndex++ : null,
-                MinimumCount = p.BaselineCount + (p.Char.HasExtendedName() == false && (p.BaselineCount > 0 || p.Forced) ? 1 : 0), // increment by 1 if guaranteed to be present unless it's got an extended name.
-                VariableBaselineCount = p.IsVariable ? p.BaselineCount : null,
+                Index = i,
+                Char = p,
+                Forced = forced.ToLower().Contains(p),
+                UnadjustedBaselineCount = baselineString.Count(c => c == p),
+                IsVariable = isVariable[i],
+                VariableIndex = isVariable[i] ? variableIndex++ : null,
             }).ToList();
 
             AutogramConfig autogramConfig = new()
@@ -82,7 +74,7 @@
                 var numericCount = numericCounts[letter.MinimumCount];
                 for (int i = 0; i < numericCount.Length; i++)
                 {
-                    letters[i].MinimumCount += numericCount[i];
+                    letters[i].InvariantMinimumContribution += numericCount[i];
                 }
 
                 // Add the full rendered invariant entry to the baselines used by the
@@ -92,17 +84,8 @@
                 for (int i = 0; i < variableNumericCount.Length; i++)
                 {
                     var letterConfig = letters.Single(p => p.VariableIndex == i);
-                    letterConfig.VariableBaselineCount += variableNumericCount[i];
+                    letterConfig.InvariantBaselineContribution += variableNumericCount[i];
                 }
-            }
-
-            // comma, space special case - when these get joined, the last two won't need a comma + space separator
-            foreach (var letter in letters)
-            {
-                var countDelta = letter.PerDistinctCountModifier;
-                letter.BaselineCount += countDelta;
-                letter.MinimumCount += countDelta;
-                letter.VariableBaselineCount += countDelta;
             }
 
             autogramConfig.Validate();

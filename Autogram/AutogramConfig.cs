@@ -34,11 +34,21 @@ namespace Autogram
         public required int Index { get; init; }
         public required char Char { get; init; }
         
+        public required int UnadjustedBaselineCount { get; init; }
+
         /// <summary>
         /// Baseline count of the character <c>Char</c> 
         /// </summary>
         /// <remarks>Baseline is defined as present in template, conjunction or any of the pluralised extended chars (eg, 'commas')</remarks>
-        public required int BaselineCount { get; set; }
+        public int BaselineCount => UnadjustedBaselineCount + SeparatorCountModifier;
+
+        /// <summary>
+        /// The minimum count this char will contribute to the character list.
+        /// Separator adjustments do not change whether the character is present in the template.
+        /// </summary>
+        public int GuaranteedSelfCount => IncludeSelfInCount && (UnadjustedBaselineCount > 0 || Forced) ? 1 : 0;
+
+        public int InvariantMinimumContribution { get; set; }
 
         /// <summary>
         /// The minimum count of the character <c>Char</c> that is required in the autogram, 
@@ -49,7 +59,7 @@ namespace Autogram
         /// * plus the counts of the chars in the cardinals of the invariant characters.<br/>
         /// For invariant chars this is the actual count.
         /// </remarks>
-        public required int MinimumCount { get; set; }
+        public int MinimumCount => BaselineCount + GuaranteedSelfCount + InvariantMinimumContribution;
         
         /// <summary>
         /// Gets a value indicating whether the character count is variable, or fixed from the outset.
@@ -59,6 +69,8 @@ namespace Autogram
         /// Non-Variable chars can have their counts precomputed.</remarks>
         public required bool IsVariable { get; init; }
         public required int? VariableIndex { get; init; }
+        
+        public int InvariantBaselineContribution { get; set; }
 
         /// <summary>
         /// The variable baseline count
@@ -68,14 +80,16 @@ namespace Autogram
         /// Plus the counts of the chars in the cardinals of the invariant characters.
         /// Note that this may be one lower than the MinimumCount - on the basis that the solver loop handles the addition of the letter itself.
         /// </remarks>
-        public required int? VariableBaselineCount { get; set; }
+        public int? VariableBaselineCount => IsVariable ? BaselineCount + InvariantBaselineContribution : null;
 
         /// <summary>
         /// For the separator chars (comma and space typically) it should be reduced by 2 because in the itemised string they don't appear on the last two entries.
         /// </summary>
-        public int PerDistinctCountModifier => separator.Contains(this.Char) ? -2 : 0;
+        private int SeparatorCountModifier => separator.Contains(this.Char) ? -2 : 0;
 
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
+
+        public required bool Forced { get; init; }
 
         public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
         {

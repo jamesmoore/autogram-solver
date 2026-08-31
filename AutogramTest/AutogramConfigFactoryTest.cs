@@ -209,6 +209,44 @@ namespace AutogramTest
             Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
 
+        [Fact]
+        public void InvariantComma_CanHaveDifferentMinimumAndBaselineContributions()
+        {
+            var config = new AutogramConfigFactory().MakeAutogramConfig(
+                "s,", ",,{0}", " and ", "; ", "'s", "");
+
+            var comma = config.AllChars.Single(p => p.Char == ',');
+            Assert.False(comma.IsVariable);
+            Assert.Equal(2, comma.MinimumCount);
+
+            var s = config.AllChars.Single(p => p.Char == 's');
+            // The generic numeric table includes the plural suffix; the character-specific
+            // table omits "commas", whose letters are already in the baseline.
+            Assert.Equal(1, s.InvariantMinimumContribution);
+            Assert.Equal(0, s.InvariantBaselineContribution);
+            Assert.Equal(3, s.MinimumCount);
+            Assert.Equal(1, s.VariableBaselineCount);
+            Assert.All(config.AllChars, TestLetterConfig);
+        }
+
+        [Theory]
+        [InlineData("a{0}e", 1, 3)]
+        [InlineData("a{0}ee", 2, 4)]
+        public void LetterInSeparator_RetainsGuaranteedSelfCount(
+            string template, int baselineCount, int minimumCount)
+        {
+            var config = new AutogramConfigFactory().MakeAutogramConfig(
+                "ae", template, " and ", "e", "'s", "");
+
+            var e = config.AllChars.Single(p => p.Char == 'e');
+            Assert.Equal(baselineCount, e.UnadjustedBaselineCount);
+            Assert.Equal(baselineCount - 2, e.BaselineCount);
+            Assert.Equal(1, e.GuaranteedSelfCount);
+            Assert.Equal(minimumCount, e.MinimumCount);
+            Assert.Equal(minimumCount - 1, e.VariableBaselineCount);
+            Assert.All(config.AllChars, TestLetterConfig);
+        }
+
         private static void TestLetterConfig(CharacterConfig p)
         {
             Assert.True(p.MinimumCount >= p.BaselineCount);
