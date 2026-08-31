@@ -216,11 +216,11 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        BaselineCount = 0,
-                        MinimumCount = 0,
+                        UnadjustedBaselineCount = 0,
                         IsVariable = true,
                         VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
+                        HasExtendedName = false,
                     })
                     .ToList(),
             };
@@ -238,11 +238,11 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        BaselineCount = 0,
-                        MinimumCount = 0,
+                        UnadjustedBaselineCount = 0,
                         IsVariable = true,
                         VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
+                        HasExtendedName = false,
                     })
                     .ToList(),
             };
@@ -260,11 +260,11 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        BaselineCount = 0,
-                        MinimumCount = 0,
+                        UnadjustedBaselineCount = 0,
                         IsVariable = true,
                         VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
+                        HasExtendedName = false,
                     })
                     .ToList(),
             };
