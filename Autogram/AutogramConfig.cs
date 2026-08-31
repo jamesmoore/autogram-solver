@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Autogram
 {
@@ -8,6 +9,19 @@ namespace Autogram
         public required IList<CharacterConfig> AllChars { get; init; }
 
         public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
+
+        /// <summary>
+        /// Combines proposed variable counts with fixed character counts into an independent snapshot.
+        /// </summary>
+        /// <param name="proposedCounts">Counts indexed by each character's VariableIndex.</param>
+        public AutogramSnapshot GetAutogramSnapshot<T>(IReadOnlyList<T> proposedCounts)
+            where T : IBinaryInteger<T>
+        {
+            return new AutogramSnapshot(AllChars.Select(p => (
+                p.Char,
+                Count: p.VariableIndex.HasValue ? int.CreateChecked(proposedCounts[p.VariableIndex.Value]) : p.MinimumCount
+            )).Where(p => p.Count > 0));
+        }
 
         public byte[][][] GetNumericCounts()
         {
