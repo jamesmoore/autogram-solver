@@ -218,7 +218,6 @@ namespace AutogramTest
                         Char = (char)('a' + i),
                         UnadjustedBaselineCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
                         Forced = false,
                     })
                     .ToList(),
@@ -239,7 +238,6 @@ namespace AutogramTest
                         Char = (char)('a' + i),
                         UnadjustedBaselineCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
                         Forced = false,
                     })
                     .ToList(),
@@ -260,7 +258,6 @@ namespace AutogramTest
                         Char = (char)('a' + i),
                         UnadjustedBaselineCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
                         Forced = false,
                     })
                     .ToList(),

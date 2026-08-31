@@ -13,13 +13,15 @@ namespace Autogram
         /// <summary>
         /// Combines proposed variable counts with fixed character counts into an independent snapshot.
         /// </summary>
-        /// <param name="proposedCounts">Counts indexed by each character's VariableIndex.</param>
+        /// <param name="proposedCounts">Counts indexed by each variable character in the same order as <see cref="VariableChars"/>.</param>
         public AutogramSnapshot GetAutogramSnapshot<T>(IReadOnlyList<T> proposedCounts)
             where T : IBinaryInteger<T>
         {
+            var variableLetters = this.VariableChars.ToList();
+
             return new AutogramSnapshot(AllChars.Select(p => (
                 p.Char,
-                Count: p.VariableIndex.HasValue ? int.CreateChecked(proposedCounts[p.VariableIndex.Value]) : p.MinimumCount
+                Count: p.IsVariable ? int.CreateChecked(proposedCounts[variableLetters.IndexOf(p)]) : p.MinimumCount
             )).Where(p => p.Count > 0));
         }
 
@@ -82,7 +84,6 @@ namespace Autogram
         /// Variable means it is present in the numeric alphabet and can vary.<br/>
         /// Non-Variable chars can have their counts precomputed.</remarks>
         public required bool IsVariable { get; init; }
-        public required int? VariableIndex { get; init; }
         
         public int InvariantBaselineContribution { get; set; }
 
