@@ -175,7 +175,7 @@ void DoAutogramSearch(
                 letterConfig.BaselineCount.ToString(),
                 letterConfig.MinimumCount.ToString(),
                 letterConfig.IsVariable ? "N" : "Y",
-                variableChars.Contains(letterConfig) ? variableChars.IndexOf(letterConfig).ToString() : string.Empty,
+                letterConfig.IsVariable ? variableChars.IndexOf(letterConfig).ToString() : string.Empty,
                 letterConfig.VariableBaselineCount?.ToString() ?? string.Empty,
                 letterConfig.IsVariable ? letterConfig.MinimumCount.ToString() : string.Empty,
                 letterConfig.IncludeSelfInCount ? "Y" : "N",
