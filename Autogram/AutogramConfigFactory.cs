@@ -53,7 +53,6 @@
                 Index = p.Index,
                 Char = p.Char,
                 Forced = forced.ToLower().Contains(p.Char),
-                HasExtendedName = p.Char.HasExtendedName(),
                 UnadjustedBaselineCount = baselineString.Count(c => c == p.Char),
                 IsVariable = p.IsVariable,
                 VariableIndex = p.IsVariable ? variableIndex++ : null,

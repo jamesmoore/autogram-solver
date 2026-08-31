@@ -220,7 +220,6 @@ namespace AutogramTest
                         IsVariable = true,
                         VariableIndex = i,
                         Forced = false,
-                        HasExtendedName = false,
                     })
                     .ToList(),
             };
@@ -242,7 +241,6 @@ namespace AutogramTest
                         IsVariable = true,
                         VariableIndex = i,
                         Forced = false,
-                        HasExtendedName = false,
                     })
                     .ToList(),
             };
@@ -264,7 +262,6 @@ namespace AutogramTest
                         IsVariable = true,
                         VariableIndex = i,
                         Forced = false,
-                        HasExtendedName = false,
                     })
                     .ToList(),
             };

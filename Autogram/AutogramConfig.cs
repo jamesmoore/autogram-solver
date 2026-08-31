@@ -46,7 +46,7 @@ namespace Autogram
         /// <summary>
         /// The minimum count this char will contribute to the character list.
         /// </summary>
-        public int GuaranteedSelfCount => HasExtendedName == false && (BaselineCount > 0 || Forced) ? 1 : 0;
+        public int GuaranteedSelfCount => IncludeSelfInCount && (BaselineCount > 0 || Forced) ? 1 : 0;
 
         public int InvariantMinimumContribution { get; set; }
 
@@ -90,7 +90,6 @@ namespace Autogram
         public bool IncludeSelfInCount => Char.HasExtendedName() == false;
 
         public required bool Forced { get; init; }
-        public required bool HasExtendedName { get; init; }
 
         public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
         {
