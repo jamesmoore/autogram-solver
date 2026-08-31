@@ -160,10 +160,7 @@ namespace Autogram
 
         public AutogramSnapshot GetAutogramSnapshot()
         {
-            return new AutogramSnapshot(config.AllChars.Select(p => (
-                p.Char,
-                Count: p.VariableIndex.HasValue ? proposedCounts[p.VariableIndex.Value] : p.MinimumCount
-            )).Where(p => p.Count > 0));
+            return config.GetAutogramSnapshot(proposedCounts);
         }
 
         public int HistoryCount => history.Count;
