@@ -158,6 +158,8 @@ void DoAutogramSearch(
         "'s", 
         new string(forced));
 
+    var variableChars = config.VariableChars.ToList();
+
     if (quiet == false)
     {
         Console.WriteLine("Pre-run summary");
@@ -166,17 +168,20 @@ void DoAutogramSearch(
 
         foreach (var letterConfig in config.AllChars)
         {
-            Console.WriteLine($"{letterConfig.Index}\t" +
-                $"{letterConfig.Char}\t" +
-                $"{letterConfig.BaselineCount}\t" +
-                $"{letterConfig.MinimumCount}\t" +
-                $"{(letterConfig.IsVariable ? "N" : "Y")}\t" +
-                $"{letterConfig.VariableIndex}\t" +
-                $"{letterConfig.VariableBaselineCount}\t" +
-                $"{(letterConfig.IsVariable ? letterConfig.MinimumCount : String.Empty)}\t" +
-                $"{(letterConfig.IncludeSelfInCount ? "Y" : "N")}\t" +
-                ""
-                );
+            var columns = new List<string>
+            {
+                letterConfig.Index.ToString(),
+                letterConfig.Char.ToString(),
+                letterConfig.BaselineCount.ToString(),
+                letterConfig.MinimumCount.ToString(),
+                letterConfig.IsVariable ? "N" : "Y",
+                variableChars.Contains(letterConfig) ? variableChars.IndexOf(letterConfig).ToString() : string.Empty,
+                letterConfig.VariableBaselineCount?.ToString() ?? string.Empty,
+                letterConfig.IsVariable ? letterConfig.MinimumCount.ToString() : string.Empty,
+                letterConfig.IncludeSelfInCount ? "Y" : "N",
+            };
+
+            Console.WriteLine(string.Join("\t", columns));
         }
     }
 

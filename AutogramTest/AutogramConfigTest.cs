@@ -24,12 +24,12 @@ namespace AutogramTest
             {
                 AllChars =
                 [
-                    MakeCharacter(0, 'a', null, 2),
-                    MakeCharacter(1, 'e', 0, 1),
-                    MakeCharacter(2, 'b', null, 4),
-                    MakeCharacter(3, 'n', 1, 1),
-                    MakeCharacter(4, 'r', 2, 1),
-                    MakeCharacter(5, 'z', null, 0),
+                    MakeCharacter(0, 'a', false, 2),
+                    MakeCharacter(1, 'e', true, 1),
+                    MakeCharacter(2, 'b', false, 4),
+                    MakeCharacter(3, 'n', true, 1),
+                    MakeCharacter(4, 'r', true, 1),
+                    MakeCharacter(5, 'z', false, 0),
                 ],
             };
 
@@ -43,7 +43,7 @@ namespace AutogramTest
             Assert.Equal(expected, snapshot.ToString("{0}", " and ", ", "));
         }
 
-        private static CharacterConfig MakeCharacter(int index, char character, int? variableIndex, int minimumCount)
+        private static CharacterConfig MakeCharacter(int index, char character, bool isVariable, int minimumCount)
         {
             return new CharacterConfig(", ")
             {
@@ -51,8 +51,7 @@ namespace AutogramTest
                 Char = character,
                 UnadjustedBaselineCount = 0,
                 InvariantMinimumContribution = minimumCount,
-                IsVariable = variableIndex.HasValue,
-                VariableIndex = variableIndex,
+                IsVariable = isVariable,
                 Forced = false,
             };
         }

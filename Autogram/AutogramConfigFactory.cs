@@ -42,7 +42,6 @@
 
             var isVariable = relevantAlphabetArray.Select((p, i) => numericCounts.Skip(1).Any(q => q[i] > 0)).ToList(); // skip(1) is to exclude "zero"
 
-            int variableIndex = 0;
             var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(separatorString)
             {
                 Index = i,
@@ -50,7 +49,6 @@
                 Forced = forced.ToLower().Contains(p),
                 UnadjustedBaselineCount = baselineString.Count(c => c == p),
                 IsVariable = isVariable[i],
-                VariableIndex = isVariable[i] ? variableIndex++ : null,
             }).ToList();
 
             AutogramConfig autogramConfig = new()
@@ -61,6 +59,8 @@
             var invariantLetters = letters.Where(c => c.IsVariable == false).ToList();
 
             var variableNumericCounts = autogramConfig.GetNumericCounts();
+
+            var variableLetters = autogramConfig.VariableChars.ToList();
 
             // An invariant character cannot occur in generated count wording, so its
             // MinimumCount is already its exact final count. Account for each invariant's
@@ -83,8 +83,7 @@
                 var variableNumericCount = variableNumericCounts[letter.Index][letter.MinimumCount];
                 for (int i = 0; i < variableNumericCount.Length; i++)
                 {
-                    var letterConfig = letters.Single(p => p.VariableIndex == i);
-                    letterConfig.InvariantBaselineContribution += variableNumericCount[i];
+                    variableLetters[i].InvariantBaselineContribution += variableNumericCount[i];
                 }
             }
 
