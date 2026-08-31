@@ -25,7 +25,6 @@ namespace Autogram
         {
             Debug.Assert(AllChars.All(p => p.MinimumCount >= p.BaselineCount));
             Debug.Assert(VariableChars.All(p => p.MinimumCount >= p.VariableBaselineCount));
-            Debug.Assert(VariableChars.All(p => p.InvariantBaselineContribution == p.InvariantMinimumContribution));
         }
     }
 
@@ -45,8 +44,9 @@ namespace Autogram
 
         /// <summary>
         /// The minimum count this char will contribute to the character list.
+        /// Separator adjustments do not change whether the character is present in the template.
         /// </summary>
-        public int GuaranteedSelfCount => IncludeSelfInCount && (BaselineCount > 0 || Forced) ? 1 : 0;
+        public int GuaranteedSelfCount => IncludeSelfInCount && (UnadjustedBaselineCount > 0 || Forced) ? 1 : 0;
 
         public int InvariantMinimumContribution { get; set; }
 
