@@ -5,6 +5,8 @@ namespace AutogramTest
 {
     public class AutogramConfigTest
     {
+        private const string PluralSuffix = "'s";
+
         [Fact]
         public void GetAutogramSnapshot_UsesByteCounts()
         {
@@ -22,6 +24,7 @@ namespace AutogramTest
         {
             var config = new AutogramConfig
             {
+                PluralSuffix = PluralSuffix,
                 AllChars =
                 [
                     MakeCharacter(0, 'a', false, 2),
@@ -34,7 +37,7 @@ namespace AutogramTest
             };
 
             var snapshot = config.GetAutogramSnapshot(proposedCounts);
-            var expected = new AutogramSnapshot([('a', 2), ('e', 7), ('b', 4), ('r', 3)])
+            var expected = new AutogramSnapshot([('a', 2), ('e', 7), ('b', 4), ('r', 3)], PluralSuffix)
                 .ToString("{0}", " and ", ", ");
 
             Assert.Equal(expected, snapshot.ToString("{0}", " and ", ", "));
@@ -45,7 +48,7 @@ namespace AutogramTest
 
         private static CharacterConfig MakeCharacter(int index, char character, bool isVariable, int minimumCount)
         {
-            return new CharacterConfig(", ")
+            return new CharacterConfig(", ", PluralSuffix)
             {
                 Index = index,
                 Char = character,

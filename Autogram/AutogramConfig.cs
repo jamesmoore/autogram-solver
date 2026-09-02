@@ -7,6 +7,7 @@ namespace Autogram
     public class AutogramConfig
     {
         public required IList<CharacterConfig> AllChars { get; init; }
+        public required string PluralSuffix { get; init; }
 
         public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
 
@@ -22,7 +23,7 @@ namespace Autogram
             return new AutogramSnapshot(AllChars.Select(p => (
                 p.Char,
                 Count: p.IsVariable ? int.CreateChecked(proposedCounts[variableLetters.IndexOf(p)]) : p.MinimumCount
-            )).Where(p => p.Count > 0));
+            )).Where(p => p.Count > 0), PluralSuffix);
         }
 
         public byte[][][] GetNumericCounts()
@@ -45,7 +46,7 @@ namespace Autogram
     }
 
     [DebuggerDisplay("{Char.ToString()}")]
-    public class CharacterConfig(string separator)
+    public class CharacterConfig(string separator, string pluralSuffix)
     {
         public required int Index { get; init; }
         public required char Char { get; init; }
@@ -108,7 +109,8 @@ namespace Autogram
 
         public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
         {
-            return this.GetStringRepresentations().Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
+            var list = this.GetStringRepresentations();
+            return list.Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
         }
 
         private IList<string> GetStringRepresentations()
@@ -118,7 +120,7 @@ namespace Autogram
 
         private string StringRepresentationFor(int i)
         {
-            return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i) : string.Empty) + separator;
+            return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i, pluralSuffix) : string.Empty) + separator;
         }
     }
 }
