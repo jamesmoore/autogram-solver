@@ -9,7 +9,7 @@
         /// <param name="template">The template for the body of the autogram eg, "This is an autogram and it contains {0}"</param>
         /// <param name="conjunction">The conjunction to use at the end of the letter count list eg, " and "</param>
         /// <param name="pluralSuffix">The plural extension for letters with counts greater than one eg, "'s"</param>
-        /// <param name="forced">Any characters absent from the template, conjunction and plural that should also be included in the count eg, "z"</param>
+        /// <param name="forced">Any characters absent from the template, conjunction and plural suffix that should also be included in the count eg, "z"</param>
         /// <returns>A populated autogram config.</returns>
         public AutogramConfig MakeAutogramConfig(
             string alphabet,
