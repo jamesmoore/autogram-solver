@@ -11,16 +11,16 @@
             return character.ToString();
         }
 
-        private static string GetPluralisedCharacterName(this char character)
+        private static string GetPluralisedCharacterName(this char character, string pluralSuffix)
         {
             if (character == ',') return "commas";
             if (character == '-') return "hyphens";
             if (character == '\'') return "apostrophes";
             if (character == ' ') return "spaces";
-            return character + "'s";
+            return character + pluralSuffix;
         }
 
-        public static string GetCharacterName(this char character, int numberOf)
+        public static string GetCharacterName(this char character, int numberOf, string pluralSuffix)
         {
             if (numberOf == 1)
             {
@@ -28,20 +28,13 @@
             }
             else
             {
-                return character.GetPluralisedCharacterName();
+                return character.GetPluralisedCharacterName(pluralSuffix);
             }
         }
 
         public static bool HasExtendedName(this char character)
         {
             return character.ToString() != character.GetCharacterName();
-        }
-
-        public static string ToListEntry(this char character, int quantity)
-        {
-            return quantity == 0 ?
-                string.Empty :
-                ((byte)quantity).ToCardinalNumberStringPrecomputed() + " " + character.GetCharacterName(quantity);
         }
     }
 }

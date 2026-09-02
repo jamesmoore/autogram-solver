@@ -150,12 +150,14 @@ void DoAutogramSearch(
         seed = rootRandom.Next();
     }
 
+    const string PluralSuffix = "'s";
+
     var config = new AutogramConfigFactory().MakeAutogramConfig(
         new string(alphabet), 
         template, 
         conjunction, 
         separator,
-        "'s", 
+        PluralSuffix, 
         new string(forced));
 
     var variableChars = config.VariableChars.ToList();

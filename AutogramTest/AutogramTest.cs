@@ -12,6 +12,7 @@ namespace AutogramTest
         private const int RandomSeed = 2021428396; // cherry picked for fast resolve
         private const string Conjunction = " and lastly ";
         private const string SeparatorString = ", ";
+        private const string PluralSuffix = "'s";
 
         private static void RunAutogramTest<TAutogram>(
             Func<AutogramConfig, int, TAutogram> factory,
@@ -211,8 +212,9 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                PluralSuffix = PluralSuffix,
                 AllChars = Enumerable.Range(0, ByteHistoryKey16.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
@@ -231,8 +233,9 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                PluralSuffix = PluralSuffix,
                 AllChars = Enumerable.Range(0, ByteHistoryKey32.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
@@ -251,8 +254,9 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                PluralSuffix = PluralSuffix,
                 AllChars = Enumerable.Range(0, ByteHistoryKey64.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
