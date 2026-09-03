@@ -131,17 +131,7 @@ void DoAutogramSearch(
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
-    var fullAlphabet = Enumerable.Range(0, 256).Select(p => (char)p).ToArray();
-
-    var alphabetRegex = new Regex(alphabetRegexString);
-    var alphabet = fullAlphabet.Where(p => alphabetRegex.IsMatch(p.ToString())).ToArray();
-
-    var forced = defaultForced.ToCharArray();
-    if (string.IsNullOrWhiteSpace(forcedRegexString) == false)
-    {
-        var forcedRegex = new Regex(forcedRegexString);
-        forced = fullAlphabet.Where(p => forcedRegex.IsMatch(p.ToString())).ToArray();
-    }
+    var autogramInput = BuildInput(alphabetRegexString, template, conjunction, separator, forcedRegexString, defaultForced);
 
     var rootRandom = new Random();
 
@@ -150,15 +140,7 @@ void DoAutogramSearch(
         seed = rootRandom.Next();
     }
 
-    const string PluralSuffix = "'s";
-
-    var config = new AutogramConfigFactory().MakeAutogramConfig(
-        new string(alphabet), 
-        template, 
-        conjunction, 
-        separator,
-        PluralSuffix, 
-        new string(forced));
+    var config = new AutogramConfigFactory().MakeAutogramConfig(autogramInput);
 
     var variableChars = config.VariableChars.ToList();
 
@@ -191,7 +173,7 @@ void DoAutogramSearch(
 
     if (quiet == false)
     {
-        Console.WriteLine("Starting: " + autogram.GetAutogramSnapshot().ToString(template, conjunction, separator));
+        Console.WriteLine("Starting: " + autogram.GetAutogramSnapshot().ToString());
     }
 
     int i = 0;
@@ -216,8 +198,8 @@ void DoAutogramSearch(
 
         if (status.Success)
         {
-            var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegex);
-            ReportSuccess(quiet, autogram.GetAutogramSnapshot().ToString(template, conjunction, separator), i, randomized, sw, status, commandLine);
+            var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegexString);
+            ReportSuccess(quiet, autogram.GetAutogramSnapshot().ToString(), i, randomized, sw, status, commandLine);
             break;
         }
 
@@ -264,13 +246,13 @@ static void ReportSuccess(bool quiet, string autogramString, int i, int randomiz
     Console.Write("\x1b]9;4;0\x07");
 }
 
-static string GetCommandLine(int? seed, string template, string conjunction, string forcedRegexString, Regex alphabetRegex)
+static string GetCommandLine(int? seed, string template, string conjunction, string forcedRegexString, string alphabetRegexString)
 {
     return $"{GetCurrentExe()}" +
         (template != defaultTemplate ? $" --template \"{template}\"" : "") +
         (conjunction != defaultConjunction ? $" --conjunction \"{conjunction}\"" : "") +
-        (alphabetRegex.ToString() != defaultAlphabetRegex ? $" --alphabet \"{alphabetRegex}\"" : "") +
-        (forcedRegexString.ToString() != defaultForced ? $" --forced {forcedRegexString}" : "") +
+        (alphabetRegexString != defaultAlphabetRegex ? $" --alphabet \"{alphabetRegexString}\"" : "") +
+        (forcedRegexString != defaultForced ? $" --forced {forcedRegexString}" : "") +
         $" --seed {seed}";
 }
 
@@ -278,4 +260,32 @@ static string GetCurrentExe()
 {
     var processPath = Environment.ProcessPath ?? throw new ApplicationException("No process path");
     return new DirectoryInfo(Directory.GetCurrentDirectory()).GetRelativePathTo(new FileInfo(processPath));
+}
+
+static AutogramInput BuildInput(string alphabetRegexString, string template, string conjunction, string separator, string forcedRegexString, string defaultForced)
+{
+    var fullAlphabet = Enumerable.Range(0, 256).Select(p => (char)p).ToArray();
+
+    var alphabetRegex = new Regex(alphabetRegexString);
+    var alphabet = fullAlphabet.Where(p => alphabetRegex.IsMatch(p.ToString())).ToArray();
+
+    var forced = defaultForced.ToCharArray();
+    if (string.IsNullOrWhiteSpace(forcedRegexString) == false)
+    {
+        var forcedRegex = new Regex(forcedRegexString);
+        forced = fullAlphabet.Where(p => forcedRegex.IsMatch(p.ToString())).ToArray();
+    }
+
+    const string PluralSuffix = "'s";
+
+    var autogramInput = new AutogramInput
+    {
+        Alphabet = new string(alphabet),
+        Template = template,
+        Conjunction = conjunction,
+        SeparatorString = separator,
+        PluralSuffix = PluralSuffix,
+        Forced = new string(forced)
+    };
+    return autogramInput;
 }

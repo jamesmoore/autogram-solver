@@ -6,26 +6,23 @@ namespace Autogram
     public class AutogramSnapshot
     {
         private readonly IReadOnlyList<(char Char, int Count)> charCounts;
-        private readonly string pluralSuffix;
+        private readonly AutogramInput autogramInput;
 
-        public AutogramSnapshot(IEnumerable<(char Char, int Count)> charCounts, string pluralSuffix)
+        public AutogramSnapshot(IEnumerable<(char Char, int Count)> charCounts, AutogramInput autogramInput)
         {
             this.charCounts = charCounts.ToList();
-            this.pluralSuffix = pluralSuffix;
+            this.autogramInput = autogramInput;
         }
 
         /// <summary>
         /// Builds the autogram sentence from this snapshot.
         /// </summary>
-        /// <param name="template">The sentence template containing a {0} placeholder.</param>
-        /// <param name="conjunction">The conjunction inserted before the final item in the list.</param>
-        /// <param name="separator">The separator between items in the list.</param>
         /// <returns>The formatted autogram sentence.</returns>
-        public string ToString(string template, string conjunction, string separator)
+        public override string ToString()
         {
-            var numberItems = charCounts.Select(p => ToListEntry(p.Char, p.Count, pluralSuffix)).ToList();
-            var arg0 = string.IsNullOrWhiteSpace(conjunction) ? numberItems.Listify(separator) : numberItems.ListifyWithConjunction(separator, conjunction);
-            return string.Format(template, arg0);
+            var numberItems = charCounts.Select(p => ToListEntry(p.Char, p.Count, autogramInput.PluralSuffix)).ToList();
+            var arg0 = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? numberItems.Listify(autogramInput.SeparatorString) : numberItems.ListifyWithConjunction(autogramInput.SeparatorString, autogramInput.Conjunction);
+            return string.Format(autogramInput.Template, arg0);
         }
 
         public static string ToListEntry(char character, int quantity, string pluralSuffix)

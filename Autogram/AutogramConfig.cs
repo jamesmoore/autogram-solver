@@ -7,7 +7,7 @@ namespace Autogram
     public class AutogramConfig
     {
         public required IList<CharacterConfig> AllChars { get; init; }
-        public required string PluralSuffix { get; init; }
+        public required AutogramInput Input { get; init; }
 
         public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
 
@@ -20,10 +20,12 @@ namespace Autogram
         {
             var variableLetters = this.VariableChars.ToList();
 
-            return new AutogramSnapshot(AllChars.Select(p => (
+            var charCounts = AllChars.Select(p => (
                 p.Char,
                 Count: p.IsVariable ? int.CreateChecked(proposedCounts[variableLetters.IndexOf(p)]) : p.MinimumCount
-            )).Where(p => p.Count > 0), PluralSuffix);
+            )).Where(p => p.Count > 0);
+
+            return new AutogramSnapshot(charCounts, Input);
         }
 
         public byte[][][] GetNumericCounts()

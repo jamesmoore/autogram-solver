@@ -24,7 +24,14 @@ namespace AutogramTest
         {
             var config = new AutogramConfig
             {
-                PluralSuffix = PluralSuffix,
+                Input = new AutogramInput {
+                    Template = "{0}",
+                    Conjunction = " and ",
+                    SeparatorString = ", ",
+                    Forced = string.Empty,
+                    Alphabet = "abcenrz",
+                    PluralSuffix = PluralSuffix,
+                },
                 AllChars =
                 [
                     MakeCharacter(0, 'a', false, 2),
@@ -37,13 +44,30 @@ namespace AutogramTest
             };
 
             var snapshot = config.GetAutogramSnapshot(proposedCounts);
-            var expected = new AutogramSnapshot([('a', 2), ('e', 7), ('b', 4), ('r', 3)], PluralSuffix)
-                .ToString("{0}", " and ", ", ");
+            var expected = new AutogramSnapshot([('a', 2), ('e', 7), ('b', 4), ('r', 3)], config.Input)
+                .ToString();
 
-            Assert.Equal(expected, snapshot.ToString("{0}", " and ", ", "));
+            Assert.Equal(expected, snapshot.ToString());
 
             Array.Fill(proposedCounts, T.Zero);
-            Assert.Equal(expected, snapshot.ToString("{0}", " and ", ", "));
+            Assert.Equal(expected, snapshot.ToString());
+        }
+
+        [Fact]
+        public void Snapshot_RendersUsingCapturedInput()
+        {
+            var input = new AutogramInput
+            {
+                Alphabet = "abc",
+                Template = "Captured: {0}.",
+                Conjunction = " plus ",
+                SeparatorString = " / ",
+                PluralSuffix = "s",
+                Forced = string.Empty,
+            };
+            var snapshot = new AutogramSnapshot([('a', 1), ('b', 2), ('c', 3)], input);
+
+            Assert.Equal("Captured: one a / two bs plus three cs.", snapshot.ToString());
         }
 
         private static CharacterConfig MakeCharacter(int index, char character, bool isVariable, int minimumCount)
