@@ -5,7 +5,7 @@ namespace Autogram
     /// </summary>
     public class AutogramSnapshot(AutogramInput input, IEnumerable<(char Char, int Count)> charCounts)
     {
-        private readonly IReadOnlyList<(char Char, int Count)> charCounts = charCounts.ToList();
+        private readonly IReadOnlyList<(char Char, int Count)> characterCounts = charCounts.ToList();
 
         /// <summary>
         /// Builds the autogram sentence from this snapshot.
@@ -13,7 +13,7 @@ namespace Autogram
         /// <returns>The formatted autogram sentence.</returns>
         public override string ToString()
         {
-            var numberItems = charCounts.Select(p => ToListEntry(p.Char, p.Count, input.PluralSuffix)).ToList();
+            var numberItems = characterCounts.Select(p => ToListEntry(p.Char, p.Count, input.PluralSuffix)).ToList();
             var arg0 = string.IsNullOrWhiteSpace(input.Conjunction) ? numberItems.Listify(input.SeparatorString) : numberItems.ListifyWithConjunction(input.SeparatorString, input.Conjunction);
             return string.Format(input.Template, arg0);
         }
