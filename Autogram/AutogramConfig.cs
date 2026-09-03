@@ -25,7 +25,7 @@ namespace Autogram
                 Count: p.IsVariable ? int.CreateChecked(proposedCounts[variableLetters.IndexOf(p)]) : p.MinimumCount
             )).Where(p => p.Count > 0);
 
-            return new AutogramSnapshot(charCounts, Input);
+            return new AutogramSnapshot(Input, charCounts);
         }
 
         public byte[][][] GetNumericCounts()

@@ -3,16 +3,9 @@ namespace Autogram
     /// <summary>
     /// A snapshot of the autogram solver state at a point in time, used for rendering the current sentence.
     /// </summary>
-    public class AutogramSnapshot
+    public class AutogramSnapshot(AutogramInput input, IEnumerable<(char Char, int Count)> charCounts)
     {
-        private readonly IReadOnlyList<(char Char, int Count)> charCounts;
-        private readonly AutogramInput autogramInput;
-
-        public AutogramSnapshot(IEnumerable<(char Char, int Count)> charCounts, AutogramInput autogramInput)
-        {
-            this.charCounts = charCounts.ToList();
-            this.autogramInput = autogramInput;
-        }
+        private readonly IReadOnlyList<(char Char, int Count)> charCounts = charCounts.ToList();
 
         /// <summary>
         /// Builds the autogram sentence from this snapshot.
@@ -20,9 +13,9 @@ namespace Autogram
         /// <returns>The formatted autogram sentence.</returns>
         public override string ToString()
         {
-            var numberItems = charCounts.Select(p => ToListEntry(p.Char, p.Count, autogramInput.PluralSuffix)).ToList();
-            var arg0 = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? numberItems.Listify(autogramInput.SeparatorString) : numberItems.ListifyWithConjunction(autogramInput.SeparatorString, autogramInput.Conjunction);
-            return string.Format(autogramInput.Template, arg0);
+            var numberItems = charCounts.Select(p => ToListEntry(p.Char, p.Count, input.PluralSuffix)).ToList();
+            var arg0 = string.IsNullOrWhiteSpace(input.Conjunction) ? numberItems.Listify(input.SeparatorString) : numberItems.ListifyWithConjunction(input.SeparatorString, input.Conjunction);
+            return string.Format(input.Template, arg0);
         }
 
         public static string ToListEntry(char character, int quantity, string pluralSuffix)

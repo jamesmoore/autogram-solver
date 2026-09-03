@@ -44,7 +44,7 @@ namespace AutogramTest
             };
 
             var snapshot = config.GetAutogramSnapshot(proposedCounts);
-            var expected = new AutogramSnapshot([('a', 2), ('e', 7), ('b', 4), ('r', 3)], config.Input)
+            var expected = new AutogramSnapshot(config.Input, [('a', 2), ('e', 7), ('b', 4), ('r', 3)])
                 .ToString();
 
             Assert.Equal(expected, snapshot.ToString());
@@ -65,7 +65,7 @@ namespace AutogramTest
                 PluralSuffix = "s",
                 Forced = string.Empty,
             };
-            var snapshot = new AutogramSnapshot([('a', 1), ('b', 2), ('c', 3)], input);
+            var snapshot = new AutogramSnapshot(input, [('a', 1), ('b', 2), ('c', 3)]);
 
             Assert.Equal("Captured: one a / two bs plus three cs.", snapshot.ToString());
         }
