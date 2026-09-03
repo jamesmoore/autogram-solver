@@ -29,7 +29,7 @@ namespace AutogramTest
                     Conjunction = " and ",
                     SeparatorString = ", ",
                     Forced = string.Empty,
-                    Alphabet = "abcenrz",
+                    Alphabet = "abenrz",
                     PluralSuffix = PluralSuffix,
                 },
                 AllChars =
