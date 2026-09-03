@@ -51,7 +51,7 @@ namespace AutogramTest
                 Template = defaultTemplate,
                 Conjunction = Conjunction,
                 SeparatorString = SeparatorString,
-                PluralSuffix = "'s",
+                PluralSuffix = PluralSuffix,
                 Forced = ""
             };
         }
