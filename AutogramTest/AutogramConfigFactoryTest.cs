@@ -9,13 +9,18 @@ namespace AutogramTest
         [Fact]
         public void Test_AutogramConfigFactory_Single_Invariant()
         {
-            const string alphabet = "a";
-            const string template = "A test {0}";
-            const string conjunction = " and ";
-            const string pluralExtension = "'s";
+            var input = new AutogramInput
+            {
+                Alphabet = "a",
+                Template = "A test {0}",
+                Conjunction = " and ",
+                SeparatorString = SeparatorString,
+                PluralSuffix = "'s",
+                Forced = ""
+            };
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(input);
 
             Assert.NotNull(config);
             var allChars = config.AllChars;
@@ -36,13 +41,18 @@ namespace AutogramTest
         [Fact]
         public void Test_AutogramConfigFactory()
         {
-            const string alphabet = "ae";
-            const string template = "A test {0}";
-            const string conjunction = " and ";
-            const string pluralExtension = "'s";
+            var input = new AutogramInput
+            {
+                Alphabet = "ae",
+                Template = "A test {0}",
+                Conjunction = " and ",
+                SeparatorString = SeparatorString,
+                PluralSuffix = "'s",
+                Forced = ""
+            };
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(input);
 
             Assert.NotNull(config);
             var allChars = config.AllChars;
@@ -71,14 +81,18 @@ namespace AutogramTest
         [Fact]
         public void Test_AutogramConfigFactory_With_Forced()
         {
-            const string alphabet = "aerz";
-            const string template = "A test {0}";
-            const string conjunction = " and ";
-            const string pluralExtension = "'s";
-            const string forced = "z";
+            var input = new AutogramInput
+            {
+                Alphabet = "aerz",
+                Template = "A test {0}",
+                Conjunction = " and ",
+                SeparatorString = SeparatorString,
+                PluralSuffix = "'s",
+                Forced = "z"
+            };
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, forced);
+            var config = sut.MakeAutogramConfig(input);
 
             Assert.NotNull(config);
             var allChars = config.AllChars;
@@ -123,13 +137,18 @@ namespace AutogramTest
         [Fact]
         public void Test_AutogramConfigFactory_With_Extended_Chars()
         {
-            const string alphabet = "aerz ,-'";
-            const string template = "A test {0}";
-            const string conjunction = " and ";
-            const string pluralExtension = "'s";
+            var input = new AutogramInput
+            {
+                Alphabet = "aerz ,-'",
+                Template = "A test {0}",
+                Conjunction = " and ",
+                SeparatorString = SeparatorString,
+                PluralSuffix = "'s",
+                Forced = ""
+            };
 
             var sut = new AutogramConfigFactory();
-            var config = sut.MakeAutogramConfig(alphabet, template, conjunction, SeparatorString, pluralExtension, "");
+            var config = sut.MakeAutogramConfig(input);
 
             Assert.NotNull(config);
             var allChars = config.AllChars;
@@ -198,8 +217,17 @@ namespace AutogramTest
         [Fact]
         public void InvariantComma_CanHaveDifferentMinimumAndBaselineContributions()
         {
-            var config = new AutogramConfigFactory().MakeAutogramConfig(
-                "s,", ",,{0}", " and ", "; ", "'s", "");
+            var input = new AutogramInput
+            {
+                Alphabet = "s,",
+                Template = ",,{0}",
+                Conjunction = " and ",
+                SeparatorString = "; ",
+                PluralSuffix = "'s",
+                Forced = ""
+            };
+
+            var config = new AutogramConfigFactory().MakeAutogramConfig(input);
 
             var comma = config.AllChars.Single(p => p.Char == ',');
             Assert.False(comma.IsVariable);
@@ -221,8 +249,17 @@ namespace AutogramTest
         public void LetterInSeparator_RetainsGuaranteedSelfCount(
             string template, int baselineCount, int minimumCount)
         {
-            var config = new AutogramConfigFactory().MakeAutogramConfig(
-                "ae", template, " and ", "e", "'s", "");
+            var input = new AutogramInput
+            {
+                Alphabet = "ae",
+                Template = template,
+                Conjunction = " and ",
+                SeparatorString = "e",
+                PluralSuffix = "'s",
+                Forced = ""
+            };
+
+            var config = new AutogramConfigFactory().MakeAutogramConfig(input);
 
             var e = config.AllChars.Single(p => p.Char == 'e');
             Assert.Equal(baselineCount, e.UnadjustedBaselineCount);

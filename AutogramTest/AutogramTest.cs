@@ -28,7 +28,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = sut.GetAutogramSnapshot().ToString(defaultTemplate, Conjunction, SeparatorString);
+                    var result = sut.GetAutogramSnapshot().ToString();
                     Assert.True(result.IsAutogram());
                     Assert.Equal(expectedIterations, i);
                     break;
@@ -38,13 +38,22 @@ namespace AutogramTest
 
         private static AutogramConfig GetConfig()
         {
-            return new AutogramConfigFactory().MakeAutogramConfig(
-                "abcdefghijklmnopqrstuvwxyz",
-                defaultTemplate,
-                Conjunction,
-                SeparatorString,
-                "'s",
-                "");
+            AutogramInput input = GetDefaultAutogramInput();
+
+            return new AutogramConfigFactory().MakeAutogramConfig(input);
+        }
+
+        private static AutogramInput GetDefaultAutogramInput()
+        {
+            return new AutogramInput
+            {
+                Alphabet = "abcdefghijklmnopqrstuvwxyz",
+                Template = defaultTemplate,
+                Conjunction = Conjunction,
+                SeparatorString = SeparatorString,
+                PluralSuffix = PluralSuffix,
+                Forced = ""
+            };
         }
 
         [Fact]
@@ -212,7 +221,7 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
-                PluralSuffix = PluralSuffix,
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey16.MaxLength + 1)
                     .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
@@ -233,7 +242,7 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
-                PluralSuffix = PluralSuffix,
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey32.MaxLength + 1)
                     .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
@@ -254,7 +263,7 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
-                PluralSuffix = PluralSuffix,
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey64.MaxLength + 1)
                     .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
