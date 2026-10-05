@@ -48,6 +48,21 @@ namespace AutogramTest.Extensions
             Assert.Equal(10, result[' ']);
         }
 
+        [Theory]
+        [InlineData("one apostrophe,", '\'', 1)]
+        [InlineData("one apostrophe and", '\'', 1)]
+        [InlineData("one apostrophe", '\'', 1)]
+        [InlineData("two apostrophes,", '\'', 2)]
+        [InlineData("one comma,", ',', 1)]
+        [InlineData("one hyphen.", '-', 1)]
+        [InlineData("one space.", ' ', 1)]
+        public void GetStatedFrequency_Punctuation_Tests(string sentence, char character, int count)
+        {
+            var result = sentence.GetStatedFrequency();
+
+            Assert.Equal(count, result[character]);
+        }
+
         [Fact]
         public void IsAutogram_Successful_Test()
         {
@@ -66,6 +81,13 @@ namespace AutogramTest.Extensions
             const string example = @"Not an autogram.";
 
             Assert.False(example.IsAutogram());
+        }
+
+        [Fact]
+        public void IsAutogram_Invalid_Extended_Test()
+        {
+            const string InvalidAutogram = "This sentence is an autogram and it contains ten a's, four c's, three d's, thirty-three e's, ten f's, four g's, fifteen h's, fourteen i's, three l's, four m's, twenty n's, sixteen o's, four p's, seventeen r's, thirty-two s's, thirty-three t's, eight u's, two v's, six w's, three x's, eight y's, one apostrophe, twenty-two commas and finally four hyphens.";
+            Assert.False(InvalidAutogram.IsAutogram());
         }
 
         [Fact]

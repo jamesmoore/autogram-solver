@@ -22,8 +22,14 @@ namespace Autogram.Extensions
             lower = lower.Replace("apostrophes", "''s");
             lower = lower.Replace("spaces", " 's");
 
+            lower = lower.Replace("comma", ",");
+            lower = lower.Replace("hyphen", "-");
+            lower = lower.Replace("apostrophe", "'");
+            lower = lower.Replace("space", " ");
+
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?\b";
+            // Punctuation declarations also need to end before punctuation, whitespace, or end of input.
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?(?!\w)";
             var matches = Regex.Matches(lower, pattern);
 
             var dictionary = new Dictionary<char, int>();
