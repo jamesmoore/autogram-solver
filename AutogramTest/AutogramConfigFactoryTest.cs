@@ -261,7 +261,6 @@ namespace AutogramTest
 
             var e = config.AllChars.Single(p => p.Char == 'e');
             Assert.Equal(baselineCount, e.BaselineCount);
-            Assert.Equal(baselineCount, e.BaselineCount);
             Assert.Equal(1, e.GuaranteedSelfCount);
             Assert.Equal(minimumCount, e.MinimumCount);
             Assert.Equal(minimumCount - 1, e.VariableBaselineCount);
