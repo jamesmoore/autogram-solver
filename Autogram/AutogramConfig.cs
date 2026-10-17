@@ -120,12 +120,22 @@ namespace Autogram
 
         private IList<string> GetStringRepresentations()
         {
-            return Enumerable.Range(0, 100).Select(p => (byte)p).Select(StringRepresentationFor).ToList();
+            return Enumerable.Range(0, 100).Select(p => StringRepresentationFor((byte)p)).ToList();
         }
 
-        private string StringRepresentationFor(byte i)
+        /// <summary>
+        /// Formats a lookup entry, optionally excluding an ordinary character whose
+        /// self-reference has already been included in the minimum count.
+        /// Extended character names are always retained in full.
+        /// </summary>
+        internal string StringRepresentationFor(byte i, bool includeSelf = true)
         {
-            return i.ToCardinalNumberStringPrecomputed() + " " + this.Char.GetCharacterName(i, pluralSuffix) + EntrySeparator;
+            var name = Char.GetCharacterName(i, pluralSuffix);
+            if (!includeSelf && IncludeSelfInCount)
+            {
+                name = name[1..];
+            }
+            return i.ToCardinalNumberStringPrecomputed() + " " + name + EntrySeparator;
         }
     }
 }

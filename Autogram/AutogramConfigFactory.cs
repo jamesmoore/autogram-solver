@@ -92,13 +92,8 @@
                 // minimum counts. The character itself was accounted for when its
                 // MinimumCount was initialized.
                 // Example: "seven a's" contributes two e's, two s's, one v, one n, etc.
-                var numericCount = letter.Char.HasExtendedName()
-                    ? (((byte)minimumCount).ToCardinalNumberStringPrecomputed() + " " +
-                        letter.Char.GetCharacterName(minimumCount, autogramInput.PluralSuffix) +
-                        letter.EntrySeparator).GetFrequencies(relevantAlphabetArray).ToByteArray()
-                    : (((byte)minimumCount).ToCardinalNumberStringPrecomputed() + " " +
-                        (minimumCount == 1 ? string.Empty : autogramInput.PluralSuffix) +
-                        letter.EntrySeparator).GetFrequencies(relevantAlphabetArray).ToByteArray();
+                var numericCount = letter.StringRepresentationFor((byte)minimumCount, includeSelf: false)
+                    .GetFrequencies(relevantAlphabetArray).ToByteArray();
                 for (int i = 0; i < numericCount.Length; i++)
                 {
                     letters[i].InvariantMinimumContribution += numericCount[i];
