@@ -227,7 +227,7 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        UnadjustedBaselineCount = 0,
+                        BaselineCount = 0,
                         IsVariable = true,
                         Forced = false,
                     })
@@ -248,7 +248,7 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        UnadjustedBaselineCount = 0,
+                        BaselineCount = 0,
                         IsVariable = true,
                         Forced = false,
                     })
@@ -269,7 +269,7 @@ namespace AutogramTest
                     {
                         Index = i,
                         Char = (char)('a' + i),
-                        UnadjustedBaselineCount = 0,
+                        BaselineCount = 0,
                         IsVariable = true,
                         Forced = false,
                     })
