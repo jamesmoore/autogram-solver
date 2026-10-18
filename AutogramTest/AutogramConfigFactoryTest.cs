@@ -175,7 +175,7 @@ namespace AutogramTest
         }
 
         [Fact]
-        public void Test_AutogramConfigFactory_With_Extended_Chars()
+        public void Test_AutogramConfigFactory_With_WordNamed_Chars()
         {
             var input = new AutogramInput
             {

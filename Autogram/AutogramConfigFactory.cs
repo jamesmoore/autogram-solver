@@ -1,4 +1,4 @@
-﻿namespace Autogram
+namespace Autogram
 {
     public class AutogramConfigFactory
     {
@@ -15,13 +15,13 @@
             // Match the renderer, which uses a plain separator join for whitespace conjunctions.
             var conjunction = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? string.Empty : autogramInput.Conjunction;
             var baselineString = (baselineTemplate + conjunction).ToLower();
-            var specialChars = autogramInput.Alphabet.Where(p => p.HasExtendedName()).Select(p =>
+            var wordNamedCharacters = autogramInput.Alphabet.Where(p => p.HasWordName()).Select(p =>
                 p.GetCharacterName(1, autogramInput.PluralSuffix) +
                 p.GetCharacterName(2, autogramInput.PluralSuffix)
                 ).ToList();
 
             // Ordinary characters' self-references do not make their counts variable.
-            // Only number words, formatting, suffixes, and extended names can do so.
+            // Only number words, formatting, suffixes, and word names can do so.
             var variableCharacters = Enumerable.Range(1, 99)
                 .SelectMany(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower())
                 .ToHashSet();
@@ -32,10 +32,10 @@
             var relevantAlphabetArray = (
                 baselineString +
                 autogramInput.Forced +
-                string.Concat(specialChars) +
+                string.Concat(wordNamedCharacters) +
                 string.Concat(variableCharacters)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
 
-            variableCharacters.UnionWith(relevantAlphabetArray.Where(p => p.HasExtendedName())
+            variableCharacters.UnionWith(relevantAlphabetArray.Where(p => p.HasWordName())
                 .SelectMany(p => p.GetCharacterName(1, autogramInput.PluralSuffix) +
                     p.GetCharacterName(2, autogramInput.PluralSuffix)));
 
@@ -112,7 +112,7 @@
 
             // Only guaranteed entries contribute a minimum. Preserve multiplicities:
             // both "comma" and "commas" contribute two m's, but only the plural has s.
-            foreach (var letter in variableLetters.Where(p => p.Char.HasExtendedName() && p.MinimumCount > 0).ToList())
+            foreach (var letter in variableLetters.Where(p => p.Char.HasWordName() && p.MinimumCount > 0).ToList())
             {
                 var singular = letter.Char.GetCharacterName(1, autogramInput.PluralSuffix);
                 var plural = letter.Char.GetCharacterName(2, autogramInput.PluralSuffix);

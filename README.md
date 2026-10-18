@@ -5,7 +5,7 @@ Uses basic heuristics, plus random variations to escape from infinite loops.
 
 Supports
 * Counting letters (a-z by default) but configurable in the alphabet parameter
-* Special characters - commas, apostrophes, hyphens, spaces if present in the alphabet parameter
+* Word-named characters - commas, apostrophes, hyphens, spaces if present in the alphabet parameter
 * Max 100 counts per character
 
 # Usage

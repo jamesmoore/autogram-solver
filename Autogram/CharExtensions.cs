@@ -1,4 +1,4 @@
-﻿namespace Autogram
+namespace Autogram
 {
     public static class CharExtensions
     {
@@ -32,7 +32,7 @@
             }
         }
 
-        public static bool HasExtendedName(this char character)
+        public static bool HasWordName(this char character)
         {
             return character.ToString() != character.GetCharacterName();
         }

@@ -1,4 +1,4 @@
-﻿
+
 using System.Diagnostics;
 using System.Numerics;
 
@@ -61,10 +61,9 @@ namespace Autogram
 
         /// <summary>
         /// The guaranteed self count of the character <c>Char</c>.
-        /// This represents the character 's self-reference in the list of counts.
-        /// Extended characters are not guaranteed to be present, so their self count is always 0.
-        /// Forced characters are guaranteed to be present, so their self count is always 1.
-        /// Non-Extended template and conjunction characters are guaranteed to be present.
+        /// Literal characters contribute a self-reference when present in the template
+        /// or conjunction, or when forced. Word-named characters contribute no literal
+        /// self-reference; their names are counted separately.
         /// </summary>
         public int GuaranteedSelfCount => IncludeSelfInCount && (BaselineCount > 0 || Forced) ? 1 : 0;
 
@@ -111,7 +110,7 @@ namespace Autogram
 
         public string EntrySeparator => OmitSeparator ? string.Empty : separator;
 
-        public bool IncludeSelfInCount => Char.HasExtendedName() == false;
+        public bool IncludeSelfInCount => Char.HasWordName() == false;
 
         public required bool Forced { get; init; }
 
@@ -129,7 +128,7 @@ namespace Autogram
         /// <summary>
         /// Formats a lookup entry, optionally excluding an ordinary character whose
         /// self-reference has already been included in the minimum count.
-        /// Extended character names are always retained in full.
+        /// Word names are always retained in full.
         /// </summary>
         internal string StringRepresentationFor(byte i, bool includeSelf = true)
         {
