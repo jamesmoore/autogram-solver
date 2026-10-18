@@ -60,8 +60,11 @@ namespace Autogram
         public required int BaselineCount { get; init; }
 
         /// <summary>
-        /// The minimum count this char will contribute to the character list.
-        /// Separator adjustments do not change whether the character is present in the template.
+        /// The guaranteed self count of the character <c>Char</c>.
+        /// This represents the character 's self-reference in the list of counts.
+        /// Extended characters are not guaranteed to be present, so their self count is always 0.
+        /// Forced characters are guaranteed to be present, so their self count is always 1.
+        /// Non-Extended template and conjunction characters are guaranteed to be present.
         /// </summary>
         public int GuaranteedSelfCount => IncludeSelfInCount && (BaselineCount > 0 || Forced) ? 1 : 0;
 

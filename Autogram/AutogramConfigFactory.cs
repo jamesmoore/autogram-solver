@@ -20,23 +20,24 @@
                 p.GetCharacterName(2, autogramInput.PluralSuffix)
                 ).ToList();
 
-            var pluralisedNumericStrings =
-                Enumerable.Range(0, 100).
-                Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).
-                Select((p, i) => p + " " + (i == 1 ? String.Empty : autogramInput.PluralSuffix) + autogramInput.SeparatorString).ToList();
+            // Ordinary characters' self-references do not make their counts variable.
+            // Only number words, formatting, suffixes, and extended names can do so.
+            var variableCharacters = Enumerable.Range(1, 99)
+                .SelectMany(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower())
+                .ToHashSet();
+            variableCharacters.Add(' ');
+            variableCharacters.UnionWith(autogramInput.PluralSuffix);
+            variableCharacters.UnionWith(autogramInput.SeparatorString);
 
             var relevantAlphabetArray = (
                 baselineString +
                 autogramInput.Forced +
                 string.Concat(specialChars) +
-                pluralisedNumericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
+                string.Concat(variableCharacters)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
 
-            var perCharacterLetters = relevantAlphabetArray.Select(p =>
-                Enumerable.Range(1, 99). // Starting at 1. Zero count chars won't be included
-                Select(q => ((byte)q).ToCardinalNumberStringPrecomputed() + " " + (p.HasExtendedName() ? p.GetCharacterName(q, autogramInput.PluralSuffix) : "") + autogramInput.SeparatorString).ToList()
-                ).ToList();
-
-            var concatenated = perCharacterLetters.SelectMany(p => p).Aggregate((p, q) => p + q).Distinct();
+            variableCharacters.UnionWith(relevantAlphabetArray.Where(p => p.HasExtendedName())
+                .SelectMany(p => p.GetCharacterName(1, autogramInput.PluralSuffix) +
+                    p.GetCharacterName(2, autogramInput.PluralSuffix)));
 
             var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(autogramInput.SeparatorString, autogramInput.PluralSuffix)
             {
@@ -44,7 +45,7 @@
                 Char = p,
                 Forced = autogramInput.Forced.ToLower().Contains(p),
                 BaselineCount = baselineString.Count(c => c == p),
-                IsVariable = concatenated.Contains(p) || autogramInput.PluralSuffix.Contains(p),
+                IsVariable = variableCharacters.Contains(p),
             }).ToList();
 
             // Move the missing trailing separators into guaranteed entries, keeping
