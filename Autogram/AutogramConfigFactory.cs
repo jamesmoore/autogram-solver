@@ -15,9 +15,8 @@ namespace Autogram
             // Match the renderer, which uses a plain separator join for whitespace conjunctions.
             var conjunction = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? string.Empty : autogramInput.Conjunction;
             var baselineString = (baselineTemplate + conjunction).ToLower();
-            var wordNamedCharacters = autogramInput.Alphabet.Where(p => p.HasWordName()).Select(p =>
-                p.GetCharacterName(1, autogramInput.PluralSuffix) +
-                p.GetCharacterName(2, autogramInput.PluralSuffix)
+            var wordNamedCharacters = autogramInput.Alphabet.Select(p =>
+                GetWordNameCharacters(p, autogramInput.PluralSuffix)
                 ).ToList();
 
             // Ordinary characters' self-references do not make their counts variable.
@@ -35,9 +34,7 @@ namespace Autogram
                 string.Concat(wordNamedCharacters) +
                 string.Concat(variableCharacters)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
 
-            variableCharacters.UnionWith(relevantAlphabetArray.Where(p => p.HasWordName())
-                .SelectMany(p => p.GetCharacterName(1, autogramInput.PluralSuffix) +
-                    p.GetCharacterName(2, autogramInput.PluralSuffix)));
+            variableCharacters.UnionWith(relevantAlphabetArray.SelectMany(p => GetWordNameCharacters(p, autogramInput.PluralSuffix)));
 
             var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(autogramInput.SeparatorString, autogramInput.PluralSuffix)
             {
@@ -126,6 +123,15 @@ namespace Autogram
 
             autogramConfig.Validate();
             return autogramConfig;
+        }
+
+        private static string GetWordNameCharacters(char p, string pluralSuffix)
+        {
+            if (p.HasWordName())
+            {
+                return p.GetCharacterName(1, pluralSuffix) + p.GetCharacterName(2, pluralSuffix);
+            }
+            return string.Empty;
         }
 
         private int GetOrder(char p)
