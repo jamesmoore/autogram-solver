@@ -1,10 +1,50 @@
-﻿using Autogram;
+using Autogram;
 
 namespace AutogramTest
 {
     public class AutogramConfigFactoryTest
     {
         private const string SeparatorString = ", ";
+
+        [Theory]
+        [InlineData(",", ",,,{0}", 2)]
+        [InlineData(",", "{0}", 0)]
+        public void VariablePunctuationNameMinimumPreservesRepeatedCharacters(string separator, string template, int expected)
+        {
+            var config = new AutogramConfigFactory().MakeAutogramConfig(new AutogramInput
+            {
+                Alphabet = "abcdefghijklmnopqrstuvwxyz,",
+                Template = template,
+                Conjunction = "",
+                SeparatorString = separator,
+                PluralSuffix = "",
+                Forced = "e"
+            });
+
+            Assert.Equal(expected, config.AllChars.Single(p => p.Char == 'm').GuaranteedNameContribution);
+            Assert.Equal(0, config.AllChars.Single(p => p.Char == 's').GuaranteedNameContribution);
+        }
+
+        [Theory]
+        [InlineData(",{0}", 1)]
+        [InlineData(",,{0}", 2)]
+        public void InvariantPunctuationAddsExactNameToMinimum(string template, int commaCount)
+        {
+            var config = new AutogramConfigFactory().MakeAutogramConfig(new AutogramInput
+            {
+                Alphabet = "abcdefghijklmnopqrstuvwxyz,",
+                Template = template,
+                Conjunction = "",
+                SeparatorString = "",
+                PluralSuffix = "",
+                Forced = ""
+            });
+
+            Assert.Equal(commaCount, config.AllChars.Single(p => p.Char == ',').MinimumCount);
+            Assert.Equal(2, config.AllChars.Single(p => p.Char == 'm').InvariantMinimumContribution);
+            Assert.Equal(commaCount == 1 ? 0 : 1, config.AllChars.Single(p => p.Char == 's').InvariantMinimumContribution);
+            Assert.All(config.VariableChars, p => Assert.True(p.MinimumCount >= p.VariableBaselineCount));
+        }
 
         [Fact]
         public void Test_AutogramConfigFactory_Single_Invariant()
@@ -135,7 +175,7 @@ namespace AutogramTest
         }
 
         [Fact]
-        public void Test_AutogramConfigFactory_With_Extended_Chars()
+        public void Test_AutogramConfigFactory_With_WordNamed_Chars()
         {
             var input = new AutogramInput
             {
@@ -154,62 +194,20 @@ namespace AutogramTest
             var allChars = config.AllChars;
             Assert.Equal(7, allChars.Count);
 
-            var letterConfigA = allChars.First();
-            Assert.Equal('a', letterConfigA.Char);
-            Assert.Equal(0, letterConfigA.Index);
-            Assert.False(letterConfigA.IsVariable); // in cardinals
-            Assert.Equal(5, letterConfigA.BaselineCount); // 1 (template) + 1 (conjunction) + 3 (Apostrophe, spAce, commA) 
-            Assert.Equal(6, letterConfigA.MinimumCount); // baseline + 1 for self
-            Assert.Null(letterConfigA.VariableBaselineCount);
-
-            var letterConfigE = allChars.Skip(1).First();
-            Assert.Equal('e', letterConfigE.Char);
-            Assert.Equal(1, letterConfigE.Index);
-            Assert.True(letterConfigE.IsVariable); // in cardinals
-            Assert.Equal(4, letterConfigE.BaselineCount); // 1 (template) + 3 (apostrophE, spacE, hyphEn) 
-            Assert.Equal(5, letterConfigE.MinimumCount); // baseline + 1 for self
-            Assert.Equal(4, letterConfigE.VariableBaselineCount); 
-
-            var letterConfigR = allChars.Skip(2).First();
-            Assert.Equal('r', letterConfigR.Char);
-            Assert.Equal(2, letterConfigR.Index);
-            Assert.True(letterConfigR.IsVariable);
-            Assert.Equal(1, letterConfigR.BaselineCount); // 1 (apostRophe)  
-            Assert.Equal(2, letterConfigR.MinimumCount); // baseline + 1 for self 
-            Assert.Equal(1, letterConfigR.VariableBaselineCount);
-
-            var letterConfigSpace = allChars.Skip(3).First();
-            Assert.Equal(' ', letterConfigSpace.Char);
-            Assert.Equal(3, letterConfigSpace.Index);
-            Assert.True(letterConfigSpace.IsVariable);
-            Assert.Equal(2, letterConfigSpace.BaselineCount); // 4 in template+conjunction BUT 2 deducted (end of listify)
-            Assert.Equal(4, letterConfigSpace.MinimumCount); // baseline + 2 for the "a" invariant
-            Assert.Equal(4, letterConfigSpace.VariableBaselineCount);
-
-            var letterConfigApostrophe = allChars.Skip(4).First();
-            Assert.Equal('\'', letterConfigApostrophe.Char);
-            Assert.Equal(4, letterConfigApostrophe.Index);
-            Assert.True(letterConfigApostrophe.IsVariable);
-            Assert.Equal(0, letterConfigApostrophe.BaselineCount); // There are 0 in the template
-            Assert.Equal(1, letterConfigApostrophe.MinimumCount); // baseline + 1 for the "a's"
-            Assert.Equal(1, letterConfigApostrophe.VariableBaselineCount);
-
-            var letterConfigComma = allChars.Skip(5).First();
-            Assert.Equal(',', letterConfigComma.Char);
-            Assert.Equal(5, letterConfigComma.Index);
-            Assert.True(letterConfigComma.IsVariable);
-            Assert.Equal(-2, letterConfigComma.BaselineCount); // 0 in template+conjunction BUT 2 deducted (end of listify)
-            Assert.Equal(-1, letterConfigComma.MinimumCount); // baseline + 1 for the "a's" 
-            Assert.Equal(-1, letterConfigComma.VariableBaselineCount);
-
-            var letterConfigHyphen = allChars.Skip(6).First();
-            Assert.Equal('-', letterConfigHyphen.Char);
-            Assert.Equal(6, letterConfigHyphen.Index);
-            Assert.True(letterConfigHyphen.IsVariable);
-            Assert.Equal(0, letterConfigHyphen.BaselineCount); // Zero in template and cardinals
-            Assert.Equal(0, letterConfigHyphen.MinimumCount); // No reason to increment from baseline
-            Assert.Equal(0, letterConfigHyphen.VariableBaselineCount);
-
+            var a = allChars.Single(p => p.Char == 'a');
+            Assert.True(a.IsVariable);
+            Assert.Equal(2, a.BaselineCount);
+            Assert.Equal(4, a.MinimumCount);
+            Assert.Equal(2, a.VariableBaselineCount);
+            var e = allChars.Single(p => p.Char == 'e');
+            Assert.Equal(1, e.BaselineCount);
+            Assert.Equal(3, e.MinimumCount);
+            Assert.Equal(1, e.VariableBaselineCount);
+            Assert.Equal(0, allChars.Single(p => p.Char == 'r').MinimumCount);
+            Assert.Equal(4, allChars.Single(p => p.Char == ' ').MinimumCount);
+            Assert.Equal(0, allChars.Single(p => p.Char == '\'').MinimumCount);
+            Assert.Equal(0, allChars.Single(p => p.Char == ',').MinimumCount);
+            Assert.True(allChars.Single(p => p.Char == '-').IsVariable);
             Assert.All(allChars, TestLetterConfig);
             Assert.All(allChars.Where(p => p.IsVariable), TestLetterConfig);
         }
@@ -234,18 +232,18 @@ namespace AutogramTest
             Assert.Equal(2, comma.MinimumCount);
 
             var s = config.AllChars.Single(p => p.Char == 's');
-            // The generic numeric table includes the plural suffix; the character-specific
-            // table omits "commas", whose letters are already in the baseline.
+            // Both minimum and baseline contributions include the exact plural name.
+            // The punctuation name is no longer included in the template baseline.
             Assert.Equal(1, s.InvariantMinimumContribution);
-            Assert.Equal(0, s.InvariantBaselineContribution);
-            Assert.Equal(3, s.MinimumCount);
+            Assert.Equal(1, s.InvariantBaselineContribution);
+            Assert.Equal(1, s.MinimumCount);
             Assert.Equal(1, s.VariableBaselineCount);
             Assert.All(config.AllChars, TestLetterConfig);
         }
 
         [Theory]
-        [InlineData("a{0}e", 1, 3)]
-        [InlineData("a{0}ee", 2, 4)]
+        [InlineData("a{0}e", 1, 4)]
+        [InlineData("a{0}ee", 2, 5)]
         public void LetterInSeparator_RetainsGuaranteedSelfCount(
             string template, int baselineCount, int minimumCount)
         {
@@ -262,8 +260,7 @@ namespace AutogramTest
             var config = new AutogramConfigFactory().MakeAutogramConfig(input);
 
             var e = config.AllChars.Single(p => p.Char == 'e');
-            Assert.Equal(baselineCount, e.UnadjustedBaselineCount);
-            Assert.Equal(baselineCount - 2, e.BaselineCount);
+            Assert.Equal(baselineCount, e.BaselineCount);
             Assert.Equal(1, e.GuaranteedSelfCount);
             Assert.Equal(minimumCount, e.MinimumCount);
             Assert.Equal(minimumCount - 1, e.VariableBaselineCount);
@@ -280,3 +277,5 @@ namespace AutogramTest
         }
     }
 }
+
+

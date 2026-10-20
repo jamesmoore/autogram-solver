@@ -1,4 +1,4 @@
-﻿namespace Autogram
+namespace Autogram
 {
     public class AutogramConfigFactory
     {
@@ -11,35 +11,59 @@
         {
             var baselineTemplate = string.Format(autogramInput.Template, String.Empty);
 
-            // CAVEAT#1: There is an assumption that the pluralised punctuation words will be present in the output
-            // This may affect unusual cases eg, very short alphabets where there is only a single comma, but comma was included in the alphabet.
-            var specialChars = autogramInput.Alphabet.Where(p => p.HasExtendedName()).Select(p => p.GetCharacterName(2, autogramInput.PluralSuffix)).ToList();
+            // A nonempty conjunction assumes at least two rendered entries.
+            // Match the renderer, which uses a plain separator join for whitespace conjunctions.
+            var conjunction = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? string.Empty : autogramInput.Conjunction;
+            var baselineString = (baselineTemplate + conjunction).ToLower();
+            var wordNamedCharacters = autogramInput.Alphabet.Select(p =>
+                GetWordNameCharacters(p, autogramInput.PluralSuffix)
+                ).ToList();
 
-            var baselineString = (baselineTemplate + autogramInput.Conjunction + (specialChars.Count != 0 ? specialChars.Aggregate((p, q) => p + q) : string.Empty)).ToLower();
-
-            var pluralisedNumericStrings = 
-                Enumerable.Range(0, 100).
-                Select(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower()).
-                Select((p, i) => p + " " + (i == 1 ? String.Empty : autogramInput.PluralSuffix) + autogramInput.SeparatorString).ToList();
+            // Ordinary characters' self-references do not make their counts variable.
+            // Only number words, formatting, suffixes, and word names can do so.
+            var variableCharacters = Enumerable.Range(1, 99)
+                .SelectMany(p => ((byte)p).ToCardinalNumberStringPrecomputed().ToLower())
+                .ToHashSet();
+            variableCharacters.Add(' ');
+            variableCharacters.UnionWith(autogramInput.PluralSuffix);
+            variableCharacters.UnionWith(autogramInput.SeparatorString);
 
             var relevantAlphabetArray = (
                 baselineString +
                 autogramInput.Forced +
-                pluralisedNumericStrings.Skip(1).Aggregate((p, q) => p + q)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
+                string.Concat(wordNamedCharacters) +
+                string.Concat(variableCharacters)).ToLower().Distinct().Where(autogramInput.Alphabet.Contains).OrderBy(p => GetOrder(p)).ToList();
 
-            // an array of counts for the cardinal numbers plus possible plural and separator
-            var pluralisedNumericStringsCounts = pluralisedNumericStrings.Select(p => p.GetFrequencies(relevantAlphabetArray).ToByteArray()).ToList();
-
-            var isVariable = relevantAlphabetArray.Select((p, i) => pluralisedNumericStringsCounts.Skip(1).Any(q => q[i] > 0)).ToList(); // skip(1) is to exclude "zero"
+            variableCharacters.UnionWith(relevantAlphabetArray.SelectMany(p => GetWordNameCharacters(p, autogramInput.PluralSuffix)));
 
             var letters = relevantAlphabetArray.Select((p, i) => new CharacterConfig(autogramInput.SeparatorString, autogramInput.PluralSuffix)
             {
                 Index = i,
                 Char = p,
                 Forced = autogramInput.Forced.ToLower().Contains(p),
-                UnadjustedBaselineCount = baselineString.Count(c => c == p),
-                IsVariable = isVariable[i],
+                BaselineCount = baselineString.Count(c => c == p),
+                IsVariable = variableCharacters.Contains(p),
             }).ToList();
+
+            // Move the missing trailing separators into guaranteed entries, keeping
+            // all baselines and lookup contributions nonnegative for byte solvers.
+            // Only tracked separator characters require this correction.
+            if (autogramInput.SeparatorString.Any(relevantAlphabetArray.Contains))
+            {
+                var omittedSeparators = string.IsNullOrWhiteSpace(autogramInput.Conjunction) ? 1 : 2;
+                var guaranteedEntries = letters.Where(p => p.MinimumCount > 0)
+                    .Take(omittedSeparators).ToList();
+                if (guaranteedEntries.Count < omittedSeparators)
+                {
+                    throw new ArgumentException(
+                        $"Counting separator characters requires at least {omittedSeparators} guaranteed list entries in the template or forced alphabet.",
+                        nameof(autogramInput));
+                }
+                foreach (var letter in guaranteedEntries)
+                {
+                    letter.OmitSeparator = true;
+                }
+            }
 
             AutogramConfig autogramConfig = new()
             {
@@ -60,12 +84,14 @@
             {
                 // The minimum count of the invariant character is already its exact final count.
                 var minimumCount = letter.MinimumCount;
-                
+                if (minimumCount == 0) continue;
+
                 // Add the invariant's number word, plural suffix, and separator to the
                 // minimum counts. The character itself was accounted for when its
                 // MinimumCount was initialized.
                 // Example: "seven a's" contributes two e's, two s's, one v, one n, etc.
-                var numericCount = pluralisedNumericStringsCounts[minimumCount];
+                var numericCount = letter.StringRepresentationFor((byte)minimumCount, includeSelf: false)
+                    .GetFrequencies(relevantAlphabetArray).ToByteArray();
                 for (int i = 0; i < numericCount.Length; i++)
                 {
                     letters[i].InvariantMinimumContribution += numericCount[i];
@@ -81,8 +107,31 @@
                 }
             }
 
+            // Only guaranteed entries contribute a minimum. Preserve multiplicities:
+            // both "comma" and "commas" contribute two m's, but only the plural has s.
+            foreach (var letter in variableLetters.Where(p => p.Char.HasWordName() && p.MinimumCount > 0).ToList())
+            {
+                var singular = letter.Char.GetCharacterName(1, autogramInput.PluralSuffix);
+                var plural = letter.Char.GetCharacterName(2, autogramInput.PluralSuffix);
+                foreach (var target in letters)
+                {
+                    target.GuaranteedNameContribution += Math.Min(
+                        singular.Count(c => c == target.Char),
+                        plural.Count(c => c == target.Char));
+                }
+            }
+
             autogramConfig.Validate();
             return autogramConfig;
+        }
+
+        private static string GetWordNameCharacters(char p, string pluralSuffix)
+        {
+            if (p.HasWordName())
+            {
+                return p.GetCharacterName(1, pluralSuffix) + p.GetCharacterName(2, pluralSuffix);
+            }
+            return string.Empty;
         }
 
         private int GetOrder(char p)

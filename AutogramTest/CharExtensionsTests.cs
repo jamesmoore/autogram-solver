@@ -37,9 +37,9 @@ namespace AutogramTest
         [Theory]
         [InlineData('a', false)]
         [InlineData(',', true)]
-        public void HasExtendedName_ReturnsExpected(char character, bool expected)
+        public void HasWordName_ReturnsExpected(char character, bool expected)
         {
-            var result = character.HasExtendedName();
+            var result = character.HasWordName();
             Assert.Equal(expected, result);
         }
 

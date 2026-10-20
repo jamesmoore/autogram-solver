@@ -1,4 +1,4 @@
-﻿using Autogram.Extensions;
+using Autogram.Extensions;
 
 namespace AutogramTest.Extensions
 {
@@ -36,7 +36,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void GetStatedFrequency_Extended_Char_Tests()
+        public void GetStatedFrequency_WordNamed_Char_Tests()
         {
             // https://en.wikipedia.org/wiki/Autogram
             const string example = @"Ten spaces, two commas, three a's.";
@@ -84,7 +84,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void IsAutogram_Invalid_Extended_Test()
+        public void IsAutogram_Invalid_WordNamed_Test()
         {
             const string InvalidAutogram = "This sentence is an autogram and it contains ten a's, four c's, three d's, thirty-three e's, ten f's, four g's, fifteen h's, fourteen i's, three l's, four m's, twenty n's, sixteen o's, four p's, seventeen r's, thirty-two s's, thirty-three t's, eight u's, two v's, six w's, three x's, eight y's, one apostrophe, twenty-two commas and finally four hyphens.";
             Assert.False(InvalidAutogram.IsAutogram());
@@ -102,7 +102,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void IsAutogram_Extended_Char_Success_Test()
+        public void IsAutogram_WordNamed_Char_Success_Test()
         {
             const string example = @"
                 Only the fool would take trouble to verify that his sentence was composed of 
@@ -116,7 +116,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void IsAutogram_Extended_Char_Fail_Test()
+        public void IsAutogram_WordNamed_Char_Fail_Test()
         {
             const string example = @"
                 Only the fool would take trouble to verify that his sentence was composed of 

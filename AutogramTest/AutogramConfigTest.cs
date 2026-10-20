@@ -76,7 +76,7 @@ namespace AutogramTest
             {
                 Index = index,
                 Char = character,
-                UnadjustedBaselineCount = 0,
+                BaselineCount = 0,
                 InvariantMinimumContribution = minimumCount,
                 IsVariable = isVariable,
                 Forced = false,
