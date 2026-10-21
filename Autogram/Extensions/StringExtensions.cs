@@ -17,15 +17,16 @@ namespace Autogram.Extensions
         public static Dictionary<char, int> GetStatedFrequency(this string sentence)
         {
             var lower = sentence.ToLower();
-            lower = lower.Replace("commas", ",'s");
-            lower = lower.Replace("hyphens", "-'s");
-            lower = lower.Replace("apostrophes", "''s");
-            lower = lower.Replace("spaces", " 's");
+            // Replace all plural names before singular names, which may be their prefixes.
+            foreach (var (character, names) in CharacterNames.NamedCharacters)
+            {
+                lower = lower.Replace(names.Plural, character + "'s");
+            }
 
-            lower = lower.Replace("comma", ",");
-            lower = lower.Replace("hyphen", "-");
-            lower = lower.Replace("apostrophe", "'");
-            lower = lower.Replace("space", " ");
+            foreach (var (character, names) in CharacterNames.NamedCharacters)
+            {
+                lower = lower.Replace(names.Singular, character.ToString());
+            }
 
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
             // Punctuation declarations also need to end before punctuation, whitespace, or end of input.

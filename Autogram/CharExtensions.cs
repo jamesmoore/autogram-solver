@@ -4,20 +4,16 @@ namespace Autogram
     {
         private static string GetCharacterName(this char character)
         {
-            if (character == ',') return "comma";
-            if (character == '-') return "hyphen";
-            if (character == '\'') return "apostrophe";
-            if (character == ' ') return "space";
-            return character.ToString();
+            return CharacterNames.NamedCharacters.TryGetValue(character, out var names)
+                ? names.Singular
+                : character.ToString();
         }
 
         private static string GetPluralisedCharacterName(this char character, string pluralSuffix)
         {
-            if (character == ',') return "commas";
-            if (character == '-') return "hyphens";
-            if (character == '\'') return "apostrophes";
-            if (character == ' ') return "spaces";
-            return character + pluralSuffix;
+            return CharacterNames.NamedCharacters.TryGetValue(character, out var names)
+                ? names.Plural
+                : character + pluralSuffix;
         }
 
         public static string GetCharacterName(this char character, int numberOf, string pluralSuffix)
@@ -34,7 +30,7 @@ namespace Autogram
 
         public static bool HasWordName(this char character)
         {
-            return character.ToString() != character.GetCharacterName();
+            return CharacterNames.NamedCharacters.ContainsKey(character);
         }
     }
 }
