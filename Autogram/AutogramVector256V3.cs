@@ -159,5 +159,7 @@ namespace Autogram
         }
 
         public int HistoryCount => history.Count;
+
+        public IEnumerable<ByteHistoryKey32> History => history;
     }
 }

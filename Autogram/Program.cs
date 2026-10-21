@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
@@ -89,6 +89,12 @@ var quietOption = new Option<bool>("--quiet", "-q")
     DefaultValueFactory = _ => false
 };
 
+var reportHashMetricsOption = new Option<bool>("--report-hash-metrics")
+{
+    Description = "Report hash-code collision metrics for the current search history after success",
+    DefaultValueFactory = _ => false
+};
+
 var rootCommand = new RootCommand("Autogram searcher")
 {
     templateOption,
@@ -99,6 +105,7 @@ var rootCommand = new RootCommand("Autogram searcher")
     forcedRegexOption,
     resetOption,
     quietOption,
+    reportHashMetricsOption,
 };
 
 rootCommand.SetAction(parseResult =>
@@ -111,7 +118,8 @@ rootCommand.SetAction(parseResult =>
         parseResult.GetValue(separatorOption),
         parseResult.GetValue(forcedRegexOption),
         parseResult.GetValue(resetOption),
-        parseResult.GetValue(quietOption)
+        parseResult.GetValue(quietOption),
+        parseResult.GetValue(reportHashMetricsOption)
         );
     return 0;
 });
@@ -127,7 +135,8 @@ void DoAutogramSearch(
     string separator,
     string forcedRegexString,
     int? reset,
-    bool quiet)
+    bool quiet,
+    bool reportHashMetrics)
 {
     Console.Write("\x1b]9;4;3\x07"); // https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences
 
@@ -200,6 +209,30 @@ void DoAutogramSearch(
         {
             var commandLine = GetCommandLine(seed, template, conjunction, forcedRegexString, alphabetRegexString);
             ReportSuccess(quiet, autogram.GetAutogramSnapshot().ToString(), i, randomized, sw, status, commandLine);
+
+            if (reportHashMetrics)
+            {
+                var hashGroupSizes = autogram.History
+                    .GroupBy(p => p.GetHashCode())
+                    .Select(g => g.Count())
+                    .ToArray();
+
+                int historyCount = autogram.HistoryCount;
+                int distinctHashes = hashGroupSizes.Length;
+                int excessCollisionEntries = historyCount - distinctHashes;
+                double collisionRate = historyCount == 0 ? 0 : (double)excessCollisionEntries / historyCount;
+                long observedPairs = hashGroupSizes.Sum(count => (long)count * (count - 1) / 2);
+                // Expected colliding pairs for uniformly distributed 32-bit hash codes.
+                double expectedPairs = (double)historyCount * (historyCount - 1) / (2 * 4294967296.0);
+                int largestHashGroup = hashGroupSizes.DefaultIfEmpty(0).Max();
+
+                Console.WriteLine("Hash metrics (current search history):");
+                Console.WriteLine($"History entries: {historyCount:N0}");
+                Console.WriteLine($"Distinct hash codes: {distinctHashes:N0}");
+                Console.WriteLine($"Excess collision entries: {excessCollisionEntries:N0} ({collisionRate:P4})");
+                Console.WriteLine($"Colliding pairs: {observedPairs:N0} observed / {expectedPairs:N4} expected");
+                Console.WriteLine($"Largest hash group: {largestHashGroup:N0}");
+            }
             break;
         }
 
