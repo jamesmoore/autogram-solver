@@ -76,6 +76,17 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
+        public void IsAutogram_Including_Punctuation_Successful_Test()
+        {
+            const string example = @"This is an autogram including commas:
+                seven a's, four c's, three d's, thirty-one e's, five f's, three g's, ten h's, thirteen i's, 
+                three l's, six m's, sixteen n's, seven o's, twelve r's, thirty s's, twenty t's, five u's, 
+                seven v's, three w's, three x's, four y's and nineteen commas";
+
+            Assert.True(example.IsAutogram());
+        }
+
+        [Fact]
         public void IsAutogram_Invalid_Test()
         {
             const string example = @"Not an autogram.";
