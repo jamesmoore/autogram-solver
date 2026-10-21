@@ -210,7 +210,30 @@ This is an autogram with punctuation and it has fifteen a's, four c's, four d's,
 
 # Appendix: `IAutogramFinder` Implementations
 
-The solver interface is `IAutogramFinder`. Multiple implementations exist, primarily as a progression of performance experiments. `AutogramBytesNoStringsV5g` is the **active default** used by the application.
+The solver interface is `IAutogramFinder`. Multiple implementations exist, primarily as a progression of performance experiments. `AutogramVector256V3` is the **active default** used by the application, with `ByteHistoryKey32SplitHash` as its history key.
+
+## `ByteHistoryKey32SplitHash`
+
+`ByteHistoryKey32SplitHash` is an immutable struct that stores up to 32 bytes of letter counts in four `ulong` chunks, plus the original length. Like `ByteHistoryKey32`, it compares all chunks and the length for equality, so trailing zero bytes remain significant. The original key remains available for comparison and use by the other finder implementations.
+
+The new key hashes the lower and upper 32-bit halves of each chunk separately using `HashCode.Add`, then adds the length. The original key passes whole `ulong` chunks to `HashCode.Combine`, which first calls `ulong.GetHashCode()`. That XORs the two halves together, losing information before the final mixing and causing excessive collisions for structured letter counts. Hashing the halves separately avoids this loss. Hash collisions still use full equality checks, so they affect lookup performance rather than search correctness.
+
+For seed `1212292607`, both keys produced the same solution after 13,720,286 iterations. The observed history hash metrics were:
+
+| Metric | `ByteHistoryKey32` | `ByteHistoryKey32SplitHash` |
+|---|---:|---:|
+| Colliding pairs | 6,306,299 | 22,008 |
+| Expected pairs with uniform 32-bit hashing | 21,914.7459 | 21,914.7459 |
+| Excess collision entries | 24.1408% | 0.1603% |
+| Largest hash group | 30 | 3 |
+
+These are results from individual runs; `System.HashCode` uses a process-specific random seed, so exact collision totals can vary. To report the metrics after a successful search, run:
+
+```powershell
+.\Autogram.exe --seed 1212292607 --report-hash-metrics
+```
+
+## Finder comparison
 
 | Implementation | Count type | History key | Randomization strategy | Notes |
 |---|---|---|---|---|
@@ -225,7 +248,7 @@ The solver interface is `IAutogramFinder`. Multiple implementations exist, prima
 | `AutogramBytesNoStringsV5i` | `byte[]` | `HashSet<ByteHistoryKey64>` | Offsets all mismatched counts | Based on `V5g`, but pre-flattens `variableNumericCounts` from `[a][b][c]` to `[a*b][c]` to remove one lookup level; included in the benchmark suite |
 | `AutogramVector256` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Based on `V5i`, but precomputes each flattened numeric-count row as a single `Vector256<byte>` with zero padding up to 32 bytes; included in the benchmark suite |
 | `AutogramVector256V2` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Based on `AutogramVector256`, but stores the zero-count numeric row as `Vector256<byte>.Zero` so the tight loop can skip a conditional; included in the benchmark suite |
-| `AutogramVector256V3` | `byte[]` | `HashSet<ByteHistoryKey32>` (max 32 chars) | Offsets all mismatched counts | Based on `AutogramVector256`, but simplifies interaction with the history `HashSet` by using `Add` directly to detect duplicates in both `Iterate` and `Randomize`; included in the benchmark suite **active default** |
+| `AutogramVector256V3` | `byte[]` | `HashSet<ByteHistoryKey32SplitHash>` (max 32 chars) | Offsets all mismatched counts | Based on `AutogramVector256`, but simplifies interaction with the history `HashSet` by using `Add` directly to detect duplicates in both `Iterate` and `Randomize`; included in the benchmark suite **active default** |
 | `AutogramVector512` | `byte[]` | `HashSet<ByteHistoryKey64>` (max 64 chars) | Offsets all mismatched counts | Based on `V5i`, but precomputes each flattened numeric-count row as a single `Vector512<byte>` with zero padding up to 64 bytes; included in the benchmark suite |
 | `AutogramBytesNoStringsV5h<THistoryKey>` | `byte[]` | `HashSet<THistoryKey>` | Offsets all mismatched counts | Generic base class parameterised over any `IByteHistoryKey` struct |
 | `AutogramBytesNoStringsV5h16` | `byte[]` | `HashSet<ByteHistoryKey16>` (max 16 chars) | Offsets all mismatched counts | Concrete wrapper of V5h |

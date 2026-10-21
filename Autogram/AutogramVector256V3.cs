@@ -10,7 +10,7 @@ namespace Autogram
     /// </summary>
     public class AutogramVector256V3 : IAutogramFinder
     {
-        private readonly HashSet<ByteHistoryKey32> history = [];
+        private readonly HashSet<ByteHistoryKey32SplitHash> history = [];
         private readonly Random random;
 
         private readonly byte[] proposedCounts;
@@ -41,7 +41,7 @@ namespace Autogram
 
             var variableChars = config.VariableChars.ToList();
             variableAlphabetCount = variableChars.Count;
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(variableAlphabetCount, ByteHistoryKey32.MaxLength);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(variableAlphabetCount, ByteHistoryKey32SplitHash.MaxLength);
 
             var variableNumericCounts = config.GetVariableNumericCounts();
             var variableNumericCountsFlattened = variableNumericCounts.SelectMany(p => p).ToArray();
@@ -67,7 +67,7 @@ namespace Autogram
         /// <returns>The status of the current guess.</returns>
         public Status Iterate()
         {
-            var computedKey = new ByteHistoryKey32(computedCounts);
+            var computedKey = new ByteHistoryKey32SplitHash(computedCounts);
             var randomize = history.Add(computedKey) == false; // randomize if already exists in history
 
             if (randomize)
@@ -136,7 +136,7 @@ namespace Autogram
                         : OffsetGuess(computedCount, variableMinimumCount[i], randomizationLevel);
                 }
 
-                ByteHistoryKey32 proposedKey = new(proposedCounts);
+                ByteHistoryKey32SplitHash proposedKey = new(proposedCounts);
                 if (history.Add(proposedKey))
                 {
                     return;
@@ -160,6 +160,6 @@ namespace Autogram
 
         public int HistoryCount => history.Count;
 
-        public IEnumerable<ByteHistoryKey32> History => history;
+        public IEnumerable<ByteHistoryKey32SplitHash> History => history;
     }
 }
