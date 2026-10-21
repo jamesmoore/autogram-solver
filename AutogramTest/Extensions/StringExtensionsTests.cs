@@ -1,4 +1,4 @@
-﻿using Autogram.Extensions;
+using Autogram.Extensions;
 
 namespace AutogramTest.Extensions
 {
@@ -36,7 +36,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void GetStatedFrequency_Extended_Char_Tests()
+        public void GetStatedFrequency_WordNamed_Char_Tests()
         {
             // https://en.wikipedia.org/wiki/Autogram
             const string example = @"Ten spaces, two commas, three a's.";
@@ -46,6 +46,21 @@ namespace AutogramTest.Extensions
             Assert.Equal(3, result['a']);
             Assert.Equal(2, result[',']);
             Assert.Equal(10, result[' ']);
+        }
+
+        [Theory]
+        [InlineData("one apostrophe,", '\'', 1)]
+        [InlineData("one apostrophe and", '\'', 1)]
+        [InlineData("one apostrophe", '\'', 1)]
+        [InlineData("two apostrophes,", '\'', 2)]
+        [InlineData("one comma,", ',', 1)]
+        [InlineData("one hyphen.", '-', 1)]
+        [InlineData("one space.", ' ', 1)]
+        public void GetStatedFrequency_Punctuation_Tests(string sentence, char character, int count)
+        {
+            var result = sentence.GetStatedFrequency();
+
+            Assert.Equal(count, result[character]);
         }
 
         [Fact]
@@ -61,11 +76,29 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
+        public void IsAutogram_Including_Punctuation_Successful_Test()
+        {
+            const string example = @"This is an autogram including commas:
+                seven a's, four c's, three d's, thirty-one e's, five f's, three g's, ten h's, thirteen i's, 
+                three l's, six m's, sixteen n's, seven o's, twelve r's, thirty s's, twenty t's, five u's, 
+                seven v's, three w's, three x's, four y's and nineteen commas";
+
+            Assert.True(example.IsAutogram());
+        }
+
+        [Fact]
         public void IsAutogram_Invalid_Test()
         {
             const string example = @"Not an autogram.";
 
             Assert.False(example.IsAutogram());
+        }
+
+        [Fact]
+        public void IsAutogram_Invalid_WordNamed_Test()
+        {
+            const string InvalidAutogram = "This sentence is an autogram and it contains ten a's, four c's, three d's, thirty-three e's, ten f's, four g's, fifteen h's, fourteen i's, three l's, four m's, twenty n's, sixteen o's, four p's, seventeen r's, thirty-two s's, thirty-three t's, eight u's, two v's, six w's, three x's, eight y's, one apostrophe, twenty-two commas and finally four hyphens.";
+            Assert.False(InvalidAutogram.IsAutogram());
         }
 
         [Fact]
@@ -80,7 +113,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void IsAutogram_Extended_Char_Success_Test()
+        public void IsAutogram_WordNamed_Char_Success_Test()
         {
             const string example = @"
                 Only the fool would take trouble to verify that his sentence was composed of 
@@ -94,7 +127,7 @@ namespace AutogramTest.Extensions
         }
 
         [Fact]
-        public void IsAutogram_Extended_Char_Fail_Test()
+        public void IsAutogram_WordNamed_Char_Fail_Test()
         {
             const string example = @"
                 Only the fool would take trouble to verify that his sentence was composed of 

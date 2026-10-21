@@ -1,13 +1,32 @@
-﻿
+
 using System.Diagnostics;
+using System.Numerics;
 
 namespace Autogram
 {
     public class AutogramConfig
     {
         public required IList<CharacterConfig> AllChars { get; init; }
+        public required AutogramInput Input { get; init; }
 
         public IEnumerable<CharacterConfig> VariableChars => AllChars.Where(p => p.IsVariable);
+
+        /// <summary>
+        /// Combines proposed variable counts with fixed character counts into an independent snapshot.
+        /// </summary>
+        /// <param name="proposedCounts">Counts indexed by each variable character in the same order as <see cref="VariableChars"/>.</param>
+        public AutogramSnapshot GetAutogramSnapshot<T>(IReadOnlyList<T> proposedCounts)
+            where T : IBinaryInteger<T>
+        {
+            var variableLetters = this.VariableChars.ToList();
+
+            var charCounts = AllChars.Select(p => (
+                p.Char,
+                Count: p.IsVariable ? int.CreateChecked(proposedCounts[variableLetters.IndexOf(p)]) : p.MinimumCount
+            )).Where(p => p.Count > 0);
+
+            return new AutogramSnapshot(Input, charCounts);
+        }
 
         public byte[][][] GetNumericCounts()
         {
@@ -29,7 +48,7 @@ namespace Autogram
     }
 
     [DebuggerDisplay("{Char.ToString()}")]
-    public class CharacterConfig(string separator)
+    public class CharacterConfig(string separator, string pluralSuffix)
     {
         public required int Index { get; init; }
         public required char Char { get; init; }
@@ -37,8 +56,20 @@ namespace Autogram
         /// <summary>
         /// Baseline count of the character <c>Char</c> 
         /// </summary>
-        /// <remarks>Baseline is defined as present in template, conjunction or any of the pluralised extended chars (eg, 'commas')</remarks>
-        public required int BaselineCount { get; set; }
+        /// <remarks>Characters present in the template and conjunction, before generated list entries.</remarks>
+        public required int BaselineCount { get; init; }
+
+        /// <summary>
+        /// The guaranteed self count of the character <c>Char</c>.
+        /// Literal characters contribute a self-reference when present in the template
+        /// or conjunction, or when forced. Word-named characters contribute no literal
+        /// self-reference; their names are counted separately.
+        /// </summary>
+        public int GuaranteedSelfCount => IncludeSelfInCount && (BaselineCount > 0 || Forced) ? 1 : 0;
+
+        public int InvariantMinimumContribution { get; set; }
+
+        public int GuaranteedNameContribution { get; set; }
 
         /// <summary>
         /// The minimum count of the character <c>Char</c> that is required in the autogram, 
@@ -49,7 +80,7 @@ namespace Autogram
         /// * plus the counts of the chars in the cardinals of the invariant characters.<br/>
         /// For invariant chars this is the actual count.
         /// </remarks>
-        public required int MinimumCount { get; set; }
+        public int MinimumCount => BaselineCount + GuaranteedSelfCount + InvariantMinimumContribution + GuaranteedNameContribution;
         
         /// <summary>
         /// Gets a value indicating whether the character count is variable, or fixed from the outset.
@@ -58,7 +89,8 @@ namespace Autogram
         /// Variable means it is present in the numeric alphabet and can vary.<br/>
         /// Non-Variable chars can have their counts precomputed.</remarks>
         public required bool IsVariable { get; init; }
-        public required int? VariableIndex { get; init; }
+        
+        public int InvariantBaselineContribution { get; set; }
 
         /// <summary>
         /// The variable baseline count
@@ -66,29 +98,46 @@ namespace Autogram
         /// <remarks>
         /// The <c>BaselineCount</c>
         /// Plus the counts of the chars in the cardinals of the invariant characters.
+        /// Note that this may be one lower than the MinimumCount - on the basis that the solver loop handles the addition of the letter itself.
         /// </remarks>
-        public required int? VariableBaselineCount { get; set; }
+        public int? VariableBaselineCount => IsVariable ? BaselineCount + InvariantBaselineContribution : null;
 
         /// <summary>
-        /// For the separator chars (comma and space typically) it should be reduced by 2 because in the itemised string they don't appear on the last two entries.
+        /// Omit the separator from this guaranteed entry's lookup table. Two entries
+        /// omit it when a conjunction is used; one omits it for a plain joined list.
         /// </summary>
-        public int PerDistinctCountModifier => separator.Contains(this.Char) ? -2 : 0;
+        public bool OmitSeparator { get; set; }
 
-        public bool IncludeSelfInCount => Char.HasExtendedName() == false;
+        public string EntrySeparator => OmitSeparator ? string.Empty : separator;
+
+        public bool IncludeSelfInCount => Char.HasWordName() == false;
+
+        public required bool Forced { get; init; }
 
         public byte[][] GetStringRepresentationFrequencies(IEnumerable<char> chars)
         {
-            return this.GetStringRepresentations().Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
+            var list = this.GetStringRepresentations();
+            return list.Select(p => p.GetFrequencies(chars).ToByteArray()).ToArray();
         }
 
         private IList<string> GetStringRepresentations()
         {
-            return Enumerable.Range(0, 100).Select(StringRepresentationFor).ToList();
+            return Enumerable.Range(0, 100).Select(p => StringRepresentationFor((byte)p)).ToList();
         }
 
-        private string StringRepresentationFor(int i)
+        /// <summary>
+        /// Formats a lookup entry, optionally excluding an ordinary character whose
+        /// self-reference has already been included in the minimum count.
+        /// Word names are always retained in full.
+        /// </summary>
+        internal string StringRepresentationFor(byte i, bool includeSelf = true)
         {
-            return i.ToCardinalNumberString() + " " + (IncludeSelfInCount ? this.Char.GetCharacterName(i) : string.Empty) + separator;
+            var name = Char.GetCharacterName(i, pluralSuffix);
+            if (!includeSelf && IncludeSelfInCount)
+            {
+                name = name[1..];
+            }
+            return i.ToCardinalNumberStringPrecomputed() + " " + name + EntrySeparator;
         }
     }
 }

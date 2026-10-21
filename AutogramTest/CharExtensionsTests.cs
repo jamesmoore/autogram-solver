@@ -4,6 +4,8 @@ namespace AutogramTest
 {
     public class CharExtensionsTests
     {
+        private const string PluralSuffix = "'s";
+
         [Theory]
         [InlineData(1,',', "comma")]
         [InlineData(1, '-', "hyphen")]
@@ -17,7 +19,7 @@ namespace AutogramTest
         [InlineData(2, 'a', "a's")]
         public void GetCharacterName_ReturnsExpectedName(int count, char character, string expected)
         {
-            var result = character.GetCharacterName(count);
+            var result = character.GetCharacterName(count, PluralSuffix);
             Assert.Equal(expected, result);
         }
 
@@ -28,25 +30,26 @@ namespace AutogramTest
         [InlineData(' ', 3, "spaces")]
         public void GetCharacterName_WithCount_ReturnsExpected(char character, int count, string expected)
         {
-            var result = character.GetCharacterName(count);
+            var result = character.GetCharacterName(count, PluralSuffix);
             Assert.Equal(expected, result);
         }
 
         [Theory]
         [InlineData('a', false)]
         [InlineData(',', true)]
-        public void HasExtendedName_ReturnsExpected(char character, bool expected)
+        public void HasWordName_ReturnsExpected(char character, bool expected)
         {
-            var result = character.HasExtendedName();
+            var result = character.HasWordName();
             Assert.Equal(expected, result);
         }
 
         [Fact]
         public void GetPluralisedCharacterName_ReturnsApostropheSWithoutBackslash()
         {
-            var result = 'a'.GetCharacterName(2);
+            var result = 'a'.GetCharacterName(2, PluralSuffix);
             Assert.Equal("a's", result);
         }
+
         [Theory]
         [InlineData('a', 1, "one a")]
         [InlineData('a', 2, "two a's")]
@@ -55,7 +58,7 @@ namespace AutogramTest
         [InlineData('a', 0, "")]
         public void ToListEntry_ReturnsExpected(char character, int quantity, string expected)
         {
-            var result = character.ToListEntry(quantity);
+            var result = AutogramSnapshot.ToListEntry(character, quantity, PluralSuffix);
             Assert.Equal(expected, result);
         }
     }

@@ -12,6 +12,7 @@ namespace AutogramTest
         private const int RandomSeed = 2021428396; // cherry picked for fast resolve
         private const string Conjunction = " and lastly ";
         private const string SeparatorString = ", ";
+        private const string PluralSuffix = "'s";
 
         private static void RunAutogramTest<TAutogram>(
             Func<AutogramConfig, int, TAutogram> factory,
@@ -27,7 +28,7 @@ namespace AutogramTest
                 i++;
                 if (status.Success)
                 {
-                    var result = sut.GetAutogramSnapshot().ToString(defaultTemplate, Conjunction, SeparatorString);
+                    var result = sut.GetAutogramSnapshot().ToString();
                     Assert.True(result.IsAutogram());
                     Assert.Equal(expectedIterations, i);
                     break;
@@ -37,13 +38,22 @@ namespace AutogramTest
 
         private static AutogramConfig GetConfig()
         {
-            return new AutogramConfigFactory().MakeAutogramConfig(
-                "abcdefghijklmnopqrstuvwxyz",
-                defaultTemplate,
-                Conjunction,
-                SeparatorString,
-                "'s",
-                "");
+            AutogramInput input = GetDefaultAutogramInput();
+
+            return new AutogramConfigFactory().MakeAutogramConfig(input);
+        }
+
+        private static AutogramInput GetDefaultAutogramInput()
+        {
+            return new AutogramInput
+            {
+                Alphabet = "abcdefghijklmnopqrstuvwxyz",
+                Template = defaultTemplate,
+                Conjunction = Conjunction,
+                SeparatorString = SeparatorString,
+                PluralSuffix = PluralSuffix,
+                Forced = ""
+            };
         }
 
         [Fact]
@@ -211,16 +221,15 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey16.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
                         BaselineCount = 0,
-                        MinimumCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
                     })
                     .ToList(),
             };
@@ -233,16 +242,15 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey32.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
                         BaselineCount = 0,
-                        MinimumCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
                     })
                     .ToList(),
             };
@@ -255,16 +263,15 @@ namespace AutogramTest
         {
             var autogramConfig = new AutogramConfig
             {
+                Input = GetDefaultAutogramInput(),
                 AllChars = Enumerable.Range(0, ByteHistoryKey64.MaxLength + 1)
-                    .Select(i => new CharacterConfig(", ")
+                    .Select(i => new CharacterConfig(", ", PluralSuffix)
                     {
                         Index = i,
                         Char = (char)('a' + i),
                         BaselineCount = 0,
-                        MinimumCount = 0,
                         IsVariable = true,
-                        VariableIndex = i,
-                        VariableBaselineCount = 0,
+                        Forced = false,
                     })
                     .ToList(),
             };

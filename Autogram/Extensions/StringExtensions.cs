@@ -17,13 +17,20 @@ namespace Autogram.Extensions
         public static Dictionary<char, int> GetStatedFrequency(this string sentence)
         {
             var lower = sentence.ToLower();
-            lower = lower.Replace("commas", ",'s");
-            lower = lower.Replace("hyphens", "-'s");
-            lower = lower.Replace("apostrophes", "''s");
-            lower = lower.Replace("spaces", " 's");
+            // Replace all plural names before singular names, which may be their prefixes.
+            foreach (var (character, names) in CharacterNames.NamedCharacters)
+            {
+                lower = lower.Replace(names.Plural, character + "'s");
+            }
+
+            foreach (var (character, names) in CharacterNames.NamedCharacters)
+            {
+                lower = lower.Replace(names.Singular, character.ToString());
+            }
 
             // Match patterns like: "eight a's", "twenty-seven s's", etc.
-            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?\b";
+            // Punctuation declarations also need to end before punctuation, whitespace, or end of input.
+            var pattern = @"\b(" + string.Join("|", wordToNumber.Keys) + @") ([a-z,\-' ])(?:'s)?(?!\w)";
             var matches = Regex.Matches(lower, pattern);
 
             var dictionary = new Dictionary<char, int>();
@@ -34,7 +41,7 @@ namespace Autogram.Extensions
                 char letter = match.Groups[2].Value[0];
 
                 if (!wordToNumber.TryGetValue(wordNumber, out int declaredCount))
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"Unrecognized number word '{wordNumber}' while parsing stated frequencies.");
 
                 dictionary.Add(letter, declaredCount);
             }
@@ -62,6 +69,7 @@ namespace Autogram.Extensions
 
                 if (item.Value != count)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Mismatch for '{item.Key}': expected {item.Value}, found {count}");
                     return false;
                 }
             }

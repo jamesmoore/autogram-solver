@@ -61,14 +61,16 @@ namespace AutogramBenchmark
         [GlobalSetup]
         public void Setup()
         {
+            var autogramInput = new AutogramInput {
+                Alphabet = "abcdefghijklmnopqrstz",
+                Template = "This sentence employs {0}.",
+                Conjunction = " and ",
+                SeparatorString = ", ",
+                PluralSuffix = "'s",
+                Forced = "z",
+            };
             var factory = new AutogramConfigFactory();
-            autogramConfig = factory.MakeAutogramConfig(
-                "abcdefghijklmnopqrstz",
-                "This sentence employs {0}.",
-                " and ",
-                ", ",
-                "'s",
-                "z");
+            autogramConfig = factory.MakeAutogramConfig(autogramInput);
         }
 
         //[IterationSetup(Targets = new[] { nameof(AutogramBytesNoStringsV4_Solve_Average_Batched_Seeds) })]
