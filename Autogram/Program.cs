@@ -223,7 +223,7 @@ void DoAutogramSearch(
                 double collisionRate = historyCount == 0 ? 0 : (double)excessCollisionEntries / historyCount;
                 long observedPairs = hashGroupSizes.Sum(count => (long)count * (count - 1) / 2);
                 // Expected colliding pairs for uniformly distributed 32-bit hash codes.
-                double expectedPairs = (double)historyCount * (historyCount - 1) / (2 * 4294967296.0);
+                double expectedPairs = (double)historyCount * (historyCount - 1) / (2L << 32);
                 int largestHashGroup = hashGroupSizes.DefaultIfEmpty(0).Max();
 
                 Console.WriteLine("Hash metrics (current search history):");
